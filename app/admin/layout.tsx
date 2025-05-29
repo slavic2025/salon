@@ -1,65 +1,66 @@
 // app/admin/layout.tsx
-import { createClient } from '@/lib/supabase'
 import { redirect } from 'next/navigation'
-import { createLogger } from '@/lib/logger'
-import React from 'react'
 
-const logger = createLogger('AdminLayout')
+import { MainNav } from '@/components/dashboard/main-nav'
+import { UserNav } from '@/components/dashboard/user-nav'
+import { DashboardSidebar } from '@/components/dashboard/sidebar'
+import { Toaster } from '@/components/ui/sonner'
 
-export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  logger.info('AdminLayout: Checking user authentication and role.')
+import { createClient } from '@/lib/supabase' // Import the Supabase client
 
+interface AdminLayoutProps {
+  children: React.ReactNode
+}
+
+export default async function AdminLayout({ children }: AdminLayoutProps) {
   const supabase = await createClient()
 
+  // SCHIMBĂ AICI: Folosește getUser() pentru a valida sesiunea
   const {
     data: { user },
-    error: userError,
   } = await supabase.auth.getUser()
+  // user va fi null dacă nu există sesiune validă
 
-  if (userError || !user) {
-    logger.warn('AdminLayout: No user session found or error fetching user. Redirecting to login.')
-    redirect('/login') // Redirecționează la login dacă nu e autentificat
-  }
-
-  // Preia profilul utilizatorului pentru a verifica rolul
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
-
-  if (profileError || !profile) {
-    logger.error('AdminLayout: Error fetching user profile for authorization.', {
-      userId: user.id,
-      error: profileError?.message,
-    })
-    redirect('/login') // Redirecționează la login dacă profilul nu poate fi preluat
-  }
-
-  if (profile.role !== 'admin' && profile.role !== 'stylist') {
-    logger.warn(`AdminLayout: User ${user.id} has insufficient role (${profile.role}). Redirecting to login.`)
-    // Poți crea o pagină de "Access Denied" în loc de /login
+  // Dacă nu există utilizator valid, redirecționează
+  if (!user) {
     redirect('/login')
   }
 
-  logger.info(`AdminLayout: User ${user.id} with role ${profile.role} is authorized.`)
+  // Acum poți folosi user.id pentru a prelua profilul
+  const { data: profile, error } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id) // Folosește user.id de la getUser()
+    .single()
+
+  if (error) {
+    console.error('Error fetching profile:', error)
+    // Handle the error appropriately, perhaps redirecting to an error page
+    redirect('/error') // Example: redirect to an error page
+  }
+
+  const userRole = profile?.role
+
+  // Check if the user is authenticated and has the correct role.
+  if (userRole !== 'admin' && userRole !== 'stylist') {
+    redirect('/login')
+  }
 
   return (
-    <div>
-      {/* Aici poți adăuga un header/sidebar specific adminului */}
-      <nav className="bg-gray-800 text-white p-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold">Panou Administrare</h1>
-        <form action="/auth/sign-out" method="post">
-          {' '}
-          {/* Folosim o formă pentru Server Action de logout */}
-          <button type="submit" className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
-            Deconectare
-          </button>
-        </form>
-      </nav>
-      <main className="p-4">
-        {children} {/* Conținutul paginii de admin */}
-      </main>
+    <div className="flex min-h-screen flex-col">
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="flex h-16 items-center px-4">
+          <MainNav />
+          <div className="ml-auto flex items-center space-x-4">
+            <UserNav />
+          </div>
+        </div>
+      </header>
+      <div className="flex flex-1">
+        <DashboardSidebar />
+        <main className="flex-1 p-8 pt-6">{children}</main>
+      </div>
+      <Toaster />
     </div>
   )
 }
