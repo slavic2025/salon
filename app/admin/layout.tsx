@@ -4,7 +4,6 @@ import { redirect } from 'next/navigation'
 import { MainNav } from '@/components/dashboard/main-nav'
 import { UserNav } from '@/components/dashboard/user-nav'
 import { DashboardSidebar } from '@/components/dashboard/sidebar'
-import { Toaster } from '@/components/ui/sonner'
 
 import { createClient } from '@/lib/supabase' // Import the Supabase client
 
@@ -60,7 +59,6 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
         <DashboardSidebar />
         <main className="flex-1 p-8 pt-6">{children}</main>
       </div>
-      <Toaster />
     </div>
   )
 }
