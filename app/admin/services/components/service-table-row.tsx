@@ -12,25 +12,32 @@ interface ServiceTableRowProps {
   service: ServiceData
 }
 
+function ActiveBadge({ isActive }: { isActive: boolean }) {
+  return (
+    <span className={isActive ? 'text-green-600 font-medium' : 'text-red-600 font-medium'}>
+      {isActive ? 'Da' : 'Nu'}
+    </span>
+  )
+}
+
 export function ServiceTableRow({ service }: ServiceTableRowProps) {
   return (
-    <TableRow key={service.id}>
-      <TableCell className="font-medium">{service.name}</TableCell>
-      <TableCell>{service.description}</TableCell>
-      <TableCell>{service.duration_minutes}</TableCell>
-      <TableCell>
+    <TableRow>
+      <TableCell className="font-medium text-left border-r">{service.name}</TableCell>
+      <TableCell className="text-left border-r">{service.description || '-'}</TableCell>
+      <TableCell className="text-right border-r">{service.duration_minutes}</TableCell>
+      <TableCell className="text-right border-r">
         {service.price.toFixed(2)} {DEFAULT_CURRENCY_SYMBOL}
       </TableCell>
-      <TableCell>{service.category}</TableCell>
-      <TableCell>
-        {service.is_active ? <span className="text-green-500">Da</span> : <span className="text-red-500">Nu</span>}
+      <TableCell className="text-left border-r">{service.category || '-'}</TableCell>
+      <TableCell className="text-right border-r">
+        <ActiveBadge isActive={service.is_active} />
       </TableCell>
-      <TableCell className="text-right flex items-center justify-end gap-2">
+      <TableCell className="flex items-center gap-2">
         <EditServiceDialog service={service} />
         <form action={deleteServiceActionForm} className="inline-block">
-          {' '}
           <input type="hidden" name="id" value={service.id} />
-          <SubmitButton variant="destructive" size="sm">
+          <SubmitButton variant="destructive" size="sm" aria-label={`Șterge serviciul ${service.name}`}>
             Șterge
           </SubmitButton>
         </form>

@@ -2,18 +2,22 @@
 'use client'
 
 import { ServiceData } from '@/app/admin/services/types'
-// !!!!!!!!! MODIFICARE AICI: Importă funcția wrapper corectă !!!!!!!!!
-import { deleteServiceActionForm } from '@/app/admin/services/actions' // Acum importăm deleteServiceActionForm
+import { deleteServiceActionForm } from '@/app/admin/services/actions'
 import { EditServiceDialog } from '@/app/admin/services/components/edit-service-dialog'
 import { SubmitButton } from '@/components/ui/submit-button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { DEFAULT_CURRENCY_SYMBOL } from '@/lib/constants'
+import { SERVICE_DISPLAY_FIELDS } from './service-display-fields'
+import { createLogger } from '@/lib/logger'
+
+const logger = createLogger('ServiceCard')
 
 interface ServiceCardProps {
   service: ServiceData
 }
 
 export function ServiceCard({ service }: ServiceCardProps) {
+  logger.debug('Rendering ServiceCard', { serviceId: service.id, serviceName: service.name })
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -21,32 +25,23 @@ export function ServiceCard({ service }: ServiceCardProps) {
         {service.description && <CardDescription className="text-gray-600">{service.description}</CardDescription>}
       </CardHeader>
       <CardContent className="grid gap-2">
-        <div className="flex items-center justify-between">
-          <span className="font-semibold">Durata:</span>
-          <span>{service.duration_minutes} min</span>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="font-semibold">Preț:</span>
-          <span>
-            {service.price.toFixed(2)} {DEFAULT_CURRENCY_SYMBOL}
-          </span>
-        </div>
-        {service.category && (
-          <div className="flex items-center justify-between">
-            <span className="font-semibold">Categorie:</span>
-            <span>{service.category}</span>
-          </div>
-        )}
-        <div className="flex items-center justify-between">
-          <span className="font-semibold">Activ:</span>
-          <span>
-            {service.is_active ? (
-              <span className="text-green-600 font-medium">Da</span>
-            ) : (
-              <span className="text-red-600 font-medium">Nu</span>
-            )}
-          </span>
-        </div>
+        {SERVICE_DISPLAY_FIELDS.map((field) => {
+          const value = service[field.id]
+
+          if (field.hideIfEmpty && (!value || (typeof value === 'string' && value.trim() === ''))) {
+            logger.debug(`Hiding empty field "${field.id}" for service "${service.name}"`)
+            return null
+          }
+
+          return (
+            <div key={field.id} className="flex items-center justify-between">
+              <span className="font-semibold">{field.label}:</span>
+              <span>
+                {field.format ? (field.format as (val: typeof value) => React.ReactNode)(value) : String(value)}
+              </span>
+            </div>
+          )
+        })}
       </CardContent>
       <CardFooter className="flex justify-end gap-2 p-4 pt-0">
         <EditServiceDialog service={service} />

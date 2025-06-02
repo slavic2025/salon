@@ -1,6 +1,6 @@
 // app/admin/services/form-fields.ts
 import { DEFAULT_CURRENCY_SYMBOL } from '@/lib/constants'
-import { ServiceData } from './types'
+import { ServiceData } from '../types'
 
 /**
  * Definește structura unui singur câmp de formular.

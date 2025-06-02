@@ -3,8 +3,6 @@
 
 import { useEffect, useState } from 'react'
 import { useActionState } from 'react'
-import { useFormStatus } from 'react-dom'
-import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import {
@@ -20,6 +18,7 @@ import {
 import { ServiceFormFields } from '@/app/admin/services/components/service-form-fields'
 import { addServiceAction } from '@/app/admin/services/actions'
 import { ActionResponse } from '@/app/admin/services/types'
+import { SubmitButton } from '@/components/ui/submit-button'
 
 const INITIAL_FORM_STATE: ActionResponse = {
   success: false,
@@ -31,7 +30,6 @@ export function AddServiceDialog() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [dialogKey, setDialogKey] = useState(0)
   const [state, formAction] = useActionState(addServiceAction, INITIAL_FORM_STATE)
-  const { pending } = useFormStatus()
 
   const handleOpenChange = (open: boolean) => {
     setIsDialogOpen(open)
@@ -40,11 +38,9 @@ export function AddServiceDialog() {
     }
   }
 
-  // Efect pentru a gestiona răspunsul Server Action-ului și notificările toast
   useEffect(() => {
     if (state.success) {
       toast.success(state.message || 'Serviciul a fost adăugat cu succes!')
-      // Închide dialogul după un scurt delay, pentru a permite vizualizarea mesajului de succes
       const timer = setTimeout(() => {
         setIsDialogOpen(false)
       }, 1500)
@@ -55,17 +51,13 @@ export function AddServiceDialog() {
     } else if (state.errors) {
       toast.error('Eroare de validare! Verificați câmpurile marcate.')
     }
-  }, [state]) // Se execută la fiecare modificare a stării acțiunii
+  }, [state])
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button>Adaugă Serviciu Nou</Button>
       </DialogTrigger>
-
-      {/* Condițional, randează DialogContent cu o cheie unică. */}
-      {/* Când isDialogOpen devine true, dialogKey se schimbă, forțând re-montarea */}
-      {/* a DialogContent și a tuturor componentelor sale interne (inclusiv useActionState). */}
       {isDialogOpen && (
         <DialogContent key={dialogKey} className="sm:max-w-[425px]">
           <DialogHeader>
@@ -84,13 +76,10 @@ export function AddServiceDialog() {
           <form action={formAction} className="grid gap-4 py-4">
             <ServiceFormFields errors={state.errors} />
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} disabled={pending}>
+              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                 Anulează
               </Button>
-              <Button type="submit" disabled={pending}>
-                {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {pending ? 'Se adaugă...' : 'Adaugă Serviciu'}
-              </Button>
+              <SubmitButton idleText="Adaugă Serviciu" pendingText="Se adaugă..." />
             </DialogFooter>
           </form>
         </DialogContent>
