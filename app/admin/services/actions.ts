@@ -11,10 +11,10 @@ import {
   deleteService,
   Service,
   addServiceSchema,
-  serviceInputSchema,
 } from '@/lib/db/service-core'
-import { ActionResponse } from './types'
 import { extractServiceDataFromForm, formatZodErrors } from '@/utils/form'
+import { ActionResponse } from '@/lib/types'
+import { serviceInputSchema } from '@/lib/zod/schemas'
 
 const logger = createLogger('ServiceActions')
 

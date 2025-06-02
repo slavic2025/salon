@@ -5,12 +5,7 @@ import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
-
-// Importă schema de login din utils/zod.ts
-import { loginSchema } from '@/utils/zod'
 import { z } from 'zod' // Necesit pentru `z.infer`
-
-// Importă componentele shadcn/ui (asigură-te că ai adăugat componenta 'form' cu comanda de mai sus)
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
@@ -19,6 +14,7 @@ import { ExclamationTriangleIcon } from '@radix-ui/react-icons'
 
 // Server Action pentru login
 import { signIn } from '@/app/auth/actions'
+import { loginSchema } from '@/lib/zod/schemas'
 
 type LoginInput = z.infer<typeof loginSchema>
 

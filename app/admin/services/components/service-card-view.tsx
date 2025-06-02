@@ -3,7 +3,7 @@
 
 import { ServiceData } from '@/app/admin/services/types'
 import { ServiceCard } from './service-card'
-import { EmptyState } from './empty-state'
+import { EmptyState } from '../../../../components/ui/empty-state'
 import { createLogger } from '@/lib/logger'
 
 const logger = createLogger('ServiceCardView')

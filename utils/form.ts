@@ -1,20 +1,54 @@
 // lib/utils/form.ts
+import { serviceInputSchema, stylistInputSchema } from '@/lib/zod/schemas'
 import { z } from 'zod'
-import { serviceInputSchema } from '@/lib/db/service-core'
 
-/**
- * Extrage și convertește datele din FormData într-un obiect Zod-friendly.
- * Este crucial să mapezi `is_active` de la 'on'/'off' la boolean.
- */
 export function extractServiceDataFromForm(formData: FormData): Partial<z.infer<typeof serviceInputSchema>> {
-  // Colectează toate câmpurile, asigurându-te că sunt de tipul potrivit pentru Zod
+  const name = formData.get('name')?.toString()
+  const description = formData.get('description')?.toString()
+  const durationMinutesStr = formData.get('duration_minutes')?.toString()
+  const priceStr = formData.get('price')?.toString()
+  const isActive = formData.get('is_active') === 'on'
+  const category = formData.get('category')?.toString()
+
+  let duration_minutes: number | undefined
+  if (durationMinutesStr) {
+    const parsed = parseInt(durationMinutesStr, 10)
+    duration_minutes = isNaN(parsed) ? undefined : parsed
+  } else {
+    duration_minutes = undefined
+  }
+
+  let price: number | undefined
+  if (priceStr) {
+    const parsed = parseFloat(priceStr)
+    price = isNaN(parsed) ? undefined : parsed
+  } else {
+    price = undefined
+  }
+
   return {
-    name: formData.get('name')?.toString() || undefined,
-    description: formData.get('description')?.toString() || undefined,
-    duration_minutes: formData.get('duration_minutes') ? Number(formData.get('duration_minutes')) : undefined,
-    price: formData.get('price') ? Number(formData.get('price')) : undefined,
-    is_active: formData.get('is_active') === 'on' || formData.get('is_active') === 'true',
-    category: formData.get('category')?.toString() || undefined,
+    name: name || undefined,
+    description: description === '' ? null : description || undefined,
+    duration_minutes: duration_minutes,
+    price: price,
+    is_active: isActive,
+    category: category === '' ? null : category || undefined,
+  }
+}
+
+export function extractStylistDataFromForm(formData: FormData): Partial<z.infer<typeof stylistInputSchema>> {
+  const name = formData.get('name')?.toString()
+  const email = formData.get('email')?.toString()
+  const phone = formData.get('phone')?.toString()
+  const description = formData.get('description')?.toString()
+  const isActive = formData.get('is_active') === 'on'
+
+  return {
+    name: name || undefined,
+    email: email || undefined,
+    phone: phone === '' ? null : phone || undefined,
+    description: description === '' ? null : description || undefined,
+    is_active: isActive,
   }
 }
 
@@ -29,8 +63,6 @@ export function formatZodErrors<T>(error: z.ZodError<T>): Record<keyof T | '_for
 
   error.errors.forEach((err) => {
     if (err.path && err.path.length > 0) {
-      // Presupunem un singur nivel pentru path-uri pentru simplitate în UI.
-      // Dacă ai path-uri imbricate (ex: 'adresa.strada'), ar trebui să ajustezi logica.
       const fieldName = err.path[0] as keyof T
       const key = fieldName as string
 

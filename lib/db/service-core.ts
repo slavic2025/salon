@@ -2,6 +2,7 @@
 import { createClient } from '@/lib/supabase'
 import { z } from 'zod'
 import { createLogger } from '@/lib/logger'
+import { serviceInputSchema } from '../zod/schemas'
 
 const logger = createLogger('DB_ServiceCore') // Logger specific pentru logica de bază
 
@@ -20,29 +21,9 @@ export type Service = {
   category: string | null
 }
 
-// --- Zod Schemas pentru Validare ---
-// Schemele Zod definesc forma datelor așteptate pentru inserare/actualizare
-export const serviceInputSchema = z.object({
-  name: z.string().min(1, { message: 'Numele serviciului este obligatoriu.' }),
-  description: z.string().nullable(),
-  duration_minutes: z.preprocess(
-    (val) => parseInt(String(val), 10),
-    z.number().int().positive({ message: 'Durata trebuie să fie un număr întreg pozitiv.' })
-  ),
-  price: z.preprocess(
-    (val) => parseFloat(String(val)),
-    z
-      .number()
-      .positive({ message: 'Prețul trebuie să fie un număr pozitiv.' })
-      .multipleOf(0.01, { message: 'Prețul poate avea maxim două zecimale.' })
-  ),
-  is_active: z.preprocess((val) => val === 'on' || val === true, z.boolean().default(true)), // Handle both 'on' from FormData and boolean from typed input
-  category: z.string().nullable(),
-})
-
-export const addServiceSchema = serviceInputSchema // Schema pentru adăugare este aceeași ca input
+export const addServiceSchema = serviceInputSchema
 export const editServiceSchema = serviceInputSchema.extend({
-  id: z.string().uuid({ message: 'ID-ul serviciului este invalid.' }), // Extinde schema pentru editare cu un ID obligatoriu
+  id: z.string().uuid({ message: 'ID-ul serviciului este invalid.' }),
 })
 
 // --- Funcții de Interacțiune cu Baza de Date ---

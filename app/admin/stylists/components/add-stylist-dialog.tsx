@@ -1,4 +1,4 @@
-// app/admin/services/components/add-service-dialog.tsx
+// app/admin/stylists/components/add-stylist-dialog.tsx
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -15,24 +15,20 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 
-import { ServiceFormFields } from '@/app/admin/services/components/service-form-fields'
-import { addServiceAction } from '@/app/admin/services/actions'
+import { StylistFormFields } from '@/app/admin/stylists/components/stylist-form-fields'
+import { addStylistAction } from '@/app/admin/stylists/actions'
 import { SubmitButton } from '@/components/ui/submit-button'
-import { ActionResponse } from '@/lib/types'
+import { StylistActionResponse, INITIAL_FORM_STATE } from '@/app/admin/stylists/types'
 
-const INITIAL_FORM_STATE: ActionResponse = {
-  success: false,
-  message: undefined,
-  errors: undefined,
-}
-
-export function AddServiceDialog() {
+export function AddStylistDialog() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [dialogKey, setDialogKey] = useState(0)
-  const [state, formAction] = useActionState(addServiceAction, INITIAL_FORM_STATE)
+  const [state, formAction] = useActionState<StylistActionResponse, FormData>(addStylistAction, INITIAL_FORM_STATE)
 
   const handleOpenChange = (open: boolean) => {
     setIsDialogOpen(open)
+    // Când dialogul se deschide, incrementează cheia pentru a forța re-renderarea formularului
+    // Acest lucru resetează starea internă a formularului și erorile.
     if (open) {
       setDialogKey((prevKey) => prevKey + 1)
     }
@@ -40,13 +36,13 @@ export function AddServiceDialog() {
 
   useEffect(() => {
     if (state.success) {
-      toast.success(state.message || 'Serviciul a fost adăugat cu succes!')
+      toast.success(state.message || 'Stilistul a fost adăugat cu succes!')
       const timer = setTimeout(() => {
         setIsDialogOpen(false)
       }, 1500)
       return () => clearTimeout(timer)
     } else if (state.message && !state.errors) {
-      console.error('Eroare la adăugarea serviciului:', state.message)
+      console.error('Eroare la adăugarea stilistului:', state.message)
       toast.error(state.message)
     } else if (state.errors) {
       toast.error('Eroare de validare! Verificați câmpurile marcate.')
@@ -56,30 +52,30 @@ export function AddServiceDialog() {
   return (
     <Dialog open={isDialogOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button>Adaugă Serviciu Nou</Button>
+        <Button>Adaugă Stilist Nou</Button>
       </DialogTrigger>
-
+      {/* Elimină condiția `isDialogOpen &&` de aici. DialogContent își gestionează vizibilitatea singur. */}
       <DialogContent key={dialogKey} className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Adaugă Serviciu Nou</DialogTitle>
-          <DialogDescription>Completează detaliile pentru noul serviciu.</DialogDescription>
+          <DialogTitle>Adaugă Stilist Nou</DialogTitle>
+          <DialogDescription>Completează detaliile pentru noul stilist.</DialogDescription>
         </DialogHeader>
         {state.success && (
           <div
             className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded relative text-center"
             role="alert"
           >
-            <span className="block">{state.message || 'Serviciul a fost adăugat cu succes!'}</span>
+            <span className="block">{state.message || 'Stilistul a fost adăugat cu succes!'}</span>
           </div>
         )}
 
         <form action={formAction} className="grid gap-4 py-4">
-          <ServiceFormFields errors={state.errors} />
+          <StylistFormFields errors={state.errors} />
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
               Anulează
             </Button>
-            <SubmitButton idleText="Adaugă Serviciu" pendingText="Se adaugă..." />
+            <SubmitButton idleText="Adaugă Stilist" pendingText="Se adaugă..." />
           </DialogFooter>
         </form>
       </DialogContent>

@@ -7,11 +7,12 @@ import { useFormStatus } from 'react-dom'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { DialogFooter } from '@/components/ui/dialog'
-import { ServiceData, ActionResponse } from '@/app/admin/services/types'
 import { editServiceAction } from '@/app/admin/services/actions'
 import { SubmitButton } from '@/components/ui/submit-button'
 import { createLogger } from '@/lib/logger'
 import { ServiceFormFields } from './service-form-fields'
+import { ActionResponse } from '@/lib/types'
+import { ServiceData } from '../types'
 
 const logger = createLogger('EditServiceForm')
 

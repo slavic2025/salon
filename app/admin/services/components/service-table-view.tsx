@@ -2,7 +2,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { ServiceData } from '@/app/admin/services/types'
 import { ServiceTableRow } from './service-table-row'
-import { EmptyState } from './empty-state'
+import { EmptyState } from '../../../../components/ui/empty-state'
 import { createLogger } from '@/lib/logger'
 import { SERVICE_TABLE_HEADERS } from './service-table-headers'
 
