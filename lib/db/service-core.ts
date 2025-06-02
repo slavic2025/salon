@@ -1,15 +1,17 @@
-// lib/db/services.ts
+// lib/db/service-core.ts
 import { createClient } from '@/lib/supabase'
 import { z } from 'zod'
-import { createLogger } from '@/lib/logger' // Importă logger-ul
+import { createLogger } from '@/lib/logger'
 
-const logger = createLogger('DB_Services') // Creează o instanță de logger pentru contextul "DB_Services"
+const logger = createLogger('DB_ServiceCore') // Logger specific pentru logica de bază
 
+// --- Tipuri de Date ---
 // Definirea unui tip pentru serviciu pentru a îmbunătăți siguranța tipurilor
+// Acesta reflectă structura datelor direct din baza de date
 export type Service = {
   id: string // UUID
-  created_at: string
-  updated_at: string
+  created_at: string // String ISO de la baza de date
+  updated_at: string // String ISO de la baza de date
   name: string
   description: string | null
   duration_minutes: number
@@ -18,7 +20,8 @@ export type Service = {
   category: string | null
 }
 
-// --- Zod Schemas for Validation ---
+// --- Zod Schemas pentru Validare ---
+// Schemele Zod definesc forma datelor așteptate pentru inserare/actualizare
 export const serviceInputSchema = z.object({
   name: z.string().min(1, { message: 'Numele serviciului este obligatoriu.' }),
   description: z.string().nullable(),
@@ -33,17 +36,17 @@ export const serviceInputSchema = z.object({
       .positive({ message: 'Prețul trebuie să fie un număr pozitiv.' })
       .multipleOf(0.01, { message: 'Prețul poate avea maxim două zecimale.' })
   ),
-  is_active: z.preprocess((val) => val === 'on', z.boolean().default(true)),
+  is_active: z.preprocess((val) => val === 'on' || val === true, z.boolean().default(true)), // Handle both 'on' from FormData and boolean from typed input
   category: z.string().nullable(),
 })
 
-export const addServiceSchema = serviceInputSchema
+export const addServiceSchema = serviceInputSchema // Schema pentru adăugare este aceeași ca input
 export const editServiceSchema = serviceInputSchema.extend({
-  id: z.string().uuid({ message: 'ID-ul serviciului este invalid.' }),
+  id: z.string().uuid({ message: 'ID-ul serviciului este invalid.' }), // Extinde schema pentru editare cu un ID obligatoriu
 })
 
-// --- Database Interaction Functions ---
-
+// --- Funcții de Interacțiune cu Baza de Date ---
+// Aceste funcții conțin logica pură de CRUD cu Supabase
 export async function fetchAllServices(): Promise<Service[]> {
   logger.debug('Attempting to fetch all services.')
   const supabase = await createClient()
@@ -81,7 +84,7 @@ export async function updateService(id: string, serviceData: z.infer<typeof serv
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('services')
-    .update({ ...serviceData, updated_at: new Date().toISOString() })
+    .update({ ...serviceData, updated_at: new Date().toISOString() }) // Actualizează timestamp-ul
     .eq('id', id)
     .select()
     .single()

@@ -1,5 +1,5 @@
 // lib/forms/service-form-fields.ts
-import { Service } from '@/lib/db/services' // Importăm tipul Service
+import { Service } from '@/lib/db/service-core' // Importăm tipul Service
 
 export type ServiceFormField = {
   id: keyof Omit<Service, 'id' | 'created_at' | 'updated_at'> // ID-urile câmpurilor, corespund cu cheile din Service

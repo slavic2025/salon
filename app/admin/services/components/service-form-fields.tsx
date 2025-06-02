@@ -18,14 +18,8 @@ export function ServiceFormFields({ initialData, errors, isEditMode = false }: S
   return (
     <>
       {SERVICE_FORM_FIELDS.map((field) => {
-        // Accesăm defaultValue într-un mod tipizat, fără 'as any'
-        // Type assertion `as ServiceData` este sigur aici deoarece verificăm `initialData`
         const defaultValue = initialData ? (initialData as ServiceData)[field.id] : undefined
-
-        // Accesăm erorile specifice câmpului, asigurându-ne că 'errors' și 'field.id' sunt valide.
-        // Tipul `string[] | undefined` este acum inferat corect de TypeScript.
         const fieldErrorMessages = errors && errors[field.id] ? errors[field.id] : undefined
-
         return (
           <div className="grid grid-cols-4 items-center gap-4" key={field.id}>
             <Label htmlFor={isEditMode ? `edit-${field.id}` : field.id} className="text-right">
@@ -35,14 +29,8 @@ export function ServiceFormFields({ initialData, errors, isEditMode = false }: S
               <Checkbox
                 id={isEditMode ? `edit-${field.id}` : field.id}
                 name={field.id}
-                // defaultChecked: pentru add (isEditMode=false), e true dacă e undefined, altfel valoarea inițială.
-                // Pentru edit (isEditMode=true), e valoarea inițială.
                 defaultChecked={
-                  isEditMode
-                    ? (defaultValue as boolean)
-                    : defaultValue === undefined
-                    ? true // Default la true pentru checkbox-uri noi dacă nu există defaultValue
-                    : (defaultValue as boolean)
+                  isEditMode ? (defaultValue as boolean) : defaultValue === undefined ? true : (defaultValue as boolean)
                 }
                 className="col-span-3"
               />
@@ -52,7 +40,6 @@ export function ServiceFormFields({ initialData, errors, isEditMode = false }: S
                 name={field.id}
                 type={field.type}
                 step={field.step}
-                // Convertim defaultValue la string doar dacă nu este undefined sau null
                 defaultValue={defaultValue !== undefined && defaultValue !== null ? String(defaultValue) : ''}
                 required={field.required}
                 className="col-span-3"

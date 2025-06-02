@@ -1,7 +1,5 @@
 // app/admin/services/form-fields.ts
-
-// Importăm ServiceData pentru a asigura tipizarea corectă a ID-urilor câmpurilor
-// Aceasta va asigura că `id` din `FormField` corespunde unei proprietăți existente în ServiceData.
+import { DEFAULT_CURRENCY_SYMBOL } from '@/lib/constants'
 import { ServiceData } from './types'
 
 /**
@@ -14,9 +12,9 @@ import { ServiceData } from './types'
  * `@property {string}` [placeholder] - Textul de placeholder pentru input
  */
 interface FormField {
-  id: keyof ServiceData // Asigură-te că id-ul corespunde cheilor din ServiceData
+  id: keyof ServiceData
   label: string
-  type: 'text' | 'number' | 'checkbox' | 'email' | 'password' | 'textarea' // Adăugat 'textarea' ca o opțiune posibilă
+  type: 'text' | 'number' | 'checkbox' | 'email' | 'password' | 'textarea'
   step?: string
   required?: boolean
   placeholder?: string
@@ -37,7 +35,7 @@ export const SERVICE_FORM_FIELDS: FormField[] = [
   {
     id: 'description',
     label: 'Descriere',
-    type: 'textarea', // Schimbat la 'textarea' pentru descrieri mai lungi
+    type: 'textarea',
     placeholder: 'O scurtă descriere a serviciului.',
   },
   {
@@ -49,9 +47,9 @@ export const SERVICE_FORM_FIELDS: FormField[] = [
   },
   {
     id: 'price',
-    label: 'Preț (RON)',
+    label: `Preț (${DEFAULT_CURRENCY_SYMBOL})`,
     type: 'number',
-    step: '0.01', // Permite valori cu zecimale
+    step: '0.01',
     required: true,
     placeholder: 'Ex: 50.00',
   },
@@ -65,7 +63,5 @@ export const SERVICE_FORM_FIELDS: FormField[] = [
     id: 'is_active',
     label: 'Activ',
     type: 'checkbox',
-    // Checkbox-urile nu au placeholder sau required în mod tipic,
-    // defaultChecked este gestionat în componenta UI care le randează.
   },
 ]

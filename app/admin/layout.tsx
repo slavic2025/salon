@@ -5,45 +5,57 @@ import { MainNav } from '@/components/dashboard/main-nav'
 import { UserNav } from '@/components/dashboard/user-nav'
 import { DashboardSidebar } from '@/components/dashboard/sidebar'
 
-import { createClient } from '@/lib/supabase' // Import the Supabase client
+import { createClient } from '@/lib/supabase'
+import { createLogger } from '@/lib/logger'
 
 interface AdminLayoutProps {
   children: React.ReactNode
 }
 
+const logger = createLogger('AdminLayout')
+
 export default async function AdminLayout({ children }: AdminLayoutProps) {
+  logger.debug('AdminLayout invoked: Starting authentication and authorization checks.')
+
   const supabase = await createClient()
 
-  // SCHIMBĂ AICI: Folosește getUser() pentru a valida sesiunea
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  // user va fi null dacă nu există sesiune validă
 
-  // Dacă nu există utilizator valid, redirecționează
   if (!user) {
+    logger.warn('AdminLayout: No user found. Redirecting to login.')
     redirect('/login')
   }
 
-  // Acum poți folosi user.id pentru a prelua profilul
-  const { data: profile, error } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id) // Folosește user.id de la getUser()
-    .single()
+  logger.info('AdminLayout: User authenticated.', { userId: user.id })
+
+  const { data: profile, error } = await supabase.from('profiles').select('role').eq('id', user.id).single()
 
   if (error) {
-    console.error('Error fetching profile:', error)
-    // Handle the error appropriately, perhaps redirecting to an error page
-    redirect('/error') // Example: redirect to an error page
+    logger.error('AdminLayout: Error fetching user profile from database.', {
+      userId: user.id,
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+      code: error.code,
+    })
+    redirect('/error')
   }
 
   const userRole = profile?.role
 
-  // Check if the user is authenticated and has the correct role.
+  logger.info('AdminLayout: User role retrieved.', { userId: user.id, userRole })
+
   if (userRole !== 'admin' && userRole !== 'stylist') {
+    logger.warn('AdminLayout: User does not have required role (admin or stylist). Redirecting to login.', {
+      userId: user.id,
+      userRole: userRole || 'none',
+    })
     redirect('/login')
   }
+
+  logger.info('AdminLayout: User authorized. Rendering admin content.', { userId: user.id, userRole })
 
   return (
     <div className="flex min-h-screen flex-col">

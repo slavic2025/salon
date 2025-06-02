@@ -1,25 +1,24 @@
 // app/admin/services/page.tsx
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-
-// Importăm Server Action-urile necesare
 import { getServicesAction } from './actions'
-
-// Importăm componentele specifice funcționalității (acum sunt organizate)
+import { ServiceData } from './types'
 import { AddServiceDialog } from './components/add-service-dialog'
 import { ServiceTableRow } from './components/service-table-row'
+import { ServiceCard } from './components/service-card'
+
 export default async function AdminServicesPage() {
-  // Preluarea serviciilor se face pe server, pentru performanță
-  const services = await getServicesAction()
+  const services: ServiceData[] = await getServicesAction()
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">Gestionare Servicii</h2>
-        {/* Butonul și dialogul de adăugare serviciu */}
+    <div className="space-y-6 p-4 md:p-6 lg:p-8">
+      {' '}
+      {/* Adăugăm padding responsiv */}
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Gestionare Servicii</h2>
         <AddServiceDialog />
       </div>
-
-      <div className="rounded-md border">
+      {/* Vizualizare pentru Desktop: Tabel (vizibil de la md: - medium screens și mai mari) */}
+      <div className="rounded-md border hidden md:block">
         <Table>
           <TableHeader>
             <TableRow>
@@ -35,16 +34,25 @@ export default async function AdminServicesPage() {
           <TableBody>
             {services.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">
+                <TableCell colSpan={7} className="h-24 text-center text-gray-500">
                   Nu există servicii.
                 </TableCell>
               </TableRow>
             ) : (
-              // Randează ServiceTableRow pentru fiecare serviciu
               services.map((service) => <ServiceTableRow key={service.id} service={service} />)
             )}
           </TableBody>
         </Table>
+      </div>
+      {/* Vizualizare pentru Mobil: Liste de Carduri (vizibilă sub md: - medium screens) */}
+      <div className="md:hidden grid grid-cols-1 gap-4">
+        {services.length === 0 ? (
+          <div className="h-24 flex items-center justify-center text-gray-500 border rounded-md">
+            Nu există servicii.
+          </div>
+        ) : (
+          services.map((service) => <ServiceCard key={service.id} service={service} />)
+        )}
       </div>
     </div>
   )
