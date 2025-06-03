@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
 import { createLogger } from '@/lib/logger'
 import { ActionResponse } from '@/lib/types'
-import { formatZodErrors } from '@/utils/form'
+import { formatZodErrors } from '@/lib/form'
 
 const commonLogger = createLogger('CommonActions')
 

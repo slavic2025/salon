@@ -7,7 +7,7 @@ import { createLogger } from '@/lib/logger'
 import { insertStylist, updateStylist, deleteStylist, fetchAllStylists } from '@/lib/db/stylist-core'
 import { ActionResponse } from '@/lib/types' // Asigură-te că acest tip `ActionResponse` este definit
 import { addStylistSchema } from '@/lib/zod/schemas'
-import { extractStylistDataFromForm, formatZodErrors } from '@/utils/form'
+import { extractStylistDataFromForm, formatZodErrors } from '@/lib/form'
 import { StylistData } from './types'
 
 const logger = createLogger('StylistActions')

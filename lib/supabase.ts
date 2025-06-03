@@ -2,7 +2,7 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { createLogger } from '@/lib/logger'
-import { env } from '@/utils/env'
+import { env } from './utils/env'
 
 const logger = createLogger('SupabaseServerClient')
 
