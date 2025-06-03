@@ -2,7 +2,8 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { createLogger } from '@/lib/logger'
-import { env } from './utils/env'
+import { env } from './utils/env' // Asigură-te că această cale este corectă
+import type { Database } from '@/types/database.types' // <<<--- ASIGURĂ-TE CĂ AI IMPORTAT TIPUL RĂDĂCINĂ 'Database' AICI
 
 const logger = createLogger('SupabaseServerClient')
 
@@ -11,11 +12,13 @@ const SUPABASE_ANON_KEY = env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 /**
  * Creează un client Supabase pentru utilizare pe server (Server Components / Server Actions).
+ * Returnează un client Supabase tipat cu schema bazei de date.
  */
 export async function createClient() {
-  const cookieStore = await cookies() // Await conform noii semnături
+  const cookieStore = await cookies()
 
-  return createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  // <<<--- AICI ESTE CORECȚIA PRINCIPALĂ: Specifică tipul 'Database' la createServerClient
+  return createServerClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
     cookies: {
       getAll() {
         const all = cookieStore.getAll()
