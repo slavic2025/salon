@@ -9,9 +9,3 @@ export type StylistFormDataType = Omit<
 >
 
 export type StylistActionResponse = GenericActionResponse<Partial<Record<keyof StylistData, string[]>>>
-
-export const INITIAL_FORM_STATE: StylistActionResponse = {
-  success: false,
-  message: undefined,
-  errors: undefined,
-}

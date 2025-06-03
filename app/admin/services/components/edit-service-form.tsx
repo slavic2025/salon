@@ -11,23 +11,17 @@ import { editServiceAction } from '@/app/admin/services/actions'
 import { SubmitButton } from '@/components/ui/submit-button'
 import { createLogger } from '@/lib/logger'
 import { ServiceFormFields } from './service-form-fields'
-import { ActionResponse } from '@/lib/types'
+import { ActionResponse, INITIAL_FORM_STATE } from '@/lib/types'
 import { ServiceData } from '../types'
 
 const logger = createLogger('EditServiceForm')
 
-const INITIAL_FORM_STATE: ActionResponse = {
-  success: false,
-  message: undefined,
-  errors: undefined,
-}
-
 interface EditServiceFormProps {
-  service: ServiceData
+  entity: ServiceData
   onSuccess: () => void
 }
 
-export function EditServiceForm({ service, onSuccess }: EditServiceFormProps) {
+export function EditServiceForm({ entity, onSuccess }: EditServiceFormProps) {
   const [dialogSuccessMessage, setDialogSuccessMessage] = useState<string | null>(null)
 
   const updateServiceWithId = async (prevState: ActionResponse, formData: FormData) => {
@@ -68,7 +62,7 @@ export function EditServiceForm({ service, onSuccess }: EditServiceFormProps) {
   return (
     <form action={formAction} ref={formRef}>
       <div className="grid gap-4 py-4">
-        <input type="hidden" name="id" value={service.id} />
+        <input type="hidden" name="id" value={entity.id} />
         {dialogSuccessMessage && (
           <div
             className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded relative text-center"
@@ -77,7 +71,7 @@ export function EditServiceForm({ service, onSuccess }: EditServiceFormProps) {
             <span className="block">{dialogSuccessMessage}</span>
           </div>
         )}
-        <ServiceFormFields initialData={service} errors={state.errors} isEditMode={true} />
+        <ServiceFormFields initialData={entity} errors={state.errors} isEditMode={true} />
       </div>
       <DialogFooter>
         <Button type="button" variant="outline" disabled={pending} onClick={onSuccess}>

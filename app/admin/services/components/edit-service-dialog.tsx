@@ -1,44 +1,24 @@
 // app/admin/services/components/edit-service-dialog.tsx
 'use client'
 
-import { useState } from 'react'
-
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-
 import { ServiceData } from '@/app/admin/services/types'
-import { EditServiceForm } from './edit-service-form'
+import { EditServiceForm } from './edit-service-form' // Formularul specific serviciilor
+import { GenericEditDialog } from '@/components/shared/generic-edit-dialog' // <-- Noul import
 
 interface EditServiceDialogProps {
-  service: ServiceData
+  entity: ServiceData // Rămâne 'entity' pentru compatibilitatea cu GenericDisplayCard
+  children?: React.ReactNode // Rămâne aici, definește că componenta poate primi copii
 }
 
-export function EditServiceDialog({ service }: EditServiceDialogProps) {
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-
-  const handleCloseDialog = () => {
-    setIsDialogOpen(false)
-  }
-
+export function EditServiceDialog({ entity, children }: EditServiceDialogProps) {
   return (
-    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline">Editează</Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Editează Serviciul</DialogTitle>
-          <DialogDescription>Fă modificări aici. Apasă salvare când ai terminat.</DialogDescription>
-        </DialogHeader>
-        <EditServiceForm service={service} onSuccess={handleCloseDialog} />
-      </DialogContent>
-    </Dialog>
+    <GenericEditDialog<ServiceData> // Specificăm tipul generic ServiceData
+      entity={entity}
+      title="Editează Serviciul"
+      description="Fă modificări aici. Apasă salvare când ai terminat."
+      FormComponent={EditServiceForm}
+    >
+      {children}
+    </GenericEditDialog>
   )
 }

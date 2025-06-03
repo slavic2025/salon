@@ -1,11 +1,17 @@
 // app/admin/services/components/services-page-content.tsx
 'use client'
 
-import { AddServiceDialog } from './add-service-dialog'
 import { ServiceData } from '@/app/admin/services/types'
-import { ServiceTableView } from './service-table-view'
-import { ServiceCardView } from './service-card-view'
 import { createLogger } from '@/lib/logger'
+import { AddServiceDialog } from './add-service-dialog'
+
+// Importuri NOI pentru GenericTableView și elementele sale specifice
+import { GenericTableView } from '@/components/shared/generic-table-view'
+import { ServiceTableRow } from './service-table-row' // Păstrăm acest import
+import { SERVICE_TABLE_HEADERS } from './service-table-headers' // Păstrăm acest import
+
+// Presupunem că vei crea și un ServiceCardView similar
+// import { ServiceCardView } from './service-card-view'
 
 const logger = createLogger('ServicesPageContent')
 
@@ -25,11 +31,19 @@ export function ServicesPageContent({ services }: ServicesPageContentProps) {
         <AddServiceDialog />
       </div>
 
-      {/* Utilizează componenta ServiceTableView pentru desktop */}
-      <ServiceTableView services={services} />
+      {/* Utilizează componenta GenericTableView pentru desktop */}
+      {/* Vechea linie: <ServiceTableView services={services} /> */}
+      <GenericTableView
+        data={services}
+        headers={SERVICE_TABLE_HEADERS}
+        renderRow={(service) => <ServiceTableRow key={service.id} service={service} />}
+        emptyMessage="Nu există servicii adăugate încă."
+        tableHeadingId="services-table-heading"
+        tableHeadingText="Tabel cu servicii"
+      />
 
-      {/* Utilizează componenta ServiceCardView pentru mobil */}
-      <ServiceCardView services={services} />
+      {/* Utilizează componenta ServiceCardView pentru mobil (dacă o creezi) */}
+      {/* <ServiceCardView services={services} /> */}
     </div>
   )
 }

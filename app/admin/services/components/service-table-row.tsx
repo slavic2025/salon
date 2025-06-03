@@ -1,26 +1,46 @@
 // app/admin/services/components/service-table-row.tsx
-'use client'
+'use client' // Asigură-te că este o componentă client-side
 
 import { TableCell, TableRow } from '@/components/ui/table'
 import { SubmitButton } from '@/components/ui/submit-button'
 import { ServiceData } from '@/app/admin/services/types'
-import { deleteServiceActionForm } from '@/app/admin/services/actions'
+// Importă direct acțiunea de ștergere care este compatibilă cu useActionState
+import { deleteServiceAction } from '@/app/admin/services/actions' // <-- Modificat
+// Importă EditServiceDialog care acum primește 'entity'
 import { EditServiceDialog } from '@/app/admin/services/components/edit-service-dialog'
 import { DEFAULT_CURRENCY_SYMBOL } from '@/lib/constants'
+import { ActiveBadge } from '@/components/ui/active-badge'
+import { useActionState, useEffect } from 'react' // <-- Importă useActionState și useEffect
+import { toast } from 'sonner' // <-- Importă toast pentru feedback
+import { INITIAL_FORM_STATE } from '@/lib/types' // <-- Importă starea inițială generică
 
 interface ServiceTableRowProps {
   service: ServiceData
 }
 
-function ActiveBadge({ isActive }: { isActive: boolean }) {
-  return (
-    <span className={isActive ? 'text-green-600 font-medium' : 'text-red-600 font-medium'}>
-      {isActive ? 'Da' : 'Nu'}
-    </span>
-  )
-}
-
 export function ServiceTableRow({ service }: ServiceTableRowProps) {
+  // 1. Utilizează useActionState pentru acțiunea de ștergere
+  const [deleteState, deleteFormAction, isPending] = useActionState(
+    deleteServiceAction, // <-- Folosește deleteServiceAction direct
+    INITIAL_FORM_STATE
+  )
+
+  // 2. Utilizează useEffect pentru a afișa toast-uri pe baza stării deleteState
+  useEffect(() => {
+    // Verificăm dacă mesajul este definit pentru a evita toast-uri la prima randare (INITIAL_FORM_STATE)
+    if (deleteState.message) {
+      if (deleteState.success) {
+        toast.success('Succes!', {
+          description: deleteState.message,
+        })
+      } else {
+        toast.error('Eroare!', {
+          description: deleteState.message,
+        })
+      }
+    }
+  }, [deleteState]) // Se declanșează la fiecare schimbare a stării
+
   return (
     <TableRow>
       <TableCell className="font-medium text-left border-r">{service.name}</TableCell>
@@ -34,10 +54,19 @@ export function ServiceTableRow({ service }: ServiceTableRowProps) {
         <ActiveBadge isActive={service.is_active} />
       </TableCell>
       <TableCell className="flex items-center gap-2">
-        <EditServiceDialog service={service} />
-        <form action={deleteServiceActionForm} className="inline-block">
+        {/* 3. Actualizează prop-ul pentru EditServiceDialog la 'entity' */}
+        <EditServiceDialog entity={service} /> {/* <-- Modificat */}
+        {/* 4. Folosește deleteFormAction returnat de useActionState */}
+        <form action={deleteFormAction} className="inline-block">
+          {' '}
+          {/* <-- Modificat */}
           <input type="hidden" name="id" value={service.id} />
-          <SubmitButton variant="destructive" size="sm" aria-label={`Șterge serviciul ${service.name}`}>
+          <SubmitButton
+            variant="destructive"
+            size="sm"
+            aria-label={`Șterge serviciul ${service.name}`}
+            disabled={isPending} // Dezactivează butonul în timpul acțiunii
+          >
             Șterge
           </SubmitButton>
         </form>

@@ -1,10 +1,6 @@
 // app/admin/stylists/components/stylist-table-headers.ts
 
-interface TableHeaderConfig {
-  label: string
-  className?: string
-  hideOnMobile?: boolean // Rămâne pentru consistență, chiar dacă nu e folosit acum
-}
+import { TableHeaderConfig } from '@/lib/types'
 
 export const STYLIST_TABLE_HEADERS: TableHeaderConfig[] = [
   { label: 'Nume', className: 'text-left border-r w-[100px]' }, // Lățime fixă pentru nume, ar trebui să fie suficient

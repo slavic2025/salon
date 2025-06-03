@@ -154,27 +154,27 @@ export async function deleteStylistAction(
   }
 }
 
-// ---------- Form Helpers (pentru utilizare directă în <form action={...}>) ----------
-export async function deleteStylistActionForm(formData: FormData): Promise<void> {
-  // Importă INITIAL_FORM_STATE din types.ts
-  const { INITIAL_FORM_STATE } = await import('./types')
-  const response = await deleteStylistAction(INITIAL_FORM_STATE, formData)
-  logger.debug('deleteStylistActionForm completed', { response })
-  // Poți adăuga logică aici pentru a gestiona răspunsul, de exemplu, notificări toast
-}
+// // ---------- Form Helpers (pentru utilizare directă în <form action={...}>) ----------
+// export async function deleteStylistActionForm(formData: FormData): Promise<void> {
+//   // Importă INITIAL_FORM_STATE din types.ts
+//   const { INITIAL_FORM_STATE } = await import('./types')
+//   const response = await deleteStylistAction(INITIAL_FORM_STATE, formData)
+//   logger.debug('deleteStylistActionForm completed', { response })
+//   // Poți adăuga logică aici pentru a gestiona răspunsul, de exemplu, notificări toast
+// }
 
-export async function editStylistActionForm(formData: FormData): Promise<void> {
-  // Importă INITIAL_FORM_STATE din types.ts
-  const { INITIAL_FORM_STATE } = await import('./types')
-  const response = await editStylistAction(INITIAL_FORM_STATE, formData)
-  logger.debug('editStylistActionForm completed', { response })
-  // Poți adăuga logică aici pentru a gestiona răspunsul, de exemplu, notificări toast
-}
+// export async function editStylistActionForm(formData: FormData): Promise<void> {
+//   // Importă INITIAL_FORM_STATE din types.ts
+//   const { INITIAL_FORM_STATE } = await import('./types')
+//   const response = await editStylistAction(INITIAL_FORM_STATE, formData)
+//   logger.debug('editStylistActionForm completed', { response })
+//   // Poți adăuga logică aici pentru a gestiona răspunsul, de exemplu, notificări toast
+// }
 
-export async function addStylistActionForm(formData: FormData): Promise<void> {
-  // Importă INITIAL_FORM_STATE din types.ts
-  const { INITIAL_FORM_STATE } = await import('./types')
-  const response = await addStylistAction(INITIAL_FORM_STATE, formData)
-  logger.debug('addStylistActionForm completed', { response })
-  // Poți adăuga logică aici pentru a gestiona răspunsul, de exemplu, notificări toast
-}
+// export async function addStylistActionForm(formData: FormData): Promise<void> {
+//   // Importă INITIAL_FORM_STATE din types.ts
+//   const { INITIAL_FORM_STATE } = await import('./types')
+//   const response = await addStylistAction(INITIAL_FORM_STATE, formData)
+//   logger.debug('addStylistActionForm completed', { response })
+//   // Poți adăuga logică aici pentru a gestiona răspunsul, de exemplu, notificări toast
+// }

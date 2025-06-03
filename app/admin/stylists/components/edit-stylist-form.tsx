@@ -11,17 +11,18 @@ import { editStylistAction } from '@/app/admin/stylists/actions' // Importă ac�
 import { SubmitButton } from '@/components/ui/submit-button'
 import { createLogger } from '@/lib/logger'
 import { StylistFormFields } from './stylist-form-fields' // Importă câmpurile formularului pentru stilist
-import { StylistActionResponse, INITIAL_FORM_STATE } from '@/app/admin/stylists/types' // Importă tipul de răspuns al acțiunii și starea inițială
+import { StylistActionResponse } from '@/app/admin/stylists/types' // Importă tipul de răspuns al acțiunii și starea inițială
 import { Stylist } from '@/lib/db/stylist-core' // Importă tipul Stylist
+import { INITIAL_FORM_STATE } from '@/lib/types'
 
 const logger = createLogger('EditStylistForm') // Noul nume pentru logger
 
 interface EditStylistFormProps {
-  stylist: Stylist // Prop-ul este acum 'stylist' de tip 'Stylist'
+  entity: Stylist // Prop-ul este acum 'stylist' de tip 'Stylist'
   onSuccess: () => void
 }
 
-export function EditStylistForm({ stylist, onSuccess }: EditStylistFormProps) {
+export function EditStylistForm({ entity, onSuccess }: EditStylistFormProps) {
   const [dialogSuccessMessage, setDialogSuccessMessage] = useState<string | null>(null)
 
   // Funcția care apelează Server Action-ul
@@ -64,7 +65,7 @@ export function EditStylistForm({ stylist, onSuccess }: EditStylistFormProps) {
     <form action={formAction} ref={formRef}>
       <div className="grid gap-4 py-4">
         {/* Input ascuns pentru ID-ul stilistului */}
-        <input type="hidden" name="id" value={stylist.id} />
+        <input type="hidden" name="id" value={entity.id} />
         {dialogSuccessMessage && (
           <div
             className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded relative text-center"
@@ -74,7 +75,7 @@ export function EditStylistForm({ stylist, onSuccess }: EditStylistFormProps) {
           </div>
         )}
         {/* Folosim componenta StylistFormFields cu datele inițiale */}
-        <StylistFormFields initialData={stylist} errors={state.errors} isEditMode={true} />
+        <StylistFormFields initialData={entity} errors={state.errors} isEditMode={true} />
       </div>
       <DialogFooter>
         <Button type="button" variant="outline" disabled={pending} onClick={onSuccess}>

@@ -18,13 +18,7 @@ import {
 import { ServiceFormFields } from '@/app/admin/services/components/service-form-fields'
 import { addServiceAction } from '@/app/admin/services/actions'
 import { SubmitButton } from '@/components/ui/submit-button'
-import { ActionResponse } from '@/lib/types'
-
-const INITIAL_FORM_STATE: ActionResponse = {
-  success: false,
-  message: undefined,
-  errors: undefined,
-}
+import { INITIAL_FORM_STATE } from '@/lib/types'
 
 export function AddServiceDialog() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)

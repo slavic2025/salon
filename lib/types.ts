@@ -12,3 +12,18 @@ export interface ActionResponse<T = Record<string, string[]>> {
     _form?: string[] // Eroare generală la nivel de formular
   }
 }
+
+export const INITIAL_FORM_STATE: ActionResponse<Record<string, string[]>> = {
+  success: false,
+  message: undefined,
+  errors: undefined,
+}
+
+// Tiparea erorilor de câmp
+export type FieldErrors = ActionResponse['errors']
+
+export interface TableHeaderConfig {
+  label: string
+  className?: string
+  hideOnMobile?: boolean
+}
