@@ -6,6 +6,7 @@ export type StylistData = Tables<'stylists'>
 export type StylistFormDataType = Omit<
   TablesInsert<'stylists'>,
   'id' | 'created_at' | 'updated_at' | 'profile_id' | 'profile_picture'
->
-
+> & {
+  is_active: boolean // Forțează boolean în loc de boolean | undefined
+}
 export type StylistActionResponse = GenericActionResponse<Partial<Record<keyof StylistData, string[]>>>

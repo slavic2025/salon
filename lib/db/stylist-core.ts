@@ -2,21 +2,12 @@
 import { createClient } from '@/lib/supabase'
 import { z } from 'zod'
 import { createLogger } from '@/lib/logger'
-import { Tables } from '@/types/database.types'
-import { stylistInputSchema } from '../zod/schemas'
+import { StylistData } from '@/app/admin/stylists/types'
+import { addStylistSchema } from '../zod/schemas'
 
 const logger = createLogger('DB_StylistCore')
 
-export type Stylist = Tables<'stylists'>
-
-export const addStylistSchema = stylistInputSchema // Schema pentru adăugare este aceeași ca input
-export const editStylistSchema = stylistInputSchema.extend({
-  id: z.string().uuid({ message: 'ID-ul stilistului este invalid.' }), // Extinde schema pentru editare cu un ID obligatoriu
-})
-
-// --- Funcții de Interacțiune cu Baza de Date ---
-// Aceste funcții conțin logica pură de CRUD cu Supabase și aruncă erori la eșec
-export async function fetchAllStylists(): Promise<Stylist[]> {
+export async function fetchAllStylists(): Promise<StylistData[]> {
   logger.debug('Attempting to fetch all stylists.')
   const supabase = await createClient()
   const { data: stylists, error } = await supabase.from('stylists').select('*').order('name', { ascending: true }) // Ordonează alfabetic
@@ -30,7 +21,7 @@ export async function fetchAllStylists(): Promise<Stylist[]> {
   return stylists || []
 }
 
-export async function insertStylist(stylistData: z.infer<typeof addStylistSchema>): Promise<Stylist> {
+export async function insertStylist(stylistData: z.infer<typeof addStylistSchema>): Promise<StylistData> {
   logger.debug('Attempting to insert new stylist.', { stylistData })
   const supabase = await createClient()
   const { data, error } = await supabase.from('stylists').insert(stylistData).select().single() // Ne așteptăm la un singur rând inserat
@@ -48,7 +39,7 @@ export async function insertStylist(stylistData: z.infer<typeof addStylistSchema
   return data
 }
 
-export async function updateStylist(id: string, stylistData: z.infer<typeof stylistInputSchema>): Promise<Stylist> {
+export async function updateStylist(id: string, stylistData: z.infer<typeof addStylistSchema>): Promise<StylistData> {
   logger.debug('Attempting to update stylist.', { stylistId: id, stylistData })
   const supabase = await createClient()
   // Nu este necesar să actualizezi `updated_at` manual, Supabase o face automat dacă e configurată.

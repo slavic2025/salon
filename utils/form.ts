@@ -1,54 +1,52 @@
 // lib/utils/form.ts
-import { serviceInputSchema, stylistInputSchema } from '@/lib/zod/schemas'
+import { StylistFormDataType } from '@/app/admin/stylists/types'
+import { serviceInputSchema } from '@/lib/zod/schemas'
 import { z } from 'zod'
 
+/**
+ * Extrage datele pentru un serviciu dintr-un obiect FormData.
+ * Returnează un obiect parțial, lăsând validarea completă în seama Zod.
+ * Valorile string vor fi mereu un string (chiar gol) pentru a evita `null`/`undefined` înainte de Zod.
+ */
 export function extractServiceDataFromForm(formData: FormData): Partial<z.infer<typeof serviceInputSchema>> {
-  const name = formData.get('name')?.toString()
-  const description = formData.get('description')?.toString()
+  // Extrage valorile direct, asigurându-te că sunt string-uri goale dacă lipsesc.
+  const name = formData.get('name')?.toString() || ''
+  const description = formData.get('description')?.toString() || ''
   const durationMinutesStr = formData.get('duration_minutes')?.toString()
   const priceStr = formData.get('price')?.toString()
-  const isActive = formData.get('is_active') === 'on'
-  const category = formData.get('category')?.toString()
-
-  let duration_minutes: number | undefined
-  if (durationMinutesStr) {
-    const parsed = parseInt(durationMinutesStr, 10)
-    duration_minutes = isNaN(parsed) ? undefined : parsed
-  } else {
-    duration_minutes = undefined
-  }
-
-  let price: number | undefined
-  if (priceStr) {
-    const parsed = parseFloat(priceStr)
-    price = isNaN(parsed) ? undefined : parsed
-  } else {
-    price = undefined
-  }
+  const isActive = formData.get('is_active') === 'on' // Checkbox-urile sunt "on" sau lipsă
+  const category = formData.get('category')?.toString() || ''
+  const duration_minutes = durationMinutesStr ? parseInt(durationMinutesStr, 10) : undefined
+  const price = priceStr ? parseFloat(priceStr) : undefined
 
   return {
-    name: name || undefined,
-    description: description === '' ? null : description || undefined,
-    duration_minutes: duration_minutes,
-    price: price,
+    name,
+    description,
+    duration_minutes: isNaN(duration_minutes as number) ? undefined : duration_minutes,
+    price: isNaN(price as number) ? undefined : price,
     is_active: isActive,
-    category: category === '' ? null : category || undefined,
+    category,
   }
 }
 
-export function extractStylistDataFromForm(formData: FormData): Partial<z.infer<typeof stylistInputSchema>> {
-  const name = formData.get('name')?.toString()
-  const email = formData.get('email')?.toString()
-  const phone = formData.get('phone')?.toString()
-  const description = formData.get('description')?.toString()
-  const isActive = formData.get('is_active') === 'on'
+/**
+ * Extrage datele pentru un stilist dintr-un obiect FormData.
+ * Returnează un obiect de tip StylistFormDataType, asigurând compatibilitatea.
+ */
+export function extractStylistDataFromForm(formData: FormData): StylistFormDataType {
+  // Extrage valorile direct, asigurându-te că sunt string-uri goale dacă lipsesc.
+  const name = formData.get('name')?.toString() || ''
+  const email = formData.get('email')?.toString() || ''
+  const phone = formData.get('phone')?.toString() || ''
+  const description = formData.get('description')?.toString() || ''
+  const isActive = formData.get('is_active') === 'on' // Checkbox-urile sunt "on" sau lipsă
 
   return {
-    name: name || undefined,
-    email: email || undefined,
-    phone: phone === '' ? null : phone || undefined,
-    description: description === '' ? null : description || undefined,
-    is_active: isActive,
+    name,
+    email,
+    phone,
+    description,
+    is_active: isActive, // Zod-ul tău va gestiona `is_active: zBooleanCheckboxDefaultTrue`
   }
 }
 

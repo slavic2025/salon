@@ -1,13 +1,12 @@
-// zod/schemas.ts
+// lib/zod/schemas.ts
 import { z } from 'zod'
 import {
   zEmailRequired,
   zPasswordRequired,
-  zBooleanCheckbox,
   zIntFromForm,
   zPriceFromForm,
-  zStringNullableOptional,
   zStringMin,
+  zBooleanCheckboxDefaultTrue,
 } from './fields'
 
 // ================= LOGIN =================
@@ -17,27 +16,36 @@ export const loginSchema = z.object({
 })
 
 // ================= SERVICE =================
-export const serviceInputSchema = z.object({
-  name: z.string().min(1, { message: 'Numele serviciului este obligatoriu.' }),
-  description: zStringNullableOptional,
+
+export const addServiceSchema = z.object({
+  name: zStringMin(1, 'Numele serviciului este obligatoriu.'),
+  description: zStringMin(1, 'Descrierea serviciului este obligatorie.'),
   duration_minutes: zIntFromForm('Durata trebuie să fie un număr întreg pozitiv.'),
   price: zPriceFromForm,
-  is_active: zBooleanCheckbox,
-  category: zStringNullableOptional,
+  is_active: zBooleanCheckboxDefaultTrue,
+
+  category: zStringMin(1, 'Categoria serviciului este obligatorie.'),
+})
+
+export const editServiceSchema = addServiceSchema.extend({
+  id: z.string().uuid({ message: 'ID-ul serviciului este invalid.' }),
 })
 
 // ================= STYLIST =================
-export const stylistInputSchema = z.object({
-  name: zStringMin(3),
+// Definim structura de bază a unui stilist.
+export const addStylistSchema = z.object({
+  name: zStringMin(3, 'Numele stilistului trebuie să aibă minim 3 caractere.'),
   email: zEmailRequired,
-  phone: zStringNullableOptional,
-  description: zStringNullableOptional,
-  is_active: zBooleanCheckbox,
+  phone: zStringMin(1, 'Numărul de telefon este obligatoriu.'),
+  description: zStringMin(1, 'Descrierea stilistului este obligatorie.'),
+  is_active: zBooleanCheckboxDefaultTrue,
 })
 
-export const DeleteStylistSchema = z.object({
-  id: z
-    .string()
-    .min(1, { message: 'ID-ul stilistului este obligatoriu.' })
-    .uuid({ message: 'ID-ul stilistului este invalid.' }),
+export const editStylistSchema = addStylistSchema.extend({
+  id: z.string().uuid({ message: 'ID-ul serviciului este invalid.' }),
 })
+
+// ================= DELETE SCHEMAS =================
+// Acestea validează direct ID-ul, nu un obiect complex.
+export const DeleteStylistSchema = z.string().uuid('ID-ul stilistului trebuie să fie un UUID valid.')
+export const DeleteServiceSchema = z.string().uuid('ID-ul serviciului trebuie să fie un UUID valid.')

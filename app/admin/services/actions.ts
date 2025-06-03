@@ -4,25 +4,13 @@
 import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
 import { createLogger } from '@/lib/logger'
-import {
-  fetchAllServices,
-  insertService,
-  updateService,
-  deleteService,
-  Service,
-  addServiceSchema,
-} from '@/lib/db/service-core'
+import { fetchAllServices, insertService, updateService, deleteService } from '@/lib/db/service-core'
 import { extractServiceDataFromForm, formatZodErrors } from '@/utils/form'
 import { ActionResponse } from '@/lib/types'
-import { serviceInputSchema } from '@/lib/zod/schemas'
+import { ServiceData } from './types'
+import { addServiceSchema, editServiceSchema } from '@/lib/zod/schemas'
 
 const logger = createLogger('ServiceActions')
-
-const INITIAL_ACTION_RESPONSE: ActionResponse = {
-  success: false,
-  message: undefined,
-  errors: undefined,
-}
 
 // Funcție helper pentru delay (pentru testare)
 // function sleep(ms: number) {
@@ -30,7 +18,7 @@ const INITIAL_ACTION_RESPONSE: ActionResponse = {
 // }
 
 // ---------- GET Services ----------
-export async function getServicesAction(): Promise<Service[]> {
+export async function getServicesAction(): Promise<ServiceData[]> {
   logger.debug('getServicesAction invoked: Fetching all services.')
   try {
     const services = await fetchAllServices()
@@ -97,7 +85,7 @@ export async function editServiceAction(_prevState: ActionResponse, formData: Fo
   })
   try {
     const data = extractServiceDataFromForm(formData)
-    const validated = serviceInputSchema.parse(data)
+    const validated = editServiceSchema.parse(data)
 
     await updateService(id, validated)
     logger.info('editServiceAction: Successfully updated service.', { id })
@@ -152,14 +140,4 @@ export async function deleteServiceAction(_prevState: ActionResponse, formData: 
     })
     return { success: false, message: 'A eșuat ștergerea serviciului. Vă rugăm să încercați din nou.' }
   }
-}
-
-export async function deleteServiceActionForm(formData: FormData): Promise<void> {
-  const response = await deleteServiceAction(INITIAL_ACTION_RESPONSE, formData)
-  logger.debug('deleteServiceActionForm completed', { response })
-}
-
-export async function editServiceActionForm(formData: FormData): Promise<void> {
-  const response = await editServiceAction(INITIAL_ACTION_RESPONSE, formData)
-  logger.debug('editServiceActionForm completed', { response })
 }

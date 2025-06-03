@@ -1,26 +1,23 @@
 // app/admin/stylists/actions.ts
 'use server'
 
-import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
+import { revalidatePath } from 'next/cache'
 import { createLogger } from '@/lib/logger'
-import {
-  fetchAllStylists,
-  insertStylist,
-  updateStylist,
-  deleteStylist,
-  addStylistSchema,
-  Stylist,
-} from '@/lib/db/stylist-core'
-
+import { insertStylist, updateStylist, deleteStylist, fetchAllStylists } from '@/lib/db/stylist-core'
+import { ActionResponse } from '@/lib/types' // Asigură-te că acest tip `ActionResponse` este definit
+import { addStylistSchema } from '@/lib/zod/schemas'
 import { extractStylistDataFromForm, formatZodErrors } from '@/utils/form'
-import { StylistActionResponse } from './types' // Asigură-te că Stylist este exportat de aici (de fapt ar trebui să fie exportat din stylist-core)
-import { DeleteStylistSchema, stylistInputSchema } from '@/lib/zod/schemas'
+import { StylistData } from './types'
 
-const logger = createLogger('StylistsActions')
+const logger = createLogger('StylistActions')
 
-// ---------- GET Stylists ----------
-export async function getStylistsAction(): Promise<Stylist[]> {
+// Funcție helper pentru delay (pentru testare, comentată)
+// function sleep(ms: number) {
+//   return new Promise((resolve) => setTimeout(resolve, ms));
+// }
+
+export async function getStylistsAction(): Promise<StylistData[]> {
   logger.debug('getStylistsAction invoked: Fetching all stylists.')
   try {
     const stylists = await fetchAllStylists()
@@ -33,30 +30,28 @@ export async function getStylistsAction(): Promise<Stylist[]> {
       errorStack: (error as Error).stack,
       originalError: error,
     })
-    return [] // Returnează un array gol în caz de eroare pentru a nu bloca UI-ul
+    return []
   }
 }
 
-// ---------- ADD Stylist ----------
-export async function addStylistAction(
-  _prevState: StylistActionResponse,
-  formData: FormData
-): Promise<StylistActionResponse> {
+export async function addStylistAction(_prevState: ActionResponse, formData: FormData): Promise<ActionResponse> {
   logger.debug('addStylistAction invoked: Attempting to add new stylist.', {
     formDataEntries: Object.fromEntries(formData.entries()),
   })
   try {
-    const data = extractStylistDataFromForm(formData) // Extrage datele cu helper-ul
-    const validated = addStylistSchema.parse(data) // Validează cu schema din core
+    const data = extractStylistDataFromForm(formData)
+    // Validarea datelor folosind schema Zod specifică pentru adăugare
+    const validated = addStylistSchema.parse(data)
 
-    await insertStylist(validated) // Apelează funcția din core
+    await insertStylist(validated)
     logger.info('addStylistAction: Successfully inserted new stylist.', { name: validated.name })
 
-    revalidatePath('/admin/stylists')
+    revalidatePath('/admin/stylists') // Revalidează calea după o inserție de succes
     return { success: true, message: 'Stilistul a fost adăugat cu succes!' }
   } catch (error) {
     if (error instanceof z.ZodError) {
       logger.warn('addStylistAction: Validation failed during stylist addition.', { errors: error.flatten() })
+      // Returnează erorile de validare formatate pentru afișare în UI
       return { success: false, message: 'Eroare de validare!', errors: formatZodErrors(error) }
     }
 
@@ -66,15 +61,14 @@ export async function addStylistAction(
       errorStack: (error as Error).stack,
       originalError: error,
     })
+    // Returnează un mesaj de eroare generic pentru erori neașteptate
     return { success: false, message: 'A eșuat adăugarea stilistului. Vă rugăm să încercați din nou.' }
   }
 }
 
-// ---------- UPDATE Stylist ----------
-export async function editStylistAction(
-  _prevState: StylistActionResponse,
-  formData: FormData
-): Promise<StylistActionResponse> {
+export async function editStylistAction(_prevState: ActionResponse, formData: FormData): Promise<ActionResponse> {
+  // await sleep(5000); // Pentru testare, comentată
+
   const id = formData.get('id')
 
   if (typeof id !== 'string' || !id) {
@@ -91,14 +85,15 @@ export async function editStylistAction(
     formDataEntries: Object.fromEntries(formData.entries()),
   })
   try {
-    const data = extractStylistDataFromForm(formData) // Extrage datele cu helper-ul
-    // Validăm datele folosind stylistInputSchema (care nu include ID-ul)
-    const validated = stylistInputSchema.parse(data)
+    const data = extractStylistDataFromForm(formData)
+    // Validarea datelor folosind schema Zod pentru inputul stilistului (care include `id`)
+    const validated = addStylistSchema.parse(data)
 
-    await updateStylist(id, validated) // Apelează funcția din core cu ID și datele validate
+    // Actualizează stilistul în baza de date
+    await updateStylist(id, validated)
     logger.info('editStylistAction: Successfully updated stylist.', { id })
 
-    revalidatePath('/admin/stylists')
+    revalidatePath('/admin/stylists') // Revalidează calea după o actualizare de succes
     return { success: true, message: 'Stilistul a fost actualizat cu succes!' }
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -106,6 +101,7 @@ export async function editStylistAction(
         stylistId: id,
         errors: error.flatten(),
       })
+      // Returnează erorile de validare formatate
       return { success: false, message: 'Eroare de validare!', errors: formatZodErrors(error) }
     }
 
@@ -116,35 +112,33 @@ export async function editStylistAction(
       errorStack: (error as Error).stack,
       originalError: error,
     })
+    // Returnează un mesaj de eroare generic
     return { success: false, message: 'A eșuat actualizarea stilistului. Vă rugăm să încercați din nou.' }
   }
 }
 
-// ---------- DELETE Stylist ----------
-export async function deleteStylistAction(
-  _prevState: StylistActionResponse,
-  formData: FormData
-): Promise<StylistActionResponse> {
+export async function deleteStylistAction(_prevState: ActionResponse, formData: FormData): Promise<ActionResponse> {
   const id = formData.get('id')
 
-  // Validare ID înainte de logare detaliată și apel core
-  const validation = DeleteStylistSchema.safeParse({ id })
-  if (!validation.success) {
-    logger.warn('deleteStylistAction: Invalid stylist ID for deletion.', { id, errors: validation.error.flatten() })
-    return { success: false, message: 'ID-ul stilistului este invalid.', errors: formatZodErrors(validation.error) }
+  if (typeof id !== 'string' || !id) {
+    logger.warn('deleteStylistAction: Invalid stylist ID for deletion.', { id })
+    return {
+      success: false,
+      message: 'ID-ul stilistului este invalid.',
+      errors: { _form: ['ID-ul stilistului este invalid.'] },
+    }
   }
-  const stylistIdToDelete = validation.data.id
 
-  logger.debug('deleteStylistAction invoked: Attempting to delete stylist.', { stylistId: stylistIdToDelete })
+  logger.debug('deleteStylistAction invoked: Attempting to delete stylist.', { stylistId: id })
   try {
-    await deleteStylist(stylistIdToDelete) // Apelează funcția din core
-    logger.info('deleteStylistAction: Successfully deleted stylist.', { id: stylistIdToDelete })
+    await deleteStylist(id)
+    logger.info('deleteStylistAction: Successfully deleted stylist.', { id })
 
-    revalidatePath('/admin/stylists')
+    revalidatePath('/admin/stylists') // Revalidează calea după ștergere
     return { success: true, message: 'Stilistul a fost șters cu succes!' }
   } catch (error) {
     logger.error('deleteStylistAction: Unexpected error during stylist deletion.', {
-      stylistId: stylistIdToDelete,
+      stylistId: id,
       message: (error as Error).message,
       errorName: (error as Error).name,
       errorStack: (error as Error).stack,
@@ -153,28 +147,3 @@ export async function deleteStylistAction(
     return { success: false, message: 'A eșuat ștergerea stilistului. Vă rugăm să încercați din nou.' }
   }
 }
-
-// // ---------- Form Helpers (pentru utilizare directă în <form action={...}>) ----------
-// export async function deleteStylistActionForm(formData: FormData): Promise<void> {
-//   // Importă INITIAL_FORM_STATE din types.ts
-//   const { INITIAL_FORM_STATE } = await import('./types')
-//   const response = await deleteStylistAction(INITIAL_FORM_STATE, formData)
-//   logger.debug('deleteStylistActionForm completed', { response })
-//   // Poți adăuga logică aici pentru a gestiona răspunsul, de exemplu, notificări toast
-// }
-
-// export async function editStylistActionForm(formData: FormData): Promise<void> {
-//   // Importă INITIAL_FORM_STATE din types.ts
-//   const { INITIAL_FORM_STATE } = await import('./types')
-//   const response = await editStylistAction(INITIAL_FORM_STATE, formData)
-//   logger.debug('editStylistActionForm completed', { response })
-//   // Poți adăuga logică aici pentru a gestiona răspunsul, de exemplu, notificări toast
-// }
-
-// export async function addStylistActionForm(formData: FormData): Promise<void> {
-//   // Importă INITIAL_FORM_STATE din types.ts
-//   const { INITIAL_FORM_STATE } = await import('./types')
-//   const response = await addStylistAction(INITIAL_FORM_STATE, formData)
-//   logger.debug('addStylistActionForm completed', { response })
-//   // Poți adăuga logică aici pentru a gestiona răspunsul, de exemplu, notificări toast
-// }

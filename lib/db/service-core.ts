@@ -2,33 +2,14 @@
 import { createClient } from '@/lib/supabase'
 import { z } from 'zod'
 import { createLogger } from '@/lib/logger'
-import { serviceInputSchema } from '../zod/schemas'
+import { ServiceData } from '@/app/admin/services/types'
+import { addServiceSchema, editServiceSchema } from '../zod/schemas'
 
 const logger = createLogger('DB_ServiceCore') // Logger specific pentru logica de bază
 
-// --- Tipuri de Date ---
-// Definirea unui tip pentru serviciu pentru a îmbunătăți siguranța tipurilor
-// Acesta reflectă structura datelor direct din baza de date
-export type Service = {
-  id: string // UUID
-  created_at: string // String ISO de la baza de date
-  updated_at: string // String ISO de la baza de date
-  name: string
-  description: string | null
-  duration_minutes: number
-  price: number
-  is_active: boolean
-  category: string | null
-}
-
-export const addServiceSchema = serviceInputSchema
-export const editServiceSchema = serviceInputSchema.extend({
-  id: z.string().uuid({ message: 'ID-ul serviciului este invalid.' }),
-})
-
 // --- Funcții de Interacțiune cu Baza de Date ---
 // Aceste funcții conțin logica pură de CRUD cu Supabase
-export async function fetchAllServices(): Promise<Service[]> {
+export async function fetchAllServices(): Promise<ServiceData[]> {
   logger.debug('Attempting to fetch all services.')
   const supabase = await createClient()
   const { data: services, error } = await supabase.from('services').select('*')
@@ -42,7 +23,7 @@ export async function fetchAllServices(): Promise<Service[]> {
   return services || []
 }
 
-export async function insertService(serviceData: z.infer<typeof addServiceSchema>): Promise<Service> {
+export async function insertService(serviceData: z.infer<typeof addServiceSchema>): Promise<ServiceData> {
   logger.debug('Attempting to insert new service.', { serviceData })
   const supabase = await createClient()
   const { data, error } = await supabase.from('services').insert(serviceData).select().single()
@@ -60,7 +41,7 @@ export async function insertService(serviceData: z.infer<typeof addServiceSchema
   return data
 }
 
-export async function updateService(id: string, serviceData: z.infer<typeof serviceInputSchema>): Promise<Service> {
+export async function updateService(id: string, serviceData: z.infer<typeof editServiceSchema>): Promise<ServiceData> {
   logger.debug('Attempting to update service.', { serviceId: id, serviceData })
   const supabase = await createClient()
   const { data, error } = await supabase
