@@ -4,9 +4,16 @@
 import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
 import { createLogger } from '@/lib/logger'
-import { insertStylist, updateStylist, deleteStylist, fetchAllStylists } from '@/lib/db/stylist-core'
+import {
+  insertStylist,
+  updateStylist,
+  deleteStylist,
+  fetchAllStylists,
+  checkStylistUniqueness,
+  fetchStylistById,
+} from '@/lib/db/stylist-core'
 import { ActionResponse } from '@/lib/types' // Asigură-te că acest tip `ActionResponse` este definit
-import { addStylistSchema } from '@/lib/zod/schemas'
+import { addStylistSchema, editStylistSchema } from '@/lib/zod/schemas'
 import { extractStylistDataFromForm, formatZodErrors } from '@/lib/form'
 import { StylistData } from './types'
 
@@ -41,21 +48,45 @@ export async function addStylistAction(_prevState: ActionResponse, formData: For
   try {
     const data = extractStylistDataFromForm(formData)
     // Validarea datelor folosind schema Zod specifică pentru adăugare
-    const validated = addStylistSchema.parse(data)
+    const validated = addStylistSchema.parse(data) // `validated.phone` va fi un string aici
+
+    // Efectuează verificarea unicității la nivel de server
+    const uniquenessErrors = await checkStylistUniqueness(
+      null, // Nu există ID de exclus pentru creare
+      validated.name,
+      validated.email,
+      validated.phone
+    )
+
+    if (uniquenessErrors.length > 0) {
+      logger.warn('addStylistAction: Unicitatea validării a eșuat.', { uniquenessErrors })
+      // Formatează erorile de unicitate pentru a fi afișate în UI
+      const formattedErrors = uniquenessErrors.reduce((acc, err) => {
+        if (!acc[err.field]) {
+          acc[err.field] = []
+        }
+        acc[err.field]?.push(err.message)
+        return acc
+      }, {} as Record<string, string[]>) // Asigură-te că tipul corespunde ActionResponse['errors']
+
+      return { success: false, message: 'Eroare de validare a unicității!', errors: formattedErrors }
+    }
 
     await insertStylist(validated)
-    logger.info('addStylistAction: Successfully inserted new stylist.', { name: validated.name })
+    logger.info('addStylistAction: Stilistul a fost adăugat cu succes.', { name: validated.name })
 
     revalidatePath('/admin/stylists') // Revalidează calea după o inserție de succes
     return { success: true, message: 'Stilistul a fost adăugat cu succes!' }
   } catch (error) {
     if (error instanceof z.ZodError) {
-      logger.warn('addStylistAction: Validation failed during stylist addition.', { errors: error.flatten() })
+      logger.warn('addStylistAction: Validarea client-side a eșuat în timpul adăugării stilistului.', {
+        errors: error.flatten(),
+      })
       // Returnează erorile de validare formatate pentru afișare în UI
       return { success: false, message: 'Eroare de validare!', errors: formatZodErrors(error) }
     }
 
-    logger.error('addStylistAction: Unexpected error during stylist addition.', {
+    logger.error('addStylistAction: Eroare neașteptată în timpul adăugării stilistului.', {
       message: (error as Error).message,
       errorName: (error as Error).name,
       errorStack: (error as Error).stack,
@@ -67,12 +98,10 @@ export async function addStylistAction(_prevState: ActionResponse, formData: For
 }
 
 export async function editStylistAction(_prevState: ActionResponse, formData: FormData): Promise<ActionResponse> {
-  // await sleep(5000); // Pentru testare, comentată
-
   const id = formData.get('id')
 
   if (typeof id !== 'string' || !id) {
-    logger.warn('editStylistAction: Invalid stylist ID for update.', { id })
+    logger.warn('editStylistAction: ID-ul stilistului este invalid pentru actualizare.', { id })
     return {
       success: false,
       message: 'ID-ul stilistului pentru actualizare este invalid.',
@@ -80,39 +109,72 @@ export async function editStylistAction(_prevState: ActionResponse, formData: Fo
     }
   }
 
-  logger.debug('editStylistAction invoked: Attempting to update stylist.', {
+  logger.debug('editStylistAction invoked: Se încearcă actualizarea stilistului.', {
     stylistId: id,
     formDataEntries: Object.fromEntries(formData.entries()),
   })
   try {
     const data = extractStylistDataFromForm(formData)
-    // Validarea datelor folosind schema Zod pentru inputul stilistului (care include `id`)
-    const validated = addStylistSchema.parse(data)
+    // Validarea datelor folosind schema Zod specifică pentru editare
+    // Notă: editStylistSchema.partial() face câmpurile opționale.
+    // Dar vom prelua valorile curente pentru verificarea unicității.
+    const validated = editStylistSchema.parse(data)
 
-    // Actualizează stilistul în baza de date
+    // Preia datele curente ale stilistului pentru a le compara și a le combina cu actualizările
+    const currentStylist = await fetchStylistById(id)
+    if (!currentStylist) {
+      logger.warn('editStylistAction: Stilistul nu a fost găsit pentru actualizare.', { stylistId: id })
+      return { success: false, message: 'Stilistul nu a fost găsit.' }
+    }
+
+    // Combină datele validate (care pot fi parțiale) cu datele curente pentru a face verificarea unicității.
+    // Dacă un câmp nu este furnizat în `validated`, se folosește valoarea sa curentă din baza de date.
+    const nameForUniqueness = validated.name ?? currentStylist.name
+    const emailForUniqueness = validated.email ?? currentStylist.email
+    const phoneForUniqueness = validated.phone ?? currentStylist.phone
+
+    // Efectuează verificarea unicității, excluzând ID-ul stilistului curent
+    const uniquenessErrors = await checkStylistUniqueness(
+      id, // Exclude acest ID de la verificare
+      nameForUniqueness,
+      emailForUniqueness,
+      phoneForUniqueness
+    )
+
+    if (uniquenessErrors.length > 0) {
+      logger.warn('editStylistAction: Validarea unicității a eșuat.', { stylistId: id, uniquenessErrors })
+      const formattedErrors = uniquenessErrors.reduce((acc, err) => {
+        if (!acc[err.field]) {
+          acc[err.field] = []
+        }
+        acc[err.field]?.push(err.message)
+        return acc
+      }, {} as Record<string, string[]>)
+      return { success: false, message: 'Eroare de validare a unicității!', errors: formattedErrors }
+    }
+
+    // Actualizează stilistul în baza de date cu datele validate (parțiale)
     await updateStylist(id, validated)
-    logger.info('editStylistAction: Successfully updated stylist.', { id })
+    logger.info('editStylistAction: Stilistul a fost actualizat cu succes.', { id })
 
     revalidatePath('/admin/stylists') // Revalidează calea după o actualizare de succes
     return { success: true, message: 'Stilistul a fost actualizat cu succes!' }
   } catch (error) {
     if (error instanceof z.ZodError) {
-      logger.warn('editStylistAction: Validation failed during stylist update.', {
+      logger.warn('editStylistAction: Validarea client-side a eșuat în timpul actualizării stilistului.', {
         stylistId: id,
         errors: error.flatten(),
       })
-      // Returnează erorile de validare formatate
       return { success: false, message: 'Eroare de validare!', errors: formatZodErrors(error) }
     }
 
-    logger.error('editStylistAction: Unexpected error during stylist update.', {
+    logger.error('editStylistAction: Eroare neașteptată în timpul actualizării stilistului.', {
       stylistId: id,
       message: (error as Error).message,
       errorName: (error as Error).name,
       errorStack: (error as Error).stack,
       originalError: error,
     })
-    // Returnează un mesaj de eroare generic
     return { success: false, message: 'A eșuat actualizarea stilistului. Vă rugăm să încercați din nou.' }
   }
 }

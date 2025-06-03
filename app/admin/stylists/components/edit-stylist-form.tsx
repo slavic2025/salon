@@ -11,14 +11,13 @@ import { editStylistAction } from '@/app/admin/stylists/actions' // Importă ac�
 import { SubmitButton } from '@/components/ui/submit-button'
 import { createLogger } from '@/lib/logger'
 import { StylistFormFields } from './stylist-form-fields' // Importă câmpurile formularului pentru stilist
-import { StylistActionResponse } from '@/app/admin/stylists/types' // Importă tipul de răspuns al acțiunii și starea inițială
-import { Stylist } from '@/lib/db/stylist-core' // Importă tipul Stylist
+import { StylistActionResponse, StylistData } from '@/app/admin/stylists/types' // Importă tipul de răspuns al acțiunii și starea inițială
 import { INITIAL_FORM_STATE } from '@/lib/types'
 
 const logger = createLogger('EditStylistForm') // Noul nume pentru logger
 
 interface EditStylistFormProps {
-  entity: Stylist // Prop-ul este acum 'stylist' de tip 'Stylist'
+  entity: StylistData // Prop-ul este acum 'stylist' de tip 'Stylist'
   onSuccess: () => void
 }
 

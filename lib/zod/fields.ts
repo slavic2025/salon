@@ -38,6 +38,11 @@ export const zNickRequired = zStringRequired.regex(
   'Nickname may contain only lowercase letters, numbers, and hyphens.'
 )
 
+export const zPhoneRequired = zStringRequired.regex(
+  /^\+373 (6|7)\d{7}$/,
+  'Număr de telefon invalid. Format așteptat: +373 6/7XXXXXXX'
+)
+
 // Un șir obligatoriu care este o adresă de email validă.
 export const zEmailRequired = zStringRequired.email('Invalid email address.')
 

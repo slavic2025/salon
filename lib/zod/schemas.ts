@@ -7,6 +7,7 @@ import {
   zPriceFromForm,
   zStringMin,
   zBooleanCheckboxDefaultTrue,
+  zPhoneRequired,
 } from './fields'
 
 // ================= LOGIN =================
@@ -36,14 +37,12 @@ export const editServiceSchema = addServiceSchema.extend({
 export const addStylistSchema = z.object({
   name: zStringMin(3, 'Numele stilistului trebuie să aibă minim 3 caractere.'),
   email: zEmailRequired,
-  phone: zStringMin(1, 'Numărul de telefon este obligatoriu.'),
+  phone: zPhoneRequired,
   description: zStringMin(1, 'Descrierea stilistului este obligatorie.'),
   is_active: zBooleanCheckboxDefaultTrue,
 })
 
-export const editStylistSchema = addStylistSchema.extend({
-  id: z.string().uuid({ message: 'ID-ul serviciului este invalid.' }),
-})
+export const editStylistSchema = addStylistSchema
 
 // ================= DELETE SCHEMAS =================
 // Acestea validează direct ID-ul, nu un obiect complex.

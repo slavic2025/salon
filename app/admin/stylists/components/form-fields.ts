@@ -33,14 +33,14 @@ export const STYLIST_FORM_FIELDS: FormFieldConfig<TablesInsert<'stylists'>>[] = 
     label: 'Telefon',
     type: 'tel', // Tipul 'tel' pentru numere de telefon
     required: false,
-    placeholder: 'Număr de telefon (opțional)',
+    placeholder: 'Număr de telefon',
   },
   {
     id: 'description',
     label: 'Descriere',
     type: 'textarea', // Pentru un câmp de text multilinie
     required: false,
-    placeholder: 'Câteva cuvinte despre stilist (opțional)',
+    placeholder: 'Câteva cuvinte despre stilist',
   },
   {
     id: 'is_active',
