@@ -1,7 +1,6 @@
 // app/admin/stylists/components/stylists-page-content.tsx
 'use client'
 
-import { Stylist } from '@/lib/db/stylist-core'
 import { createLogger } from '@/lib/logger'
 import { AddStylistDialog } from './add-stylist-dialog'
 
@@ -12,11 +11,12 @@ import { STYLIST_TABLE_HEADERS } from './stylist-table-headers' // Păstrăm ace
 
 // Va trebui să creezi acest component (pentru mobil)
 import { StylistCardView } from './stylist-card-view'
+import { StylistData } from '../types'
 
 const logger = createLogger('StylistsPageContent')
 
 interface StylistsPageContentProps {
-  stylists: Stylist[]
+  stylists: StylistData[]
 }
 
 export function StylistsPageContent({ stylists }: StylistsPageContentProps) {

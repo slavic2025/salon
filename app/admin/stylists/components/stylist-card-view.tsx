@@ -1,15 +1,14 @@
 // app/admin/stylists/components/stylist-card-view.tsx
 'use client'
-
-import { Stylist } from '@/lib/db/stylist-core' // Importă tipul Stylist
 import { StylistCard } from './stylist-card' // Importă componenta StylistCard
 import { createLogger } from '@/lib/logger'
 import { EmptyState } from '@/components/ui/empty-state'
+import { StylistData } from '../types'
 
 const logger = createLogger('StylistCardView') // Noul nume pentru logger
 
 interface StylistCardViewProps {
-  stylists: Stylist[] // Prop-ul se numește acum 'stylists' și are tipul 'Stylist[]'
+  stylists: StylistData[]
 }
 
 export function StylistCardView({ stylists }: StylistCardViewProps) {

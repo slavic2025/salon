@@ -1,22 +1,22 @@
 // app/admin/stylists/components/stylist-form-fields.tsx
 'use client'
 
-import { Stylist } from '@/lib/db/stylist-core'
 import { STYLIST_FORM_FIELDS } from '@/app/admin/stylists/components/form-fields'
 import { GenericFormFields } from '@/components/shared/generic-form-fields'
 import { FormFieldConfig } from '@/components/shared/form-fields-types'
 import { FieldErrors } from '@/lib/types'
+import { StylistData } from '../types'
 
 interface StylistFormFieldsProps {
-  initialData?: Stylist | null
+  initialData?: StylistData | null
   errors?: FieldErrors
   isEditMode?: boolean
 }
 
 export function StylistFormFields({ initialData, errors, isEditMode = false }: StylistFormFieldsProps) {
-  const typedStylistFormFields: FormFieldConfig<Stylist>[] = STYLIST_FORM_FIELDS as FormFieldConfig<Stylist>[]
+  const typedStylistFormFields: FormFieldConfig<StylistData>[] = STYLIST_FORM_FIELDS as FormFieldConfig<StylistData>[]
   return (
-    <GenericFormFields<Stylist>
+    <GenericFormFields<StylistData>
       fieldsConfig={typedStylistFormFields}
       initialData={initialData}
       errors={errors}

@@ -3,8 +3,6 @@
 
 import { TableCell, TableRow } from '@/components/ui/table'
 import { SubmitButton } from '@/components/ui/submit-button'
-import { Stylist } from '@/lib/db/stylist-core' // Importă tipul Stylist
-// Importă EditStylistDialog care acum primește 'entity'
 import { EditStylistDialog } from '@/app/admin/stylists/components/edit-stylist-dialog'
 import { ActiveBadge } from '@/components/ui/active-badge'
 // Importă acțiunea de ștergere și hook-urile necesare
@@ -12,9 +10,10 @@ import { deleteStylistAction } from '../actions'
 import { useActionState, useEffect } from 'react' // <-- Importă useActionState și useEffect
 import { toast } from 'sonner' // <-- Importă toast pentru feedback
 import { INITIAL_FORM_STATE } from '@/lib/types' // <-- Importă starea inițială generică
+import { StylistData } from '../types'
 
 interface StylistTableRowProps {
-  stylist: Stylist
+  stylist: StylistData
 }
 
 export function StylistTableRow({ stylist }: StylistTableRowProps) {

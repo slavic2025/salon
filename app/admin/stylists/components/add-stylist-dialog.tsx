@@ -28,8 +28,6 @@ export function AddStylistDialog() {
 
   const handleOpenChange = (open: boolean) => {
     setIsDialogOpen(open)
-    // Când dialogul se deschide, incrementează cheia pentru a forța re-renderarea formularului
-    // Acest lucru resetează starea internă a formularului și erorile.
     if (open) {
       setDialogKey((prevKey) => prevKey + 1)
     }
