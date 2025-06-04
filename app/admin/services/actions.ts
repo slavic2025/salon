@@ -85,6 +85,7 @@ export async function editServiceAction(_prevState: ActionResponse, formData: Fo
   })
   try {
     const data = extractServiceDataFromForm(formData)
+    logger.debug('Parsed service data before Zod validation', { data })
     const validated = editServiceSchema.parse(data)
 
     await updateService(id, validated)

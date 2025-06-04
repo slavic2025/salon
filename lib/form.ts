@@ -1,5 +1,5 @@
 // lib/utils/form.ts
-import { addServiceSchema, addStylistSchema } from '@/lib/zod/schemas'
+import { addServiceSchema, addStylistSchema, editServiceSchema, editStylistSchema } from '@/lib/zod/schemas'
 import { z } from 'zod'
 
 // Tipuri suportate pentru field-uri
@@ -40,8 +40,9 @@ function extractFormDataGeneric<T>(formData: FormData, fieldConfigs: FormFieldCo
 }
 
 // ================= SERVICE =================
-export function extractServiceDataFromForm(formData: FormData): Partial<z.infer<typeof addServiceSchema>> {
-  const fields: FormFieldConfig<keyof z.infer<typeof addServiceSchema>>[] = [
+export function extractServiceDataFromForm(formData: FormData): Partial<z.infer<typeof editServiceSchema>> {
+  const fields: FormFieldConfig<keyof z.infer<typeof editServiceSchema>>[] = [
+    { key: 'id', type: 'string' },
     { key: 'name', type: 'string' },
     { key: 'description', type: 'string' },
     { key: 'duration_minutes', type: 'number' },
@@ -49,19 +50,20 @@ export function extractServiceDataFromForm(formData: FormData): Partial<z.infer<
     { key: 'is_active', type: 'boolean' },
     { key: 'category', type: 'string' },
   ]
-  return extractFormDataGeneric<z.infer<typeof addServiceSchema>>(formData, fields)
+  return extractFormDataGeneric<z.infer<typeof editServiceSchema>>(formData, fields)
 }
 
 // ================= STYLIST =================
-export function extractStylistDataFromForm(formData: FormData): Partial<z.infer<typeof addStylistSchema>> {
-  const fields: FormFieldConfig<keyof z.infer<typeof addStylistSchema>>[] = [
+export function extractStylistDataFromForm(formData: FormData): Partial<z.infer<typeof editStylistSchema>> {
+  const fields: FormFieldConfig<keyof z.infer<typeof editStylistSchema>>[] = [
+    { key: 'id', type: 'string' },
     { key: 'name', type: 'string' },
     { key: 'email', type: 'string' },
     { key: 'phone', type: 'string' },
     { key: 'description', type: 'string' },
     { key: 'is_active', type: 'boolean' },
   ]
-  return extractFormDataGeneric<z.infer<typeof addStylistSchema>>(formData, fields)
+  return extractFormDataGeneric<z.infer<typeof editStylistSchema>>(formData, fields)
 }
 
 // ================= ZOD ERROR FORMATTER =================

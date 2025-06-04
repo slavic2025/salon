@@ -42,7 +42,9 @@ export const addStylistSchema = z.object({
   is_active: zBooleanCheckboxDefaultTrue,
 })
 
-export const editStylistSchema = addStylistSchema
+export const editStylistSchema = addStylistSchema.extend({
+  id: z.string().uuid({ message: 'ID-ul serviciului este invalid.' }),
+})
 
 // ================= DELETE SCHEMAS =================
 // Acestea validează direct ID-ul, nu un obiect complex.
