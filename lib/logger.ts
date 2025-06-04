@@ -91,6 +91,13 @@ const loggerReplaceFn = ({ path, key, value }: { path: string; key: string; valu
   return value
 }
 
+export type Logger = {
+  debug: (message: string, data?: LogData) => void
+  info: (message: string, data?: LogData) => void
+  warn: (message: string, data?: LogData) => void
+  error: (message: string, data?: LogData) => void
+}
+
 export const createLogger = (context: string) => {
   const shouldLog = (level: LogLevel): boolean => LOG_LEVEL_VALUES[level] >= minLogLevel
 
