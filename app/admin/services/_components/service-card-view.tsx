@@ -1,10 +1,10 @@
 // app/admin/services/components/service-card-view.tsx
 'use client'
 
-import { ServiceData } from '@/app/admin/services/types'
 import { ServiceCard } from './service-card'
 import { EmptyState } from '../../../../components/ui/empty-state'
 import { createLogger } from '@/lib/logger'
+import { ServiceData } from '@/features/services/types'
 
 const logger = createLogger('ServiceCardView')
 

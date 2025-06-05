@@ -2,7 +2,7 @@
 'use client'
 
 import Link from 'next/link' // Importă Link
-import { EditStylistDialog } from '@/app/admin/stylists/components/edit-stylist-dialog'
+import { EditStylistDialog } from '@/app/admin/stylists/_components/edit-stylist-dialog'
 import { STYLIST_DISPLAY_FIELDS } from './stylist-display-fields'
 import { deleteStylistAction } from '../actions'
 import { GenericDisplayCard } from '@/components/shared/generic-display-card'

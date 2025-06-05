@@ -1,7 +1,7 @@
 // app/admin/services/components/edit-service-dialog.tsx
 'use client'
 
-import { ServiceData } from '@/app/admin/services/types'
+import { ServiceData } from '@/features/services/types'
 import { EditServiceForm } from './edit-service-form' // Formularul specific serviciilor
 import { GenericEditDialog } from '@/components/shared/generic-edit-dialog' // <-- Noul import
 

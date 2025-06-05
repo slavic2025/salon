@@ -13,8 +13,8 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons'
 
 // Server Action pentru login
-import { signIn } from '@/app/auth/actions'
-import { loginSchema } from '@/lib/zod/schemas'
+import { signIn } from '@/features/auth/actions'
+import { loginSchema } from '@/features/auth/types'
 
 type LoginInput = z.infer<typeof loginSchema>
 

@@ -1,6 +1,6 @@
 // app/login/page.tsx
 import { createLogger } from '@/lib/logger'
-import { LoginForm } from '@/components/auth/LoginForm' // Vom crea acest component în curând
+import { LoginForm } from '@/components/features/auth/LoginForm' // Vom crea acest component în curând
 
 const logger = createLogger('LoginPage')
 

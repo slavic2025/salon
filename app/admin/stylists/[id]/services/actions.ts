@@ -13,11 +13,11 @@ import {
   fetchServicesOfferedByStylist,
   servicesOfferedCrud, // Pentru update și delete, dacă folosim direct din generic
 } from '@/lib/db/services-offered-core'
-import { fetchAllServices } from '@/lib/db/service-core' // Pentru a lista serviciile disponibile
 import { ServicesOfferedActionResponse, ServicesOfferedData, ServicesOfferedFormDataType } from './types'
 import { extractServicesOfferedDataFromForm } from '@/lib/form'
 import { Tables, TablesInsert } from '@/types/database.types'
 import { INITIAL_FORM_STATE, ActionResponse } from '@/lib/types' // Import INITIAL_FORM_STATE
+import { fetchAllServices } from '@/features/services/data-acces'
 
 const logger = createLogger('ServicesOfferedActions')
 const REVALIDATION_PATH = (stylistId: string) => `/admin/stylists/${stylistId}/services`

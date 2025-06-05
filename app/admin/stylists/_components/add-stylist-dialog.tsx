@@ -15,7 +15,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 
-import { StylistFormFields } from '@/app/admin/stylists/components/stylist-form-fields'
+import { StylistFormFields } from '@/app/admin/stylists/_components/stylist-form-fields'
 import { addStylistAction } from '@/app/admin/stylists/actions'
 import { SubmitButton } from '@/components/ui/submit-button'
 import { StylistActionResponse } from '@/app/admin/stylists/types'

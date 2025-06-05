@@ -4,7 +4,7 @@
 import Link from 'next/link' // Importă Link
 import { TableCell, TableRow } from '@/components/ui/table'
 import { SubmitButton } from '@/components/ui/submit-button'
-import { EditStylistDialog } from '@/app/admin/stylists/components/edit-stylist-dialog'
+import { EditStylistDialog } from '@/app/admin/stylists/_components/edit-stylist-dialog'
 import { ActiveBadge } from '@/components/ui/active-badge'
 import { deleteStylistAction } from '../actions'
 import { useActionState, useEffect } from 'react'

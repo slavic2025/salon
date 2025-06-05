@@ -1,6 +1,6 @@
 // app/admin/stylists/page.tsx
 import { createLogger } from '@/lib/logger'
-import { StylistsPageContent } from './components/stylist-page-content'
+import { StylistsPageContent } from './_components/stylist-page-content'
 import { fetchstylists } from './data'
 
 const logger = createLogger('StylistsPage')

@@ -1,11 +1,11 @@
 // app/admin/services/components/service-form-fields.tsx
 'use client'
 
-import { ServiceData } from '@/app/admin/services/types'
-import { SERVICE_FORM_FIELDS } from '@/app/admin/services/components/form-fields'
+import { SERVICE_FORM_FIELDS } from '@/app/admin/services/_components/form-fields'
 import { GenericFormFields } from '@/components/shared/generic-form-fields'
 import { FormFieldConfig } from '@/components/shared/form-fields-types'
 import { FieldErrors } from '@/lib/types'
+import { ServiceData } from '@/features/services/types'
 
 interface ServiceFormFieldsProps {
   initialData?: ServiceData | null

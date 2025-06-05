@@ -3,16 +3,14 @@
 
 import { TableCell, TableRow } from '@/components/ui/table'
 import { SubmitButton } from '@/components/ui/submit-button'
-import { ServiceData } from '@/app/admin/services/types'
-// Importă direct acțiunea de ștergere care este compatibilă cu useActionState
-import { deleteServiceAction } from '@/app/admin/services/actions' // <-- Modificat
-// Importă EditServiceDialog care acum primește 'entity'
-import { EditServiceDialog } from '@/app/admin/services/components/edit-service-dialog'
+import { EditServiceDialog } from '@/app/admin/services/_components/edit-service-dialog'
 import { DEFAULT_CURRENCY_SYMBOL } from '@/lib/constants'
 import { ActiveBadge } from '@/components/ui/active-badge'
 import { useActionState, useEffect } from 'react' // <-- Importă useActionState și useEffect
 import { toast } from 'sonner' // <-- Importă toast pentru feedback
 import { INITIAL_FORM_STATE } from '@/lib/types' // <-- Importă starea inițială generică
+import { ServiceData } from '@/features/services/types'
+import { deleteServiceAction } from '@/features/services/actions'
 
 interface ServiceTableRowProps {
   service: ServiceData

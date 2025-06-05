@@ -1,17 +1,10 @@
 // lib/actions/service-actions.ts
 'use server'
-
-import { addServiceSchema, editServiceSchema } from '@/lib/zod/schemas' // Schemele tale Zod
-import {
-  insertService,
-  updateService,
-  deleteService,
-  fetchAllServices, // Vezi mai jos pentru getServicesAction
-} from '@/lib/db/service-core' // Funcțiile tale de DB
 import { extractServiceDataFromForm } from '@/lib/form' // Funcția ta specifică de extragere
 import { createLogger } from '@/lib/logger' // Logger-ul tău
 import { createGenericServerActions } from '@/lib/actions/generic-actions'
-import { ServiceData } from './types'
+import { addServiceSchema, editServiceSchema, ServiceData } from './types'
+import { deleteService, fetchAllServices, insertService, updateService } from './data-acces'
 
 // Specific pentru service-actions, poți avea un logger dedicat
 const serviceActionsLogger = createLogger('ServiceActions')

@@ -1,7 +1,7 @@
 // app/admin/services/components/service-display-fields.tsx
 import React from 'react'
-import { ServiceData } from '../types'
 import { DEFAULT_CURRENCY_SYMBOL } from '@/lib/constants'
+import { ServiceData } from '@/features/services/types'
 
 /**
  * Definește structura unui câmp pentru afișarea detaliilor serviciului.

@@ -1,7 +1,6 @@
 // app/admin/services/form-fields.ts
+import { ServiceData } from '@/features/services/types'
 import { DEFAULT_CURRENCY_SYMBOL } from '@/lib/constants'
-import { ServiceData } from '../types'
-
 /**
  * Definește structura unui singur câmp de formular.
  * `@property {keyof ServiceData}` id - Numele unic al câmpului, care corespunde unei proprietăți din ServiceData

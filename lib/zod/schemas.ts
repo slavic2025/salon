@@ -10,27 +10,7 @@ import {
   zPhoneRequired,
 } from './fields'
 
-// ================= LOGIN =================
-export const loginSchema = z.object({
-  email: zEmailRequired,
-  password: zPasswordRequired,
-})
-
 // ================= SERVICE =================
-
-export const addServiceSchema = z.object({
-  name: zStringMin(1, 'Numele serviciului este obligatoriu.'),
-  description: zStringMin(1, 'Descrierea serviciului este obligatorie.'),
-  duration_minutes: zIntFromForm('Durata trebuie să fie un număr întreg pozitiv.'),
-  price: zPriceFromForm,
-  is_active: zBooleanCheckboxDefaultTrue,
-
-  category: zStringMin(1, 'Categoria serviciului este obligatorie.'),
-})
-
-export const editServiceSchema = addServiceSchema.extend({
-  id: z.string().uuid({ message: 'ID-ul serviciului este invalid.' }),
-})
 
 // ================= STYLIST =================
 // Definim structura de bază a unui stilist.

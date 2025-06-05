@@ -1,7 +1,6 @@
 // app/admin/services/components/services-page-content.tsx
 'use client'
 
-import { ServiceData } from '@/app/admin/services/types'
 import { createLogger } from '@/lib/logger'
 import { AddServiceDialog } from './add-service-dialog'
 
@@ -9,6 +8,7 @@ import { AddServiceDialog } from './add-service-dialog'
 import { GenericTableView } from '@/components/shared/generic-table-view'
 import { ServiceTableRow } from './service-table-row' // Păstrăm acest import
 import { SERVICE_TABLE_HEADERS } from './service-table-headers' // Păstrăm acest import
+import { ServiceData } from '@/features/services/types'
 
 // Presupunem că vei crea și un ServiceCardView similar
 // import { ServiceCardView } from './service-card-view'

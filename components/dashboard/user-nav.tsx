@@ -13,7 +13,7 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { signOut } from '@/app/auth/actions' // Funcția de logout
+import { signOut } from '@/features/auth/actions' // Funcția de logout
 
 export function UserNav() {
   // Aici poți prelua informațiile despre utilizator din sesiune

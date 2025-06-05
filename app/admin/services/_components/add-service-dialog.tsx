@@ -15,10 +15,10 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 
-import { ServiceFormFields } from '@/app/admin/services/components/service-form-fields'
-import { addServiceAction } from '@/app/admin/services/actions'
+import { ServiceFormFields } from '@/app/admin/services/_components/service-form-fields'
 import { SubmitButton } from '@/components/ui/submit-button'
 import { INITIAL_FORM_STATE } from '@/lib/types'
+import { addServiceAction } from '@/features/services/actions'
 
 export function AddServiceDialog() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)

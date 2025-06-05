@@ -1,7 +1,7 @@
 // app/admin/stylists/components/stylist-form-fields.tsx
 'use client'
 
-import { STYLIST_FORM_FIELDS } from '@/app/admin/stylists/components/form-fields'
+import { STYLIST_FORM_FIELDS } from '@/app/admin/stylists/_components/form-fields'
 import { GenericFormFields } from '@/components/shared/generic-form-fields'
 import { FormFieldConfig } from '@/components/shared/form-fields-types'
 import { FieldErrors } from '@/lib/types'
