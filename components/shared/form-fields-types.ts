@@ -1,6 +1,22 @@
 // components/shared/form-fields-types.ts
 
-export type FormFieldType = 'text' | 'email' | 'number' | 'checkbox' | 'textarea' | 'password' | 'tel' | 'url'
+// Adaugă 'select' la tipurile existente
+export type FormFieldType =
+  | 'text'
+  | 'email'
+  | 'number'
+  | 'checkbox'
+  | 'textarea'
+  | 'password'
+  | 'tel'
+  | 'url'
+  | 'select'
+
+export interface FormFieldOption {
+  value: string
+  label: string
+  disabled?: boolean // Opțional, dacă ai nevoie să dezactivezi anumite opțiuni
+}
 
 export interface FormFieldConfig<T extends Record<string, unknown>> {
   id: keyof T
@@ -8,6 +24,7 @@ export interface FormFieldConfig<T extends Record<string, unknown>> {
   type: FormFieldType
   placeholder?: string
   required?: boolean
-  step?: string
+  step?: string // Pentru inputuri de tip 'number'
   className?: string
+  options?: FormFieldOption[] // Noua proprietate pentru câmpurile de tip 'select'
 }

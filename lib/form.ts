@@ -1,5 +1,11 @@
 // lib/utils/form.ts
-import { addServiceSchema, addStylistSchema, editServiceSchema, editStylistSchema } from '@/lib/zod/schemas'
+import {
+  addServiceSchema,
+  addStylistSchema,
+  editOfferedServiceSchema,
+  editServiceSchema,
+  editStylistSchema,
+} from '@/lib/zod/schemas'
 import { z } from 'zod'
 
 // Tipuri suportate pentru field-uri
@@ -64,6 +70,22 @@ export function extractStylistDataFromForm(formData: FormData): Partial<z.infer<
     { key: 'is_active', type: 'boolean' },
   ]
   return extractFormDataGeneric<z.infer<typeof editStylistSchema>>(formData, fields)
+}
+
+// ================= SERVICES OFFERED =================
+export function extractServicesOfferedDataFromForm(
+  formData: FormData
+): Partial<z.infer<typeof editOfferedServiceSchema>> {
+  // Folosim editOfferedServiceSchema pentru a include 'id' și 'stylist_id'
+  const fields: FormFieldConfig<keyof z.infer<typeof editOfferedServiceSchema>>[] = [
+    { key: 'id', type: 'string' }, // Pentru editare
+    { key: 'stylist_id', type: 'string' }, // Necesar pentru context, deși nu e direct editabil
+    { key: 'service_id', type: 'string' },
+    { key: 'custom_price', type: 'number' },
+    { key: 'custom_duration', type: 'number' },
+    { key: 'is_active', type: 'boolean' },
+  ]
+  return extractFormDataGeneric<z.infer<typeof editOfferedServiceSchema>>(formData, fields)
 }
 
 // ================= ZOD ERROR FORMATTER =================
