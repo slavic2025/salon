@@ -1,5 +1,5 @@
 // utils/env.ts
-import { zEnvHost, zStringRequired } from '@/lib/zod/fields'
+import { zEnvHost, zStringRequired } from '@/config/validation/fields'
 import { z } from 'zod'
 
 // Definim schema pentru variabilele de mediu, folosind schema din zod.ts

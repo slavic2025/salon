@@ -7,7 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Textarea } from '@/components/ui/textarea'
 import { createLogger } from '@/lib/logger'
 import { FormFieldConfig } from './form-fields-types' // Acum include 'options' și 'select'
-import { FieldErrors } from '@/lib/types'
+import { FieldErrors } from '@/types/types'
 // Importă componentele Select de la shadcn/ui
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select' // Asigură-te că shadcn/ui add select a creat acest fișier
 

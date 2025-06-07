@@ -1,8 +1,8 @@
 // app/admin/stylists/[id]/services/types.ts
-import { ActionResponse as GenericActionResponse } from '@/lib/types'
-import { zBooleanCheckboxDefaultTrue } from '@/lib/zod/fields'
+import { ActionResponse as GenericActionResponse } from '@/types/types'
 import { Tables, TablesInsert } from '@/types/database.types' // Importă tipurile Supabase
 import { z } from 'zod'
+import { zBooleanCheckboxDefaultTrue } from '@/config/validation/fields'
 
 // Extindem tipul generat pentru a include opțional detaliile serviciului
 export type ServicesOfferedData = Tables<'services_offered'> & {

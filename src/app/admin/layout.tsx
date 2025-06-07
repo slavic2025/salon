@@ -5,7 +5,7 @@ import { MainNav } from '@/components/dashboard/main-nav'
 import { UserNav } from '@/components/dashboard/user-nav'
 import { DashboardSidebar } from '@/components/dashboard/sidebar'
 
-import { createClient } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase-server'
 import { createLogger } from '@/lib/logger'
 
 interface AdminLayoutProps {

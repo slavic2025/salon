@@ -1,4 +1,4 @@
-import { zEmailRequired, zPasswordRequired } from '@/lib/zod/fields'
+import { zEmailRequired, zPasswordRequired } from '@/config/validation/fields'
 import { z } from 'zod'
 
 // ================= LOGIN =================

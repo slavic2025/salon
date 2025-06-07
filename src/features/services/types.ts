@@ -1,8 +1,8 @@
 // app/admin/services/types.ts
-import { ActionResponse as GenericActionResponse } from '@/lib/types'
-import { zBooleanCheckboxDefaultTrue, zIntFromForm, zPriceFromForm, zStringMin } from '@/lib/zod/fields'
+import { ActionResponse as GenericActionResponse } from '@/types/types'
 import { Tables, TablesInsert } from '@/types/database.types' // Importă tipurile Supabase
 import { z } from 'zod'
+import { zBooleanCheckboxDefaultTrue, zIntFromForm, zPriceFromForm, zStringMin } from '@/config/validation/fields'
 
 export type ServiceData = Tables<'services'>
 export type ServiceFormDataType = Omit<TablesInsert<'services'>, 'id' | 'created_at' | 'updated_at'>

@@ -1,10 +1,10 @@
-import { createGenericCrudService } from '@/lib/db/generic-core'
+import { createGenericCrudService } from '@/core/db/generic-core'
 import { createLogger } from '@/lib/logger'
 import { Database, Tables, TablesInsert, TablesUpdate } from '@/types/database.types' // Tipul Database și Table helpers
 
 import { SupabaseClient } from '@supabase/supabase-js'
 import { addOfferedServiceSchema, editOfferedServiceSchema, ServicesOfferedData } from './types'
-import { createClient } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase-server'
 
 const logger = createLogger('DB_ServicesOfferedCore')
 

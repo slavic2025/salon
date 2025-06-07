@@ -1,5 +1,5 @@
 // lib/logger.ts
-import { deepMap } from '@/lib/utils/deepMap' // Importăm deepMap
+import { deepMap } from '@/lib/deepMap' // Importăm deepMap
 
 type LogData = Record<string, unknown>
 

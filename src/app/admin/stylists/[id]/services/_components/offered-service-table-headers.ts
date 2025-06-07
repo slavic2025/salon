@@ -1,5 +1,5 @@
 // app/admin/stylists/[id]/services/components/offered-service-table-headers.ts
-import { TableHeaderConfig } from '@/lib/types' //
+import { TableHeaderConfig } from '@/types/types' //
 
 export const OFFERED_SERVICE_TABLE_HEADERS: TableHeaderConfig[] = [
   { label: 'Serviciu (Bază)', className: 'text-left border-r w-[25%]' },

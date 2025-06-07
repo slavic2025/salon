@@ -6,7 +6,7 @@ import { SubmitButton } from '@/components/ui/submit-button'
 import { createLogger } from '@/lib/logger'
 import { useActionState, useEffect } from 'react'
 import { toast } from 'sonner'
-import { INITIAL_FORM_STATE, ActionResponse } from '@/lib/types'
+import { INITIAL_FORM_STATE, ActionResponse } from '@/types/types'
 import { DisplayFieldConfig, DisplayItem } from './display-card-types' // Importă noile tipuri
 
 const logger = createLogger('GenericDisplayCard')

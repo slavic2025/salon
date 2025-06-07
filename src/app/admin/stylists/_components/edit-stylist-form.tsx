@@ -11,7 +11,7 @@ import { DialogFooter } from '@/components/ui/dialog'
 import { SubmitButton } from '@/components/ui/submit-button'
 import { createLogger } from '@/lib/logger'
 import { StylistFormFields } from './stylist-form-fields' // Importă câmpurile formularului pentru stilist
-import { INITIAL_FORM_STATE } from '@/lib/types'
+import { INITIAL_FORM_STATE } from '@/types/types'
 import { StylistActionResponse, StylistData } from '@/features/stylists/types'
 import { editStylistAction } from '@/features/stylists/actions'
 

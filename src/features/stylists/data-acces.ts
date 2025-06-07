@@ -1,8 +1,8 @@
 // lib/db/stylist-core.ts
-import { createClient } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase-server'
 import { z } from 'zod'
 import { createLogger } from '@/lib/logger'
-import { createGenericCrudService } from '@/lib/db/generic-core'
+import { createGenericCrudService } from '@/core/db/generic-core'
 import { addStylistSchema, editStylistSchema, StylistData } from './types'
 
 const logger = createLogger('DB_StylistCore')

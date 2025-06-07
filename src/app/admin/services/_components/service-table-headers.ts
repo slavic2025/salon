@@ -1,6 +1,6 @@
 // app/admin/services/components/service-table-headers.ts
 
-import { TableHeaderConfig } from '@/lib/types'
+import { TableHeaderConfig } from '@/types/types'
 
 export const SERVICE_TABLE_HEADERS: TableHeaderConfig[] = [
   { label: 'Nume', className: 'text-left border-r' },

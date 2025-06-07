@@ -8,7 +8,7 @@ import { EditStylistDialog } from '@/app/admin/stylists/_components/edit-stylist
 import { ActiveBadge } from '@/components/ui/active-badge'
 import { useActionState, useEffect } from 'react'
 import { toast } from 'sonner'
-import { INITIAL_FORM_STATE } from '@/lib/types'
+import { INITIAL_FORM_STATE } from '@/types/types'
 import { Button, buttonVariants } from '@/components/ui/button' // Importă Button și buttonVariants
 import { Scissors } from 'lucide-react' // Sau altă iconiță relevantă
 import { cn } from '@/lib/utils' //

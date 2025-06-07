@@ -17,7 +17,7 @@ import {
 
 import { ServiceFormFields } from '@/app/admin/services/_components/service-form-fields'
 import { SubmitButton } from '@/components/ui/submit-button'
-import { INITIAL_FORM_STATE } from '@/lib/types'
+import { INITIAL_FORM_STATE } from '@/types/types'
 import { addServiceAction } from '@/features/services/actions'
 
 export function AddServiceDialog() {

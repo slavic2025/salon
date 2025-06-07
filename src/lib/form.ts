@@ -1,6 +1,7 @@
 // lib/utils/form.ts
+import { editOfferedServiceSchema } from '@/features/services-offered/types'
 import { editServiceSchema } from '@/features/services/types'
-import { addStylistSchema, editOfferedServiceSchema, editStylistSchema } from '@/lib/zod/schemas'
+import { editStylistSchema } from '@/features/stylists/types'
 import { z } from 'zod'
 
 // Tipuri suportate pentru field-uri

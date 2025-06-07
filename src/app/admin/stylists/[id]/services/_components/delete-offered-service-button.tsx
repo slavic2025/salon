@@ -18,7 +18,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog' //
 import { createLogger } from '@/lib/logger'
-import { INITIAL_FORM_STATE, ActionResponse } from '@/lib/types' //
+import { INITIAL_FORM_STATE, ActionResponse } from '@/types/types' //
 import { deleteOfferedServiceAction } from '@/features/services-offered/actions'
 
 const logger = createLogger('DeleteOfferedServiceButton')

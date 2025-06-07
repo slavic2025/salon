@@ -15,7 +15,7 @@ import {
 } from './types'
 import { extractServicesOfferedDataFromForm } from '@/lib/form'
 import { Tables, TablesInsert } from '@/types/database.types'
-import { INITIAL_FORM_STATE, ActionResponse } from '@/lib/types' // Import INITIAL_FORM_STATE
+import { INITIAL_FORM_STATE, ActionResponse } from '@/types/types' // Import INITIAL_FORM_STATE
 import { fetchAllServices } from '@/features/services/data-acces'
 import {
   deleteServiceOffered,

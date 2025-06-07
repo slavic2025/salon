@@ -2,7 +2,7 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { createLogger } from '@/lib/logger'
-import { env } from './utils/env' // Asigură-te că această cale este corectă
+import { env } from './env' // Asigură-te că această cale este corectă
 import type { Database } from '@/types/database.types' // <<<--- ASIGURĂ-TE CĂ AI IMPORTAT TIPUL RĂDĂCINĂ 'Database' AICI
 
 const logger = createLogger('SupabaseServerClient')

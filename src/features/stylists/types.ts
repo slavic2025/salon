@@ -1,8 +1,8 @@
 // app/admin/stylists/types.ts
-import { ActionResponse as GenericActionResponse } from '@/lib/types'
-import { zBooleanCheckboxDefaultTrue, zEmailRequired, zPhoneRequired, zStringMin } from '@/lib/zod/fields'
+import { ActionResponse as GenericActionResponse } from '@/types/types'
 import { Tables, TablesInsert } from '@/types/database.types'
 import { z } from 'zod'
+import { zBooleanCheckboxDefaultTrue, zEmailRequired, zPhoneRequired, zStringMin } from '@/config/validation/fields'
 
 export type StylistData = Tables<'stylists'>
 export type StylistFormDataType = Omit<

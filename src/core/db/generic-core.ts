@@ -1,7 +1,7 @@
 import { Database } from '@/types/database.types'
 import { z } from 'zod'
-import { createLogger } from '../logger'
-import { createClient } from '../supabase'
+import { createLogger } from '../../lib/logger'
+import { createClient } from '../../lib/supabase-server'
 import { SupabaseClient } from '@supabase/supabase-js'
 
 type ValidTable = keyof Database['public']['Tables']

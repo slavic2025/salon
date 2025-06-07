@@ -1,6 +1,6 @@
 // lib/db/service-core.ts
 import { addServiceSchema, editServiceSchema, ServiceData } from '@/features/services/types'
-import { createGenericCrudService } from '@/lib/db/generic-core'
+import { createGenericCrudService } from '@/core/db/generic-core'
 
 export const serviceCrud = createGenericCrudService<
   'services',

@@ -10,7 +10,7 @@ import { DialogFooter } from '@/components/ui/dialog'
 import { SubmitButton } from '@/components/ui/submit-button'
 import { createLogger } from '@/lib/logger'
 import { ServiceFormFields } from './service-form-fields'
-import { ActionResponse, INITIAL_FORM_STATE } from '@/lib/types'
+import { ActionResponse, INITIAL_FORM_STATE } from '@/types/types'
 import { ServiceData } from '@/features/services/types'
 import { editServiceAction } from '@/features/services/actions'
 

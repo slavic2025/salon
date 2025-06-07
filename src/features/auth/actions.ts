@@ -2,7 +2,7 @@
 'use server'
 
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase' // Import the Supabase client
+import { createClient } from '@/lib/supabase-server' // Import the Supabase client
 
 export async function signIn(email: string, password: string) {
   const supabase = await createClient() // Use the Supabase client from lib/supabase

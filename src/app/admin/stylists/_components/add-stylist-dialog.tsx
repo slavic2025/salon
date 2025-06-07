@@ -17,7 +17,7 @@ import {
 
 import { StylistFormFields } from '@/app/admin/stylists/_components/stylist-form-fields'
 import { SubmitButton } from '@/components/ui/submit-button'
-import { INITIAL_FORM_STATE } from '@/lib/types'
+import { INITIAL_FORM_STATE } from '@/types/types'
 import { StylistActionResponse } from '@/features/stylists/types'
 import { addStylistAction } from '@/features/stylists/actions'
 
