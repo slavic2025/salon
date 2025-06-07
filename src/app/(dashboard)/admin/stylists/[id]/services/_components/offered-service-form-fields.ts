@@ -1,35 +1,31 @@
-// app/admin/stylists/[id]/services/components/offered-service-form-fields.ts
-import { FormFieldConfig, FormFieldOption } from '@/components/shared/form-fields-types'
-import { ServiceOffered } from '@/core/domains/services-offered/services-offered.types'
+// src/app/(dashboard)/admin/stylists/[id]/services/_components/offered-service-form-fields.ts
+import { FormFieldConfig } from '@/components/shared/form-fields-types'
+import { AddOfferedServiceInput, EditOfferedServiceInput } from '@/core/domains/services-offered/services-offered.types'
 import { DEFAULT_CURRENCY_SYMBOL } from '@/lib/constants'
 import { Tables } from '@/types/database.types'
 
-// Tip specific pentru câmpurile formularului de editare (doar câmpurile editabile)
-type EditFormFieldsType = Pick<ServiceOffered, 'custom_price' | 'custom_duration' | 'is_active'>
-// Tip specific pentru câmpurile formularului de adăugare (include service_id și câmpurile editabile)
-// ServicesOfferedFormDataType este deja potrivit pentru adăugare.
-
-// --- Supraîncărcarea funcțiilor ---
-
-// Declarație pentru cazul isEditMode = true
+// Declarația 1: Pentru modul de EDITARE (isEditMode = true)
+// Returnează o configurație bazată pe câmpurile parțiale din EditOfferedServiceInput.
 export function getOfferedServiceFormFields(
   isEditMode: true,
-  availableServices: Tables<'services'>[] // Poate fi opțional sau neutilizat aici, dar îl păstrăm pentru consistență
-): FormFieldConfig<EditFormFieldsType>[]
+  availableServices?: Tables<'services'>[] // Serviciile sunt opționale aici
+): FormFieldConfig<Partial<EditOfferedServiceInput>>[]
 
-// Declarație pentru cazul isEditMode = false
+// Declarația 2: Pentru modul de ADĂUGARE (isEditMode = false)
+// Returnează o configurație bazată pe tipul de input pentru adăugare.
 export function getOfferedServiceFormFields(
   isEditMode: false,
   availableServices: Tables<'services'>[]
-): FormFieldConfig<ServiceOffered>[]
+): FormFieldConfig<AddOfferedServiceInput>[]
 
 // Implementarea efectivă a funcției
 export function getOfferedServiceFormFields(
   isEditMode: boolean,
-  availableServices: Tables<'services'>[]
-): FormFieldConfig<EditFormFieldsType>[] | FormFieldConfig<ServiceOffered>[] {
-  // Definirea câmpurilor care sunt comune sau specifice modului de editare
-  const fieldsForEdit: FormFieldConfig<EditFormFieldsType>[] = [
+  availableServices: Tables<'services'>[] = []
+): FormFieldConfig<any>[] {
+  // Folosim 'any' în implementare, dar tipajul extern e sigur
+
+  const commonFields: FormFieldConfig<any>[] = [
     {
       id: 'custom_price',
       label: `Preț Custom (${DEFAULT_CURRENCY_SYMBOL})`,
@@ -54,29 +50,23 @@ export function getOfferedServiceFormFields(
   ]
 
   if (isEditMode) {
-    return fieldsForEdit
-  } else {
-    // Pentru modul de adăugare, includem și selectorul pentru service_id
-    const serviceSelectField: FormFieldConfig<ServiceOffered> = {
-      id: 'service_id', // Cheia este parte din ServicesOfferedFormDataType
-      label: 'Serviciu',
-      type: 'select',
-      required: true,
-      options: availableServices.map((service) => ({
-        value: service.id,
-        label: `${service.name} (${service.duration_minutes} min, ${service.price.toFixed(
-          2
-        )} ${DEFAULT_CURRENCY_SYMBOL})`,
-      })),
-      placeholder: 'Selectează un serviciu',
-    }
-
-    // Câmpurile din fieldsForEdit sunt, de asemenea, parte din ServicesOfferedFormDataType.
-    // Trebuie să ne asigurăm că tipul generic se potrivește.
-    const commonFieldsCastedForAdd: FormFieldConfig<ServiceOffered>[] = fieldsForEdit.map(
-      (field) => field as FormFieldConfig<ServiceOffered>
-    )
-
-    return [serviceSelectField, ...commonFieldsCastedForAdd]
+    return commonFields
   }
+
+  // Pentru modul de adăugare, adăugăm câmpul de selecție la început
+  const serviceSelectField: FormFieldConfig<AddOfferedServiceInput> = {
+    id: 'service_id',
+    label: 'Serviciu',
+    type: 'select',
+    required: true,
+    options: availableServices.map((service) => ({
+      value: service.id,
+      label: `<span class="math-inline">\{service\.name\} \(</span>{service.duration_minutes} min, ${service.price.toFixed(
+        2
+      )} ${DEFAULT_CURRENCY_SYMBOL})`,
+    })),
+    placeholder: 'Selectează un serviciu de bază',
+  }
+
+  return [serviceSelectField, ...commonFields]
 }

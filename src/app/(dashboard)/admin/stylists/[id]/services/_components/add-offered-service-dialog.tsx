@@ -1,4 +1,4 @@
-// app/admin/stylists/[id]/services/components/add-offered-service-dialog.tsx
+// src/app/(dashboard)/admin/stylists/[id]/services/_components/add-offered-service-dialog.tsx
 'use client'
 
 import React, { useState } from 'react'
@@ -11,41 +11,22 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog' //
+} from '@/components/ui/dialog'
 import { AddOfferedServiceForm } from './add-offered-service-form'
 import { Tables } from '@/types/database.types'
-import { createLogger } from '@/lib/logger'
-
-const logger = createLogger('AddOfferedServiceDialog')
 
 interface AddOfferedServiceDialogProps {
   stylistId: string
   availableServices: Tables<'services'>[]
-  triggerButton?: React.ReactNode // Permite un trigger custom
+  triggerButton?: React.ReactNode
 }
 
 export function AddOfferedServiceDialog({ stylistId, availableServices, triggerButton }: AddOfferedServiceDialogProps) {
+  // Păstrăm doar state-ul pentru vizibilitatea dialogului
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  // Cheie pentru a forța re-randarea și resetarea stării formularului intern la redeschidere
-  const [dialogKey, setDialogKey] = useState(0)
-
-  const handleOpenChange = (open: boolean) => {
-    logger.debug(`Dialog open state changed: ${open}`)
-    setIsDialogOpen(open)
-    if (open) {
-      // Incrementăm cheia doar la deschidere pentru a reseta starea formularului
-      setDialogKey((prevKey) => prevKey + 1)
-    }
-  }
-
-  const handleSuccess = () => {
-    logger.debug('AddOfferedServiceForm reported success, closing dialog.')
-    // Nu mai închidem dialogul imediat aici; `useEffect` din formular va gestiona închiderea după un scurt delay
-    // setIsDialogOpen(false); // Eliminat pentru a permite mesajului de succes să fie vizibil
-  }
 
   return (
-    <Dialog open={isDialogOpen} onOpenChange={handleOpenChange}>
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
         {triggerButton || (
           <Button>
@@ -54,22 +35,22 @@ export function AddOfferedServiceDialog({ stylistId, availableServices, triggerB
           </Button>
         )}
       </DialogTrigger>
-      {/* Cheia este importantă aici pentru a asigura resetarea stării formularului intern
-          când dialogul este redeschis după o închidere anterioară (mai ales după un submit). */}
-      <DialogContent key={dialogKey} className="sm:max-w-md">
-        {' '}
-        {/* Poți ajusta lățimea max */}
+
+      {/* Eliminăm 'key', deoarece Dialog unmounts on close, resetând starea formularului. */}
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Adaugă un nou serviciu pentru stilist</DialogTitle>
           <DialogDescription>
-            Selectează un serviciu din lista de mai jos și specifică eventuale prețuri sau durate personalizate pentru
-            acest stilist.
+            Selectează un serviciu și specifică eventuale prețuri sau durate personalizate.
           </DialogDescription>
         </DialogHeader>
+
+        {/* Pasăm funcția de închidere direct la 'onSuccess' și 'onCancel' */}
         <AddOfferedServiceForm
           stylistId={stylistId}
           availableServices={availableServices}
-          onSuccess={handleSuccess} // Pasează funcția de succes
+          onSuccess={() => setIsDialogOpen(false)}
+          onCancel={() => setIsDialogOpen(false)}
         />
       </DialogContent>
     </Dialog>

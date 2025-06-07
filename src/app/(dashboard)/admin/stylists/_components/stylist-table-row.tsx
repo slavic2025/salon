@@ -1,79 +1,63 @@
-// app/admin/stylists/components/stylist-table-row.tsx
+// src/app/(dashboard)/admin/stylists/_components/stylist-table-row.tsx
 'use client'
-
-import Link from 'next/link' // Importă Link
+import Link from 'next/link'
 import { TableCell, TableRow } from '@/components/ui/table'
-import { SubmitButton } from '@/components/ui/submit-button'
-import { EditStylistDialog } from '@/app/(dashboard)/admin/stylists/_components/edit-stylist-dialog'
+import { EditStylistDialog } from './edit-stylist-dialog'
 import { ActiveBadge } from '@/components/ui/active-badge'
-import { useActionState, useEffect } from 'react'
-import { toast } from 'sonner'
-import { INITIAL_FORM_STATE } from '@/types/actions.types'
-import { Button, buttonVariants } from '@/components/ui/button' // Importă Button și buttonVariants
-import { Scissors } from 'lucide-react' // Sau altă iconiță relevantă
-import { cn } from '@/lib/utils' //
-import { deleteStylistAction } from '@/features/stylists/actions'
+import { buttonVariants } from '@/components/ui/button'
+import { Pencil, Scissors, Trash2 } from 'lucide-react' // Am adăugat Trash2 pentru consistență
+import { cn } from '@/lib/utils'
 import { Stylist } from '@/core/domains/stylists/stylist.types'
+import { deleteStylistAction } from '@/features/stylists/actions'
+import { GenericDeleteDialog } from '@/components/shared/generic-delete-dialog'
+import { Button } from '@/components/ui/button' // Asigură-te că Button este importat
 
 interface StylistTableRowProps {
   stylist: Stylist
 }
 
 export function StylistTableRow({ stylist }: StylistTableRowProps) {
-  const [deleteState, deleteFormAction, isPending] = useActionState(deleteStylistAction, INITIAL_FORM_STATE)
-
-  useEffect(() => {
-    if (deleteState.message) {
-      if (deleteState.success) {
-        toast.success('Succes!', {
-          description: deleteState.message,
-        })
-      } else {
-        toast.error('Eroare!', {
-          description: deleteState.message,
-        })
-      }
-    }
-  }, [deleteState])
-
   return (
     <TableRow>
-      <TableCell className="font-medium text-left border-r">{stylist.name}</TableCell>
-      <TableCell className="text-left border-r">{stylist.email}</TableCell>
-      <TableCell className="text-left border-r">{stylist.phone || '-'}</TableCell>
-      <TableCell className="text-left border-r whitespace-normal break-words max-w-xs ">
+      <TableCell className="font-medium">{stylist.name}</TableCell>
+      <TableCell>{stylist.email}</TableCell>
+      <TableCell>{stylist.phone || '-'}</TableCell>
+
+      {/* Adăugăm clase pentru a trunchia textul lung */}
+      <TableCell className="max-w-xs truncate" title={stylist.description || ''}>
         {stylist.description || '-'}
       </TableCell>
-      <TableCell className="text-center border-r">
+
+      <TableCell className="text-center">
         <ActiveBadge isActive={stylist.is_active} />
       </TableCell>
+
+      {/* Folosim flexbox pentru a alinia și spația butoanele corect */}
       <TableCell className="flex items-center justify-end gap-2">
-        {' '}
-        {/* Am adăugat justify-end pentru aliniere */}
-        <EditStylistDialog entity={stylist} />
-        {/* Link către pagina de servicii a stilistului */}
+        <EditStylistDialog entity={stylist}>
+          {/* Butonul de editare standard */}
+          <Button variant="outline" size="sm" className="flex items-center gap-1.5">
+            <Pencil className="h-4 w-4" /> Editează
+          </Button>
+        </EditStylistDialog>
+
         <Link
           href={`/admin/stylists/${stylist.id}/services`}
-          className={cn(
-            buttonVariants({ variant: 'outline', size: 'sm' }),
-            'flex items-center' // Asigură alinierea iconiței cu textul
-          )}
-          aria-label={`Gestionează serviciile pentru ${stylist.name}`}
+          className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'flex items-center gap-1.5')}
         >
-          <Scissors className="mr-2 h-4 w-4" /> {/* Iconiță */}
-          Servicii
+          <Scissors className="h-4 w-4" /> Servicii
         </Link>
-        <form action={deleteFormAction} className="inline-block">
-          <input type="hidden" name="id" value={stylist.id} />
-          <SubmitButton
-            variant="destructive"
-            size="sm"
-            aria-label={`Șterge stilistul ${stylist.name}`}
-            disabled={isPending}
-          >
-            Șterge
-          </SubmitButton>
-        </form>
+
+        <GenericDeleteDialog
+          deleteAction={deleteStylistAction}
+          entityId={stylist.id}
+          entityName={stylist.name}
+          trigger={
+            <Button variant="destructive" size="sm" className="flex items-center gap-1.5">
+              <Trash2 className="h-4 w-4" /> Șterge
+            </Button>
+          }
+        />
       </TableCell>
     </TableRow>
   )

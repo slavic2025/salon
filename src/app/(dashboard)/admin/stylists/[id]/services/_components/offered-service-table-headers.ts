@@ -1,13 +1,15 @@
-// app/admin/stylists/[id]/services/components/offered-service-table-headers.ts
-
+// src/app/(dashboard)/admin/stylists/[id]/services/_components/offered-service-table-headers.ts
 import { TableHeaderConfig } from '@/types/ui.types'
 
 export const OFFERED_SERVICE_TABLE_HEADERS: TableHeaderConfig[] = [
-  { label: 'Serviciu (Bază)', className: 'text-left border-r w-[25%]' },
-  { label: 'Preț Custom', className: 'text-right border-r w-[15%]' },
-  { label: 'Durată Custom (min)', className: 'text-right border-r w-[15%]' },
-  { label: 'Preț Standard', className: 'text-right border-r w-[15%]' },
-  { label: 'Durată Standard (min)', className: 'text-right border-r w-[15%]' },
-  { label: 'Activ', className: 'text-center border-r w-[5%]' },
-  { label: 'Acțiuni', className: 'text-right w-[10%]' },
+  { label: 'Serviciu (Bază)', className: 'w-[25%]' },
+  // Aliniem la dreapta coloanele cu prețuri și durate
+  { label: 'Preț Custom', className: 'text-right' },
+  { label: 'Durată Custom (min)', className: 'text-right' },
+  { label: 'Preț Standard', className: 'text-right' },
+  { label: 'Durată Standard (min)', className: 'text-right' },
+  // Aliniem la centru coloana "Activ"
+  { label: 'Activ', className: 'text-center w-[100px]' },
+  // Aliniem la dreapta coloana "Acțiuni"
+  { label: 'Acțiuni', className: 'text-right w-[220px]' },
 ]

@@ -1,9 +1,8 @@
-// components/shared/generic-edit-dialog.tsx
+// src/components/shared/generic-edit-dialog.tsx
 'use client'
 
 import { useState } from 'react'
-import React from 'react' // Import React pentru React.ReactNode
-
+import React from 'react'
 import {
   Dialog,
   DialogContent,
@@ -13,25 +12,22 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { DisplayItem } from './display-card-types'
 
-import { DisplayItem } from './display-card-types' // Asigură-te că DisplayItem este importat
-
-// Definirea tipului pentru componenta de formular care va fi pasată
-// Aceasta trebuie să accepte prop-ul 'entity' de tip T și un callback 'onSuccess'
+// 1. Adăugăm `onCancel` la interfața pentru props-urile formularului
+// Acum, orice formular folosit de GenericEditDialog trebuie să accepte și onCancel.
 interface FormComponentProps<T extends DisplayItem> {
   entity: T
   onSuccess: () => void
-  // Poate și alte prop-uri comune dacă sunt necesare, ex: 'mode': 'edit' | 'add'
+  onCancel: () => void // <-- Prop adăugat
 }
 
 interface GenericEditDialogProps<T extends DisplayItem> {
-  entity: T // Entitatea de editat
-  title: string // Titlul dialogului
-  description: string // Descrierea dialogului
-  // Componenta de formular specifică (ex: EditServiceForm sau EditStylistForm)
-  // Folosim React.ComponentType pentru a indica că este o componentă React
+  entity: T
+  title: string
+  description: string
   FormComponent: React.ComponentType<FormComponentProps<T>>
-  children?: React.ReactNode // Trigger-ul dialogului (ex: un buton)
+  children?: React.ReactNode
 }
 
 export function GenericEditDialog<T extends DisplayItem>({
@@ -43,7 +39,15 @@ export function GenericEditDialog<T extends DisplayItem>({
 }: GenericEditDialogProps<T>) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  const handleCloseDialog = () => {
+  // Definirea funcțiilor de callback pe care le vom pasa mai jos
+  const handleSuccess = () => {
+    // Lăsăm formularul să decidă când se închide dialogul,
+    // dar am putea avea nevoie de un delay pentru toast, gestionat în formular.
+    // Aici, pur și simplu închidem dialogul.
+    setIsDialogOpen(false)
+  }
+
+  const handleCancel = () => {
     setIsDialogOpen(false)
   }
 
@@ -55,8 +59,9 @@ export function GenericEditDialog<T extends DisplayItem>({
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
-        {/* Renderizează componenta de formular pasată și îi pasează prop-urile necesare */}
-        <FormComponent entity={entity} onSuccess={handleCloseDialog} />
+
+        {/* 2. Pasăm și funcția `onCancel` către componenta de formular */}
+        <FormComponent entity={entity} onSuccess={handleSuccess} onCancel={handleCancel} />
       </DialogContent>
     </Dialog>
   )

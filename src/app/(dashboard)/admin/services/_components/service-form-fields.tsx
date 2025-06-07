@@ -1,24 +1,27 @@
-// app/admin/services/components/service-form-fields.tsx
+// src/app/(dashboard)/admin/services/_components/service-form-fields.tsx
 'use client'
 
-import { SERVICE_FORM_FIELDS } from '@/app/(dashboard)/admin/services/_components/form-fields'
+// 1. Importă funcția, nu constanta
+import { getServiceFormConfig } from './service-form-config'
 import { GenericFormFields } from '@/components/shared/generic-form-fields'
 import { FormFieldConfig } from '@/components/shared/form-fields-types'
-import { FieldErrors } from '@/types/actions.types'
+import { ActionResponse } from '@/types/actions.types'
 import { Service } from '@/core/domains/services/service.types'
 
 interface ServiceFormFieldsProps {
-  initialData?: Service | null
-  errors?: FieldErrors
+  // Am schimbat FieldErrors cu tipul mai specific din ActionResponse
+  errors?: ActionResponse['errors']
+  initialData?: Partial<Service> | null
   isEditMode?: boolean
 }
 
 export function ServiceFormFields({ initialData, errors, isEditMode = false }: ServiceFormFieldsProps) {
-  const typedServiceFormFields: FormFieldConfig<Service>[] = SERVICE_FORM_FIELDS as FormFieldConfig<Service>[]
+  // 2. Apelează funcția pentru a obține configurația
+  const serviceFormConfig = getServiceFormConfig()
 
   return (
-    <GenericFormFields<Service> // Specificăm tipul generic pentru entitatea 'ServiceData'
-      fieldsConfig={typedServiceFormFields}
+    <GenericFormFields<Partial<Service>>
+      fieldsConfig={serviceFormConfig}
       initialData={initialData}
       errors={errors}
       isEditMode={isEditMode}
