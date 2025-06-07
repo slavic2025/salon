@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dialog'
 import { ServiceFormFields } from './service-form-fields'
 import { SubmitButton } from '@/components/ui/submit-button'
-import { INITIAL_FORM_STATE } from '@/types/types'
+import { INITIAL_FORM_STATE } from '@/types/actions.types'
 import { addServiceAction } from '@/features/services/actions'
 import { useActionForm } from '@/hooks/useActionForm'
 

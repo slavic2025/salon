@@ -5,13 +5,13 @@ import { useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { DialogFooter } from '@/components/ui/dialog'
 import { SubmitButton } from '@/components/ui/submit-button'
-import { ActionResponse, INITIAL_FORM_STATE } from '@/types/types' // Asigură-te că ActionResponse este importat
+import { ActionResponse, INITIAL_FORM_STATE } from '@/types/actions.types' // Asigură-te că ActionResponse este importat
 import { GenericFormFields } from '@/components/shared/generic-form-fields'
 import { getOfferedServiceFormFields } from './offered-service-form-fields'
 import { Tables } from '@/types/database.types'
-import { ServicesOfferedFormDataType } from '@/core/domains/services-offered/services-offered.types'
 import { addServiceToStylistAction } from '@/features/services-offered/actions'
 import { useActionForm } from '@/hooks/useActionForm'
+import { ServiceOffered } from '@/core/domains/services-offered/services-offered.types'
 
 interface AddOfferedServiceFormProps {
   stylistId: string
@@ -38,11 +38,7 @@ export function AddOfferedServiceForm({ stylistId, availableServices, onSuccess 
 
   return (
     <form action={formSubmit} ref={formRef} className="space-y-4">
-      <GenericFormFields<ServicesOfferedFormDataType>
-        fieldsConfig={formFieldsConfig}
-        errors={state.errors}
-        isEditMode={false}
-      />
+      <GenericFormFields<ServiceOffered> fieldsConfig={formFieldsConfig} errors={state.errors} isEditMode={false} />
       <DialogFooter>
         <Button type="button" variant="outline" onClick={onSuccess} disabled={isPending}>
           Anulează

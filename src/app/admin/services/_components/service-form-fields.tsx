@@ -4,7 +4,7 @@
 import { SERVICE_FORM_FIELDS } from '@/app/admin/services/_components/form-fields'
 import { GenericFormFields } from '@/components/shared/generic-form-fields'
 import { FormFieldConfig } from '@/components/shared/form-fields-types'
-import { FieldErrors } from '@/types/types'
+import { FieldErrors } from '@/types/actions.types'
 import { Service } from '@/core/domains/services/service.types'
 
 interface ServiceFormFieldsProps {

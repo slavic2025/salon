@@ -1,34 +1,30 @@
 // src/core/domains/stylists/stylist.types.ts
-
 import { z } from 'zod'
-import { Tables, TablesInsert, TablesUpdate } from '@/types/database.types'
+import { Tables } from '@/types/database.types'
 import { zBooleanCheckboxDefaultTrue, zEmailRequired, zPhoneRequired, zStringMin } from '@/config/validation/fields'
 
-// Tipul de bază pentru datele unui stilist, cum vin din DB
+// 1. Tipul entității din baza de date
 export type Stylist = Tables<'stylists'>
 
-// Tipul pentru datele primite la creare. Omit câmpurile auto-generate.
-export type StylistCreateData = Omit<
-  TablesInsert<'stylists'>,
-  'id' | 'created_at' | 'updated_at' | 'profile_id' | 'profile_picture'
->
-
-// Tipul pentru datele primite la actualizare. Toate câmpurile sunt opționale.
-export type StylistUpdateData = TablesUpdate<'stylists'>
-
-// Schema Zod pentru adăugarea unui stilist.
+// 2. Schema Zod pentru ADĂUGARE este sursa de adevăr
 export const addStylistSchema = z.object({
   name: zStringMin(3, 'Numele stilistului trebuie să aibă minim 3 caractere.'),
   email: zEmailRequired,
-  phone: zPhoneRequired,
-  description: zStringMin(1, 'Descrierea stilistului este obligatorie.'),
+  phone: zPhoneRequired.nullable(),
+  description: zStringMin(1, 'Descrierea stilistului este obligatorie.').nullable(),
   is_active: zBooleanCheckboxDefaultTrue,
 })
 
-// Schema Zod pentru editarea unui stilist. Extinde schema de adăugare cu ID.
+// 3. Tipul pentru formularul de ADĂUGARE este derivat direct din schemă
+export type AddStylistInput = z.infer<typeof addStylistSchema>
+
+// 4. Schema Zod pentru EDITARE extinde schema de adăugare
 export const editStylistSchema = addStylistSchema.extend({
   id: z.string().uuid({ message: 'ID-ul stilistului este invalid.' }),
 })
 
-// Schema Zod pentru ștergerea unui stilist (validează doar ID-ul).
+// 5. Tipul pentru formularul de EDITARE este derivat direct din schemă
+export type EditStylistInput = z.infer<typeof editStylistSchema>
+
+// 6. Schema Zod pentru ȘTERGERE
 export const deleteStylistSchema = z.string().uuid('ID-ul stilistului trebuie să fie un UUID valid.')

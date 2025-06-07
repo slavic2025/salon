@@ -10,7 +10,7 @@ import {
   deleteStylistSchema,
   Stylist,
 } from '@/core/domains/stylists/stylist.types'
-import { ActionResponse } from '@/types/types'
+import { ActionResponse } from '@/types/actions.types'
 import { formatZodErrors } from '@/lib/form'
 
 const logger = createLogger('StylistActions')

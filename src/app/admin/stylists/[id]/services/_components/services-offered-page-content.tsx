@@ -13,14 +13,14 @@ import { DEFAULT_CURRENCY_SYMBOL } from '@/lib/constants' //
 import { AddOfferedServiceDialog } from './add-offered-service-dialog'
 import { DeleteOfferedServiceButton } from './delete-offered-service-button' // O componentă dedicată pentru butonul de ștergere
 import { Stylist } from '@/core/domains/stylists/stylist.types'
-import { ServicesOfferedData } from '@/core/domains/services-offered/services-offered.types'
 import { EditOfferedServiceDialog } from './edit-offered-service-dialog'
+import { ServiceOffered } from '@/core/domains/services-offered/services-offered.types'
 
 const logger = createLogger('ServicesOfferedPageContent')
 
 interface ServicesOfferedPageContentProps {
   stylist: Stylist
-  initialServicesOffered: ServicesOfferedData[]
+  initialServicesOffered: ServiceOffered[]
   availableServices: Tables<'services'>[] // Toate serviciile disponibile în salon
 }
 

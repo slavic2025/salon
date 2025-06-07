@@ -7,20 +7,17 @@ import { Button } from '@/components/ui/button'
 import { DialogFooter } from '@/components/ui/dialog'
 import { SubmitButton } from '@/components/ui/submit-button'
 import { createLogger } from '@/lib/logger'
-import { INITIAL_FORM_STATE } from '@/types/types'
+import { ActionResponse, INITIAL_FORM_STATE } from '@/types/actions.types'
 import { GenericFormFields } from '@/components/shared/generic-form-fields'
 import { getOfferedServiceFormFields } from './offered-service-form-fields'
 import { Tables } from '@/types/database.types'
 import { updateOfferedServiceAction } from '@/features/services-offered/actions'
-import {
-  ServicesOfferedActionResponse,
-  ServicesOfferedData,
-} from '@/core/domains/services-offered/services-offered.types'
+import { ServiceOffered } from '@/core/domains/services-offered/services-offered.types'
 
 const logger = createLogger('EditOfferedServiceForm')
 
 interface EditOfferedServiceFormProps {
-  offeredService: ServicesOfferedData // Datele serviciului oferit, inclusiv detaliile serviciului de bază
+  offeredService: ServiceOffered // Datele serviciului oferit, inclusiv detaliile serviciului de bază
   // availableServices este necesar pentru getOfferedServiceFormFields, chiar dacă nu-l folosim direct pentru <select> în modul editare
   availableServices: Tables<'services'>[]
   onSuccess: () => void
@@ -33,7 +30,7 @@ export function EditOfferedServiceForm({
 }: EditOfferedServiceFormProps) {
   const formRef = useRef<HTMLFormElement>(null)
 
-  const [state, formAction, isPending] = useActionState<ServicesOfferedActionResponse, FormData>(
+  const [state, formAction, isPending] = useActionState<ActionResponse, FormData>(
     updateOfferedServiceAction, // Acțiunea de actualizare
     INITIAL_FORM_STATE
   )

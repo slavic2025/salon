@@ -6,7 +6,7 @@ import { SubmitButton } from '@/components/ui/submit-button'
 import React, { useEffect } from 'react'
 import { useFormState } from 'react-dom'
 import { toast } from 'sonner' // Importăm direct toast din sonner
-import { ActionResponse, INITIAL_FORM_STATE } from '@/types/types' // Asumăm că aceste tipuri sunt definite aici
+import { ActionResponse, INITIAL_FORM_STATE } from '@/types/actions.types' // Asumăm că aceste tipuri sunt definite aici
 
 // Interfață generică pentru un element din tabel, asigurând că are 'id' și, opțional, 'name'
 interface TableItem extends Record<string, unknown> {

@@ -1,11 +1,11 @@
 // app/admin/stylists/[id]/services/components/offered-service-form-fields.ts
 import { FormFieldConfig, FormFieldOption } from '@/components/shared/form-fields-types'
-import { ServicesOfferedFormDataType } from '@/core/domains/services-offered/services-offered.types'
+import { ServiceOffered } from '@/core/domains/services-offered/services-offered.types'
 import { DEFAULT_CURRENCY_SYMBOL } from '@/lib/constants'
 import { Tables } from '@/types/database.types'
 
 // Tip specific pentru câmpurile formularului de editare (doar câmpurile editabile)
-type EditFormFieldsType = Pick<ServicesOfferedFormDataType, 'custom_price' | 'custom_duration' | 'is_active'>
+type EditFormFieldsType = Pick<ServiceOffered, 'custom_price' | 'custom_duration' | 'is_active'>
 // Tip specific pentru câmpurile formularului de adăugare (include service_id și câmpurile editabile)
 // ServicesOfferedFormDataType este deja potrivit pentru adăugare.
 
@@ -21,13 +21,13 @@ export function getOfferedServiceFormFields(
 export function getOfferedServiceFormFields(
   isEditMode: false,
   availableServices: Tables<'services'>[]
-): FormFieldConfig<ServicesOfferedFormDataType>[]
+): FormFieldConfig<ServiceOffered>[]
 
 // Implementarea efectivă a funcției
 export function getOfferedServiceFormFields(
   isEditMode: boolean,
   availableServices: Tables<'services'>[]
-): FormFieldConfig<EditFormFieldsType>[] | FormFieldConfig<ServicesOfferedFormDataType>[] {
+): FormFieldConfig<EditFormFieldsType>[] | FormFieldConfig<ServiceOffered>[] {
   // Definirea câmpurilor care sunt comune sau specifice modului de editare
   const fieldsForEdit: FormFieldConfig<EditFormFieldsType>[] = [
     {
@@ -57,7 +57,7 @@ export function getOfferedServiceFormFields(
     return fieldsForEdit
   } else {
     // Pentru modul de adăugare, includem și selectorul pentru service_id
-    const serviceSelectField: FormFieldConfig<ServicesOfferedFormDataType> = {
+    const serviceSelectField: FormFieldConfig<ServiceOffered> = {
       id: 'service_id', // Cheia este parte din ServicesOfferedFormDataType
       label: 'Serviciu',
       type: 'select',
@@ -73,8 +73,8 @@ export function getOfferedServiceFormFields(
 
     // Câmpurile din fieldsForEdit sunt, de asemenea, parte din ServicesOfferedFormDataType.
     // Trebuie să ne asigurăm că tipul generic se potrivește.
-    const commonFieldsCastedForAdd: FormFieldConfig<ServicesOfferedFormDataType>[] = fieldsForEdit.map(
-      (field) => field as FormFieldConfig<ServicesOfferedFormDataType>
+    const commonFieldsCastedForAdd: FormFieldConfig<ServiceOffered>[] = fieldsForEdit.map(
+      (field) => field as FormFieldConfig<ServiceOffered>
     )
 
     return [serviceSelectField, ...commonFieldsCastedForAdd]

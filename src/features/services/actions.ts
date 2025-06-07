@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { createLogger } from '@/lib/logger'
 import { serviceRepository } from '@/core/domains/services/service.repository'
 import { addServiceSchema, editServiceSchema, deleteServiceSchema } from '@/core/domains/services/service.types'
-import { ActionResponse } from '@/types/types'
+import { ActionResponse } from '@/types/actions.types'
 import { formatZodErrors } from '@/lib/form'
 import { Service } from '@/core/domains/services/service.types'
 

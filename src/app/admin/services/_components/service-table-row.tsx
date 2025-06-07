@@ -8,7 +8,7 @@ import { DEFAULT_CURRENCY_SYMBOL } from '@/lib/constants'
 import { ActiveBadge } from '@/components/ui/active-badge'
 import { useActionState, useEffect } from 'react' // <-- Importă useActionState și useEffect
 import { toast } from 'sonner' // <-- Importă toast pentru feedback
-import { INITIAL_FORM_STATE } from '@/types/types' // <-- Importă starea inițială generică
+import { INITIAL_FORM_STATE } from '@/types/actions.types' // <-- Importă starea inițială generică
 import { deleteServiceAction } from '@/features/services/actions'
 import { Service } from '@/core/domains/services/service.types'
 

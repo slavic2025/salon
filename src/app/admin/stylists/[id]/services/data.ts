@@ -3,8 +3,8 @@ import 'server-only' // Asigură că aceste funcții sunt apelate doar pe server
 
 import { createLogger } from '@/lib/logger'
 import { Tables } from '@/types/database.types'
-import { ServicesOfferedData } from '@/features/services-offered/types'
 import { getAllAvailableServicesAction, getServicesOfferedByStylistAction } from '@/features/services-offered/actions'
+import { ServiceOffered } from '@/core/domains/services-offered/services-offered.types'
 
 const logger = createLogger('ServicesOfferedData')
 
@@ -15,7 +15,7 @@ const logger = createLogger('ServicesOfferedData')
  * @returns A Promise that resolves to an array of ServicesOfferedData.
  * @throws An error if fetching data fails (though the underlying action might return an empty array on error).
  */
-export async function fetchServicesOfferedForStylist(stylistId: string): Promise<ServicesOfferedData[]> {
+export async function fetchServicesOfferedForStylist(stylistId: string): Promise<ServiceOffered[]> {
   logger.debug('Fetching services offered for stylist via data.ts', { stylistId })
   try {
     // Apelează Server Action-ul corespunzător

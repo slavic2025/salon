@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dialog'
 import { StylistFormFields } from '@/app/admin/stylists/_components/stylist-form-fields'
 import { SubmitButton } from '@/components/ui/submit-button'
-import { INITIAL_FORM_STATE } from '@/types/types'
+import { INITIAL_FORM_STATE } from '@/types/actions.types'
 import { addStylistAction } from '@/features/stylists/actions'
 import { useActionForm } from '@/hooks/useActionForm' // <-- Importăm hook-ul!
 

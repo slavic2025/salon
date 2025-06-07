@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { createLogger } from '@/lib/logger'
 import { formatZodErrors } from '@/lib/form'
-import { ActionResponse } from '@/types/types'
+import { ActionResponse } from '@/types/actions.types'
 import {
   addOfferedServiceSchema,
   editOfferedServiceSchema,

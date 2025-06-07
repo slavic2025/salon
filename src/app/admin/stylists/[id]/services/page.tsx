@@ -1,9 +1,11 @@
-// app/admin/stylists/[id]/services/page.tsx
+// src/app/admin/stylists/[id]/services/page.tsx
 import { createLogger } from '@/lib/logger'
-import { fetchServicesOfferedForStylist, fetchAllAvailableSalonServices } from './data' // Funcțiile create în data.ts
-import { ServicesOfferedPageContent } from './_components/services-offered-page-content' // Componenta client (o vom crea ulterior)
+import { fetchServicesOfferedForStylist, fetchAllAvailableSalonServices } from './data'
+import { ServicesOfferedPageContent } from './_components/services-offered-page-content'
 import { notFound } from 'next/navigation'
-import { fetchStylistById } from '@/features/stylists/data-acces'
+
+// 1. Importăm repository-ul în loc de funcția veche
+import { stylistRepository } from '@/core/domains/stylists/stylist.repository'
 
 const logger = createLogger('StylistServicesPage')
 
@@ -19,20 +21,21 @@ export default async function StylistServicesPage({ params }: StylistServicesPag
 
   if (!stylistId) {
     logger.warn('Stylist ID is missing from params.')
-    notFound() // Sau o altă gestionare a erorii/redirecționare
+    notFound()
   }
 
   try {
     // Preluăm concurent datele necesare
     const [stylist, servicesOffered, availableServices] = await Promise.all([
-      fetchStylistById(stylistId),
+      // 2. Apelăm metoda corectă din repository
+      stylistRepository.fetchById(stylistId),
       fetchServicesOfferedForStylist(stylistId),
       fetchAllAvailableSalonServices(),
     ])
 
     if (!stylist) {
       logger.warn(`Stylist with ID: ${stylistId} not found.`)
-      notFound() // Afișează o pagină 404 dacă stilistul nu există
+      notFound()
     }
 
     logger.debug(`Data fetched for stylist ${stylist.name}`, {
@@ -52,9 +55,6 @@ export default async function StylistServicesPage({ params }: StylistServicesPag
       message: (error as Error).message,
       stack: (error as Error).stack,
     })
-    // Poți afișa o componentă de eroare mai specifică aici sau să lași global error.tsx să preia
-    // De exemplu: return <PageErrorState message="Nu am putut încărca serviciile pentru acest stilist." />;
-    // Pentru moment, aruncăm eroarea pentru a fi prinsă de error.tsx global.
     throw new Error(`Failed to load services for stylist ${stylistId}. ${(error as Error).message}`)
   }
 }

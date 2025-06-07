@@ -15,12 +15,12 @@ import {
 import { EditOfferedServiceForm } from './edit-offered-service-form'
 import { Tables } from '@/types/database.types'
 import { createLogger } from '@/lib/logger'
-import { ServicesOfferedData } from '@/core/domains/services-offered/services-offered.types'
+import { ServiceOffered } from '@/core/domains/services-offered/services-offered.types'
 
 const logger = createLogger('EditOfferedServiceDialog')
 
 interface EditOfferedServiceDialogProps {
-  offeredService: ServicesOfferedData // Datele complete ale serviciului oferit
+  offeredService: ServiceOffered // Datele complete ale serviciului oferit
   availableServices: Tables<'services'>[] // Necesar pentru formularul intern
   triggerButton?: React.ReactNode
 }
