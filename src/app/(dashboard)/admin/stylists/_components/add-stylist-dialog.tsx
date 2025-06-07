@@ -12,7 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { StylistFormFields } from '@/app/admin/stylists/_components/stylist-form-fields'
+import { StylistFormFields } from '@/app/(dashboard)/admin/stylists/_components/stylist-form-fields'
 import { SubmitButton } from '@/components/ui/submit-button'
 import { INITIAL_FORM_STATE } from '@/types/actions.types'
 import { addStylistAction } from '@/features/stylists/actions'

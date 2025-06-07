@@ -3,7 +3,7 @@
 
 import { TableCell, TableRow } from '@/components/ui/table'
 import { SubmitButton } from '@/components/ui/submit-button'
-import { EditServiceDialog } from '@/app/admin/services/_components/edit-service-dialog'
+import { EditServiceDialog } from '@/app/(dashboard)/admin/services/_components/edit-service-dialog'
 import { DEFAULT_CURRENCY_SYMBOL } from '@/lib/constants'
 import { ActiveBadge } from '@/components/ui/active-badge'
 import { useActionState, useEffect } from 'react' // <-- Importă useActionState și useEffect

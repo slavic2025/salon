@@ -1,10 +1,11 @@
-// src/app/admin/stylists/[id]/services/page.tsx
-import { createLogger } from '@/lib/logger'
-import { fetchServicesOfferedForStylist, fetchAllAvailableSalonServices } from './data'
-import { ServicesOfferedPageContent } from './_components/services-offered-page-content'
-import { notFound } from 'next/navigation'
+// src/app/(dashboard)/admin/stylists/[id]/services/page.tsx
 
-// 1. Importăm repository-ul în loc de funcția veche
+import { createLogger } from '@/lib/logger'
+import { notFound } from 'next/navigation'
+import { ServicesOfferedPageContent } from './_components/services-offered-page-content'
+
+// 1. Importăm direct acțiunile și repository-ul necesar
+import { getAllAvailableServicesAction, getServicesOfferedByStylistAction } from '@/features/services-offered/actions'
 import { stylistRepository } from '@/core/domains/stylists/stylist.repository'
 
 const logger = createLogger('StylistServicesPage')
@@ -25,12 +26,11 @@ export default async function StylistServicesPage({ params }: StylistServicesPag
   }
 
   try {
-    // Preluăm concurent datele necesare
+    // 2. Apelăm direct repository-ul și acțiunile, eliminând dependența de './data.ts'
     const [stylist, servicesOffered, availableServices] = await Promise.all([
-      // 2. Apelăm metoda corectă din repository
       stylistRepository.fetchById(stylistId),
-      fetchServicesOfferedForStylist(stylistId),
-      fetchAllAvailableSalonServices(),
+      getServicesOfferedByStylistAction(stylistId),
+      getAllAvailableServicesAction(),
     ])
 
     if (!stylist) {
@@ -55,6 +55,7 @@ export default async function StylistServicesPage({ params }: StylistServicesPag
       message: (error as Error).message,
       stack: (error as Error).stack,
     })
-    throw new Error(`Failed to load services for stylist ${stylistId}. ${(error as Error).message}`)
+    // Aruncăm eroarea pentru a fi prinsă de error.tsx global
+    throw new Error(`Failed to load services for stylist ${stylistId}.`)
   }
 }

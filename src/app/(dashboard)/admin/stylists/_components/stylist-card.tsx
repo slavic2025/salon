@@ -1,6 +1,6 @@
 // app/admin/stylists/components/stylist-card.tsx
 'use client'
-import { EditStylistDialog } from '@/app/admin/stylists/_components/edit-stylist-dialog'
+import { EditStylistDialog } from '@/app/(dashboard)/admin/stylists/_components/edit-stylist-dialog'
 import { STYLIST_DISPLAY_FIELDS } from './stylist-display-fields'
 import { GenericDisplayCard } from '@/components/shared/generic-display-card'
 import { DisplayFieldConfig } from '@/components/shared/display-card-types'

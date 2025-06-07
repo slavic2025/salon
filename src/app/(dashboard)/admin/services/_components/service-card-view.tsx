@@ -2,7 +2,7 @@
 'use client'
 
 import { ServiceCard } from './service-card'
-import { EmptyState } from '../../../../components/ui/empty-state'
+import { EmptyState } from '../../../../../components/ui/empty-state'
 import { createLogger } from '@/lib/logger'
 import { Service } from '@/core/domains/services/service.types'
 

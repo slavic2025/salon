@@ -1,7 +1,7 @@
 // app/admin/services/components/service-form-fields.tsx
 'use client'
 
-import { SERVICE_FORM_FIELDS } from '@/app/admin/services/_components/form-fields'
+import { SERVICE_FORM_FIELDS } from '@/app/(dashboard)/admin/services/_components/form-fields'
 import { GenericFormFields } from '@/components/shared/generic-form-fields'
 import { FormFieldConfig } from '@/components/shared/form-fields-types'
 import { FieldErrors } from '@/types/actions.types'
