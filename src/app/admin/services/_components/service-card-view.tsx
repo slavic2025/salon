@@ -4,12 +4,12 @@
 import { ServiceCard } from './service-card'
 import { EmptyState } from '../../../../components/ui/empty-state'
 import { createLogger } from '@/lib/logger'
-import { ServiceData } from '@/features/services/types'
+import { Service } from '@/core/domains/services/service.types'
 
 const logger = createLogger('ServiceCardView')
 
 interface ServiceCardViewProps {
-  services: ServiceData[]
+  services: Service[]
 }
 
 export function ServiceCardView({ services }: ServiceCardViewProps) {

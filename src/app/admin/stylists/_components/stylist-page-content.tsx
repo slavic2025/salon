@@ -11,12 +11,12 @@ import { STYLIST_TABLE_HEADERS } from './stylist-table-headers' // Păstrăm ace
 
 // Va trebui să creezi acest component (pentru mobil)
 import { StylistCardView } from './stylist-card-view'
-import { StylistData } from '@/features/stylists/types'
+import { Stylist } from '@/core/domains/stylists/stylist.types'
 
 const logger = createLogger('StylistsPageContent')
 
 interface StylistsPageContentProps {
-  stylists: StylistData[]
+  stylists: Stylist[]
 }
 
 export function StylistsPageContent({ stylists }: StylistsPageContentProps) {

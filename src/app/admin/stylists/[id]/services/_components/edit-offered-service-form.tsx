@@ -11,8 +11,11 @@ import { INITIAL_FORM_STATE } from '@/types/types'
 import { GenericFormFields } from '@/components/shared/generic-form-fields'
 import { getOfferedServiceFormFields } from './offered-service-form-fields'
 import { Tables } from '@/types/database.types'
-import { ServicesOfferedActionResponse, ServicesOfferedData } from '@/features/services-offered/types'
 import { updateOfferedServiceAction } from '@/features/services-offered/actions'
+import {
+  ServicesOfferedActionResponse,
+  ServicesOfferedData,
+} from '@/core/domains/services-offered/services-offered.types'
 
 const logger = createLogger('EditOfferedServiceForm')
 

@@ -5,19 +5,19 @@ import { SERVICE_FORM_FIELDS } from '@/app/admin/services/_components/form-field
 import { GenericFormFields } from '@/components/shared/generic-form-fields'
 import { FormFieldConfig } from '@/components/shared/form-fields-types'
 import { FieldErrors } from '@/types/types'
-import { ServiceData } from '@/features/services/types'
+import { Service } from '@/core/domains/services/service.types'
 
 interface ServiceFormFieldsProps {
-  initialData?: ServiceData | null
+  initialData?: Service | null
   errors?: FieldErrors
   isEditMode?: boolean
 }
 
 export function ServiceFormFields({ initialData, errors, isEditMode = false }: ServiceFormFieldsProps) {
-  const typedServiceFormFields: FormFieldConfig<ServiceData>[] = SERVICE_FORM_FIELDS as FormFieldConfig<ServiceData>[]
+  const typedServiceFormFields: FormFieldConfig<Service>[] = SERVICE_FORM_FIELDS as FormFieldConfig<Service>[]
 
   return (
-    <GenericFormFields<ServiceData> // Specificăm tipul generic pentru entitatea 'ServiceData'
+    <GenericFormFields<Service> // Specificăm tipul generic pentru entitatea 'ServiceData'
       fieldsConfig={typedServiceFormFields}
       initialData={initialData}
       errors={errors}

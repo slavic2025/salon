@@ -1,6 +1,6 @@
 // app/admin/stylists/[id]/services/components/offered-service-form-fields.ts
 import { FormFieldConfig, FormFieldOption } from '@/components/shared/form-fields-types'
-import { ServicesOfferedFormDataType } from '@/features/services-offered/types'
+import { ServicesOfferedFormDataType } from '@/core/domains/services-offered/services-offered.types'
 import { DEFAULT_CURRENCY_SYMBOL } from '@/lib/constants'
 import { Tables } from '@/types/database.types'
 

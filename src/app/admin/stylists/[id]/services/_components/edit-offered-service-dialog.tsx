@@ -15,7 +15,7 @@ import {
 import { EditOfferedServiceForm } from './edit-offered-service-form'
 import { Tables } from '@/types/database.types'
 import { createLogger } from '@/lib/logger'
-import { ServicesOfferedData } from '@/features/services-offered/types'
+import { ServicesOfferedData } from '@/core/domains/services-offered/services-offered.types'
 
 const logger = createLogger('EditOfferedServiceDialog')
 

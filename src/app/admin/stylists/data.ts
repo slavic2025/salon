@@ -2,8 +2,8 @@
 import 'server-only'
 
 import { createLogger } from '@/lib/logger'
-import { StylistData } from '@/features/stylists/types'
 import { getStylistsAction } from '@/features/stylists/actions'
+import { Stylist } from '@/core/domains/stylists/stylist.types'
 
 const logger = createLogger('DB_stylistCore')
 
@@ -13,7 +13,7 @@ const logger = createLogger('DB_stylistCore')
  * @returns A Promise that resolves to an array of stylistData.
  * @throws An error if fetching stylists fails.
  */
-export async function fetchstylists(): Promise<StylistData[]> {
+export async function fetchstylists(): Promise<Stylist[]> {
   try {
     const stylists = await getStylistsAction()
     logger.info('Successfully fetched stylists.', { count: stylists.length })

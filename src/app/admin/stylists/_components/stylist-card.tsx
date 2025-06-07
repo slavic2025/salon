@@ -1,28 +1,22 @@
 // app/admin/stylists/components/stylist-card.tsx
 'use client'
-
-import Link from 'next/link' // Importă Link
 import { EditStylistDialog } from '@/app/admin/stylists/_components/edit-stylist-dialog'
 import { STYLIST_DISPLAY_FIELDS } from './stylist-display-fields'
 import { GenericDisplayCard } from '@/components/shared/generic-display-card'
 import { DisplayFieldConfig } from '@/components/shared/display-card-types'
 
-import { buttonVariants } from '@/components/ui/button' // Importă buttonVariants
-import { Scissors } from 'lucide-react' // Iconiță
-import { cn } from '@/lib/utils' //
-import { StylistData } from '@/features/stylists/types'
 import { deleteStylistAction } from '@/features/stylists/actions'
+import { Stylist } from '@/core/domains/stylists/stylist.types'
 
 interface StylistCardProps {
-  stylist: StylistData
+  stylist: Stylist
 }
 
 export function StylistCard({ stylist }: StylistCardProps) {
-  const typedDisplayFields: DisplayFieldConfig<StylistData>[] =
-    STYLIST_DISPLAY_FIELDS as DisplayFieldConfig<StylistData>[]
+  const typedDisplayFields: DisplayFieldConfig<Stylist>[] = STYLIST_DISPLAY_FIELDS as DisplayFieldConfig<Stylist>[]
 
   return (
-    <GenericDisplayCard<StylistData>
+    <GenericDisplayCard<Stylist>
       entity={stylist}
       displayFieldsConfig={typedDisplayFields}
       // Pentru GenericDisplayCard, acțiunile sunt gestionate de el.

@@ -12,11 +12,11 @@ import { INITIAL_FORM_STATE } from '@/types/types'
 import { Button, buttonVariants } from '@/components/ui/button' // Importă Button și buttonVariants
 import { Scissors } from 'lucide-react' // Sau altă iconiță relevantă
 import { cn } from '@/lib/utils' //
-import { StylistData } from '@/features/stylists/types'
 import { deleteStylistAction } from '@/features/stylists/actions'
+import { Stylist } from '@/core/domains/stylists/stylist.types'
 
 interface StylistTableRowProps {
-  stylist: StylistData
+  stylist: Stylist
 }
 
 export function StylistTableRow({ stylist }: StylistTableRowProps) {

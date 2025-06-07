@@ -5,19 +5,18 @@ import { EditServiceDialog } from '@/app/admin/services/_components/edit-service
 import { SERVICE_DISPLAY_FIELDS } from './service-display-fields' // Configurația specifică serviciului
 import { GenericDisplayCard } from '@/components/shared/generic-display-card' // <--- Noul import!
 import { DisplayFieldConfig } from '@/components/shared/display-card-types' // Importă tipurile noi
-import { ServiceData } from '@/features/services/types'
 import { deleteServiceAction } from '@/features/services/actions'
+import { Service } from '@/core/domains/services/service.types'
 
 interface ServiceCardProps {
-  service: ServiceData
+  service: Service
 }
 
 export function ServiceCard({ service }: ServiceCardProps) {
-  const typedDisplayFields: DisplayFieldConfig<ServiceData>[] =
-    SERVICE_DISPLAY_FIELDS as DisplayFieldConfig<ServiceData>[]
+  const typedDisplayFields: DisplayFieldConfig<Service>[] = SERVICE_DISPLAY_FIELDS as DisplayFieldConfig<Service>[]
 
   return (
-    <GenericDisplayCard<ServiceData>
+    <GenericDisplayCard<Service>
       entity={service}
       displayFieldsConfig={typedDisplayFields}
       EditDialog={EditServiceDialog}

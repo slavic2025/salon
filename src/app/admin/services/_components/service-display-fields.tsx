@@ -1,8 +1,7 @@
 // app/admin/services/components/service-display-fields.tsx
 import React from 'react'
 import { DEFAULT_CURRENCY_SYMBOL } from '@/lib/constants'
-import { ServiceData } from '@/features/services/types'
-
+import { Service } from '@/core/domains/services/service.types'
 /**
  * Definește structura unui câmp pentru afișarea detaliilor serviciului.
  * Folosește un generic `T` pentru a tipa valoarea formatată.
@@ -12,7 +11,7 @@ import { ServiceData } from '@/features/services/types'
  * @property {boolean} [hideIfEmpty] - Dacă true, nu afișează câmpul dacă valoarea este goală/falsă.
  */
 interface ServiceDisplayField<T> {
-  id: keyof ServiceData
+  id: keyof Service
   label: string
   format?: (value: T) => React.ReactNode
   hideIfEmpty?: boolean

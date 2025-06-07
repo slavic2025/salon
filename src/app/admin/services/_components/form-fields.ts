@@ -1,9 +1,10 @@
 // app/admin/services/form-fields.ts
-import { ServiceData } from '@/features/services/types'
+
+import { Service } from '@/core/domains/services/service.types'
 import { DEFAULT_CURRENCY_SYMBOL } from '@/lib/constants'
 /**
  * Definește structura unui singur câmp de formular.
- * `@property {keyof ServiceData}` id - Numele unic al câmpului, care corespunde unei proprietăți din ServiceData
+ * `@property {keyof Service}` id - Numele unic al câmpului, care corespunde unei proprietăți din ServiceData
  * `@property {string}` label - Textul afișat ca etichetă a câmpului în UI
  * `@property {'text' | 'number' | 'checkbox' | 'email' | 'password' | 'textarea'}` type - Tipul input-ului HTML
  * `@property {string}` [step] - Atributul 'step' pentru input-urile de tip 'number' (ex: '0.01' pentru zecimale)
@@ -11,7 +12,7 @@ import { DEFAULT_CURRENCY_SYMBOL } from '@/lib/constants'
  * `@property {string}` [placeholder] - Textul de placeholder pentru input
  */
 interface FormField {
-  id: keyof ServiceData
+  id: keyof Service
   label: string
   type: 'text' | 'number' | 'checkbox' | 'email' | 'password' | 'textarea'
   step?: string

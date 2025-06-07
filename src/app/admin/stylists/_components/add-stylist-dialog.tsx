@@ -1,9 +1,7 @@
-// app/admin/stylists/components/add-stylist-dialog.tsx
+// src/app/admin/stylists/_components/add-stylist-dialog.tsx
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useActionState } from 'react'
-import { toast } from 'sonner'
+import { useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -14,67 +12,58 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-
 import { StylistFormFields } from '@/app/admin/stylists/_components/stylist-form-fields'
 import { SubmitButton } from '@/components/ui/submit-button'
 import { INITIAL_FORM_STATE } from '@/types/types'
-import { StylistActionResponse } from '@/features/stylists/types'
 import { addStylistAction } from '@/features/stylists/actions'
+import { useActionForm } from '@/hooks/useActionForm' // <-- Importăm hook-ul!
 
 export function AddStylistDialog() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [dialogKey, setDialogKey] = useState(0)
-  const [state, formAction] = useActionState<StylistActionResponse, FormData>(addStylistAction, INITIAL_FORM_STATE)
+  const formRef = useRef<HTMLFormElement>(null)
 
-  const handleOpenChange = (open: boolean) => {
-    setIsDialogOpen(open)
-    if (open) {
-      setDialogKey((prevKey) => prevKey + 1)
-    }
-  }
-
-  useEffect(() => {
-    if (state.success) {
-      toast.success(state.message || 'Stilistul a fost adăugat cu succes!')
-      const timer = setTimeout(() => {
+  // Utilizăm hook-ul useActionForm pentru a gestiona totul
+  const { state, formSubmit, isPending } = useActionForm({
+    action: addStylistAction,
+    initialState: INITIAL_FORM_STATE,
+    resetFormRef: formRef, // Hook-ul va reseta formularul la succes
+    onSuccess: () => {
+      // Hook-ul va afișa toast-ul, aici doar închidem dialogul
+      setTimeout(() => {
         setIsDialogOpen(false)
-      }, 1500)
-      return () => clearTimeout(timer)
-    } else if (state.message && !state.errors) {
-      console.error('Eroare la adăugarea stilistului:', state.message)
-      toast.error(state.message)
-    } else if (state.errors) {
-      toast.error('Eroare de validare! Verificați câmpurile marcate.')
-    }
-  }, [state])
+      }, 1000) // Delay mic pentru ca utilizatorul să vadă mesajul de succes
+    },
+  })
 
   return (
-    <Dialog open={isDialogOpen} onOpenChange={handleOpenChange}>
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
         <Button>Adaugă Stilist Nou</Button>
       </DialogTrigger>
-      {/* Elimină condiția `isDialogOpen &&` de aici. DialogContent își gestionează vizibilitatea singur. */}
-      <DialogContent key={dialogKey} className="sm:max-w-[425px]">
+      <DialogContent
+        className="sm:max-w-[425px]"
+        onInteractOutside={(e) => {
+          // Prevenim închiderea dialogului la click în exterior dacă o acțiune este în desfășurare
+          if (isPending) {
+            e.preventDefault()
+          }
+        }}
+      >
         <DialogHeader>
           <DialogTitle>Adaugă Stilist Nou</DialogTitle>
           <DialogDescription>Completează detaliile pentru noul stilist.</DialogDescription>
         </DialogHeader>
-        {state.success && (
-          <div
-            className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded relative text-center"
-            role="alert"
-          >
-            <span className="block">{state.message || 'Stilistul a fost adăugat cu succes!'}</span>
-          </div>
-        )}
 
-        <form action={formAction} className="grid gap-4 py-4">
+        {/* Formularul acum folosește `formSubmit` de la hook */}
+        <form action={formSubmit} ref={formRef} className="grid gap-4 py-4">
+          {/* Câmpurile formularului primesc erorile direct din starea gestionată de hook */}
           <StylistFormFields errors={state.errors} />
+
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+            <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} disabled={isPending}>
               Anulează
             </Button>
-            <SubmitButton idleText="Adaugă Stilist" pendingText="Se adaugă..." />
+            <SubmitButton idleText="Adaugă Stilist" pendingText="Se adaugă..." disabled={isPending} />
           </DialogFooter>
         </form>
       </DialogContent>

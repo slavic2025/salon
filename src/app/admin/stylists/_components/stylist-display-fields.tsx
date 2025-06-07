@@ -1,5 +1,6 @@
 // app/admin/stylists/components/stylist-display-fields.ts
-import { StylistData } from '@/features/stylists/types'
+
+import { Stylist } from '@/core/domains/stylists/stylist.types'
 import React from 'react' // Necesare pentru React.ReactNode în format
 
 interface DisplayFieldConfig<T> {
@@ -9,7 +10,7 @@ interface DisplayFieldConfig<T> {
   format?: (value: T[keyof T]) => React.ReactNode // Funcție opțională pentru formatarea valorii
 }
 
-export const STYLIST_DISPLAY_FIELDS: DisplayFieldConfig<StylistData>[] = [
+export const STYLIST_DISPLAY_FIELDS: DisplayFieldConfig<Stylist>[] = [
   {
     id: 'email',
     label: 'Email',

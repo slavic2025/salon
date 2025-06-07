@@ -8,7 +8,7 @@ import { AddServiceDialog } from './add-service-dialog'
 import { GenericTableView } from '@/components/shared/generic-table-view'
 import { ServiceTableRow } from './service-table-row' // Păstrăm acest import
 import { SERVICE_TABLE_HEADERS } from './service-table-headers' // Păstrăm acest import
-import { ServiceData } from '@/features/services/types'
+import { Service } from '@/core/domains/services/service.types'
 
 // Presupunem că vei crea și un ServiceCardView similar
 // import { ServiceCardView } from './service-card-view'
@@ -16,7 +16,7 @@ import { ServiceData } from '@/features/services/types'
 const logger = createLogger('ServicesPageContent')
 
 interface ServicesPageContentProps {
-  services: ServiceData[]
+  services: Service[]
 }
 
 export function ServicesPageContent({ services }: ServicesPageContentProps) {

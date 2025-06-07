@@ -3,12 +3,12 @@
 import { StylistCard } from './stylist-card' // Importă componenta StylistCard
 import { createLogger } from '@/lib/logger'
 import { EmptyState } from '@/components/ui/empty-state'
-import { StylistData } from '@/features/stylists/types'
+import { Stylist } from '@/core/domains/stylists/stylist.types'
 
 const logger = createLogger('StylistCardView') // Noul nume pentru logger
 
 interface StylistCardViewProps {
-  stylists: StylistData[]
+  stylists: Stylist[]
 }
 
 export function StylistCardView({ stylists }: StylistCardViewProps) {

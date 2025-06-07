@@ -9,11 +9,11 @@ import { ActiveBadge } from '@/components/ui/active-badge'
 import { useActionState, useEffect } from 'react' // <-- Importă useActionState și useEffect
 import { toast } from 'sonner' // <-- Importă toast pentru feedback
 import { INITIAL_FORM_STATE } from '@/types/types' // <-- Importă starea inițială generică
-import { ServiceData } from '@/features/services/types'
 import { deleteServiceAction } from '@/features/services/actions'
+import { Service } from '@/core/domains/services/service.types'
 
 interface ServiceTableRowProps {
-  service: ServiceData
+  service: Service
 }
 
 export function ServiceTableRow({ service }: ServiceTableRowProps) {
