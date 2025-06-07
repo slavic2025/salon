@@ -6,9 +6,9 @@ module.exports = {
   darkMode: ['class'],
   content: [
     // Asigură-te că aceste căi acoperă toate fișierele tale unde folosești clase Tailwind CSS
-    './pages/**/*.{ts,tsx,js,jsx,mdx}',
-    './components/**/*.{ts,tsx,js,jsx,mdx}',
-    './app/**/*.{ts,tsx,js,jsx,mdx}',
+    './src/pages/**/*.{ts,tsx,js,jsx,mdx}', // <-- Adaugă 'src/'
+    './src/components/**/*.{ts,tsx,js,jsx,mdx}', // <-- Adaugă 'src/'
+    './src/app/**/*.{ts,tsx,js,jsx,mdx}',
   ],
   theme: {
     container: {
