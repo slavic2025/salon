@@ -1,7 +1,7 @@
 // app/admin/stylists/components/edit-stylist-dialog.tsx
 'use client'
 
-import { StylistData } from '../types'
+import { StylistData } from '@/features/stylists/types'
 import { EditStylistForm } from './edit-stylist-form' // Formularul specific stiliștilor
 import { GenericEditDialog } from '@/components/shared/generic-edit-dialog' // <-- Noul import
 

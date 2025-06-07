@@ -3,8 +3,6 @@
 
 import React from 'react'
 import { createLogger } from '@/lib/logger'
-import { StylistData } from '@/app/admin/stylists/types' // Tipul pentru stilist
-import { ServicesOfferedData } from '../types' // Tipul pentru serviciile oferite (din directorul curent)
 import { Tables } from '@/types/database.types' // Tipul general pentru tabelul services
 
 import { Button } from '@/components/ui/button' // Va fi folosit pentru butonul "Adaugă Serviciu"
@@ -17,6 +15,8 @@ import { DEFAULT_CURRENCY_SYMBOL } from '@/lib/constants' //
 import { AddOfferedServiceDialog } from './add-offered-service-dialog'
 import { DeleteOfferedServiceButton } from './delete-offered-service-button' // O componentă dedicată pentru butonul de ștergere
 import { EditOfferedServiceDialog } from './edit-offered-service-dialog'
+import { ServicesOfferedData } from '@/features/services-offered/types'
+import { StylistData } from '@/features/stylists/types'
 
 const logger = createLogger('ServicesOfferedPageContent')
 

@@ -14,10 +14,11 @@ export const addServiceSchema = z.object({
   duration_minutes: zIntFromForm('Durata trebuie să fie un număr întreg pozitiv.'),
   price: zPriceFromForm,
   is_active: zBooleanCheckboxDefaultTrue,
-
   category: zStringMin(1, 'Categoria serviciului este obligatorie.'),
 })
 
 export const editServiceSchema = addServiceSchema.extend({
   id: z.string().uuid({ message: 'ID-ul serviciului este invalid.' }),
 })
+
+export const deleteServiceSchema = z.string().uuid('ID-ul serviciului trebuie să fie un UUID valid.')

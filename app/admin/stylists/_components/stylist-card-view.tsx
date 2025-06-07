@@ -3,7 +3,7 @@
 import { StylistCard } from './stylist-card' // Importă componenta StylistCard
 import { createLogger } from '@/lib/logger'
 import { EmptyState } from '@/components/ui/empty-state'
-import { StylistData } from '../types'
+import { StylistData } from '@/features/stylists/types'
 
 const logger = createLogger('StylistCardView') // Noul nume pentru logger
 

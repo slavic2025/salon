@@ -5,7 +5,7 @@ import { STYLIST_FORM_FIELDS } from '@/app/admin/stylists/_components/form-field
 import { GenericFormFields } from '@/components/shared/generic-form-fields'
 import { FormFieldConfig } from '@/components/shared/form-fields-types'
 import { FieldErrors } from '@/lib/types'
-import { StylistData } from '../types'
+import { StylistData } from '@/features/stylists/types'
 
 interface StylistFormFieldsProps {
   initialData?: StylistData | null

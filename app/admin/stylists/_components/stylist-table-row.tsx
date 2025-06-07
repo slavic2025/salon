@@ -6,14 +6,14 @@ import { TableCell, TableRow } from '@/components/ui/table'
 import { SubmitButton } from '@/components/ui/submit-button'
 import { EditStylistDialog } from '@/app/admin/stylists/_components/edit-stylist-dialog'
 import { ActiveBadge } from '@/components/ui/active-badge'
-import { deleteStylistAction } from '../actions'
 import { useActionState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { INITIAL_FORM_STATE } from '@/lib/types'
-import { StylistData } from '../types'
 import { Button, buttonVariants } from '@/components/ui/button' // Importă Button și buttonVariants
 import { Scissors } from 'lucide-react' // Sau altă iconiță relevantă
 import { cn } from '@/lib/utils' //
+import { StylistData } from '@/features/stylists/types'
+import { deleteStylistAction } from '@/features/stylists/actions'
 
 interface StylistTableRowProps {
   stylist: StylistData

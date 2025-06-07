@@ -11,7 +11,7 @@ import { STYLIST_TABLE_HEADERS } from './stylist-table-headers' // Păstrăm ace
 
 // Va trebui să creezi acest component (pentru mobil)
 import { StylistCardView } from './stylist-card-view'
-import { StylistData } from '../types'
+import { StylistData } from '@/features/stylists/types'
 
 const logger = createLogger('StylistsPageContent')
 

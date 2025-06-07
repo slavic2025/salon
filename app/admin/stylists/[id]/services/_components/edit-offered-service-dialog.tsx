@@ -13,9 +13,9 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { EditOfferedServiceForm } from './edit-offered-service-form'
-import { ServicesOfferedData } from '../types'
 import { Tables } from '@/types/database.types'
 import { createLogger } from '@/lib/logger'
+import { ServicesOfferedData } from '@/features/services-offered/types'
 
 const logger = createLogger('EditOfferedServiceDialog')
 

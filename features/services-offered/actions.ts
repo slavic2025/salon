@@ -5,19 +5,24 @@ import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
 import { createLogger } from '@/lib/logger'
 import { formatZodErrors } from '@/lib/form'
-import { addOfferedServiceSchema, editOfferedServiceSchema, DeleteOfferedServiceSchema } from '@/lib/zod/schemas'
 import {
-  insertServiceOffered,
-  updateServiceOffered,
-  deleteServiceOffered,
-  fetchServicesOfferedByStylist,
-  servicesOfferedCrud, // Pentru update și delete, dacă folosim direct din generic
-} from '@/lib/db/services-offered-core'
-import { ServicesOfferedActionResponse, ServicesOfferedData, ServicesOfferedFormDataType } from './types'
+  addOfferedServiceSchema,
+  deleteOfferedServiceSchema,
+  editOfferedServiceSchema,
+  ServicesOfferedActionResponse,
+  ServicesOfferedData,
+  ServicesOfferedFormDataType,
+} from './types'
 import { extractServicesOfferedDataFromForm } from '@/lib/form'
 import { Tables, TablesInsert } from '@/types/database.types'
 import { INITIAL_FORM_STATE, ActionResponse } from '@/lib/types' // Import INITIAL_FORM_STATE
 import { fetchAllServices } from '@/features/services/data-acces'
+import {
+  deleteServiceOffered,
+  fetchServicesOfferedByStylist,
+  insertServiceOffered,
+  updateServiceOffered,
+} from './data-access'
 
 const logger = createLogger('ServicesOfferedActions')
 const REVALIDATION_PATH = (stylistId: string) => `/admin/stylists/${stylistId}/services`
@@ -180,7 +185,7 @@ export async function deleteOfferedServiceAction(
 
   logger.debug('deleteOfferedServiceAction invoked', { offeredServiceId, stylistId })
 
-  if (!offeredServiceId || !DeleteOfferedServiceSchema.safeParse(offeredServiceId).success) {
+  if (!offeredServiceId || !deleteOfferedServiceSchema.safeParse(offeredServiceId).success) {
     logger.warn('deleteOfferedServiceAction: Invalid ID for deletion.', { offeredServiceId })
     return { success: false, message: 'ID invalid pentru ștergere.' }
   }

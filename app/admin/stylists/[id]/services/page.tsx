@@ -1,9 +1,9 @@
 // app/admin/stylists/[id]/services/page.tsx
 import { createLogger } from '@/lib/logger'
-import { fetchStylistById } from '@/lib/db/stylist-core' // Pentru a prelua numele stilistului
 import { fetchServicesOfferedForStylist, fetchAllAvailableSalonServices } from './data' // Funcțiile create în data.ts
-import { ServicesOfferedPageContent } from './components/services-offered-page-content' // Componenta client (o vom crea ulterior)
+import { ServicesOfferedPageContent } from './_components/services-offered-page-content' // Componenta client (o vom crea ulterior)
 import { notFound } from 'next/navigation'
+import { fetchStylistById } from '@/features/stylists/data-acces'
 
 const logger = createLogger('StylistServicesPage')
 

@@ -2,9 +2,9 @@
 import 'server-only' // Asigură că aceste funcții sunt apelate doar pe server
 
 import { createLogger } from '@/lib/logger'
-import { getServicesOfferedByStylistAction, getAllAvailableServicesAction } from './actions' // Importă Server Actions
-import { ServicesOfferedData } from './types'
 import { Tables } from '@/types/database.types'
+import { ServicesOfferedData } from '@/features/services-offered/types'
+import { getAllAvailableServicesAction, getServicesOfferedByStylistAction } from '@/features/services-offered/actions'
 
 const logger = createLogger('ServicesOfferedData')
 

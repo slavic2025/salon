@@ -1,6 +1,6 @@
 // app/admin/stylists/components/stylist-display-fields.ts
+import { StylistData } from '@/features/stylists/types'
 import React from 'react' // Necesare pentru React.ReactNode în format
-import { StylistData } from '../types'
 
 interface DisplayFieldConfig<T> {
   id: keyof T

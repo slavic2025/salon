@@ -16,10 +16,10 @@ import {
 } from '@/components/ui/dialog'
 
 import { StylistFormFields } from '@/app/admin/stylists/_components/stylist-form-fields'
-import { addStylistAction } from '@/app/admin/stylists/actions'
 import { SubmitButton } from '@/components/ui/submit-button'
-import { StylistActionResponse } from '@/app/admin/stylists/types'
 import { INITIAL_FORM_STATE } from '@/lib/types'
+import { StylistActionResponse } from '@/features/stylists/types'
+import { addStylistAction } from '@/features/stylists/actions'
 
 export function AddStylistDialog() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)

@@ -8,11 +8,11 @@ import { DialogFooter } from '@/components/ui/dialog'
 import { SubmitButton } from '@/components/ui/submit-button'
 import { createLogger } from '@/lib/logger'
 import { INITIAL_FORM_STATE } from '@/lib/types'
-import { updateOfferedServiceAction } from '../actions'
-import { ServicesOfferedActionResponse, ServicesOfferedData } from '../types'
 import { GenericFormFields } from '@/components/shared/generic-form-fields'
 import { getOfferedServiceFormFields } from './offered-service-form-fields'
 import { Tables } from '@/types/database.types'
+import { ServicesOfferedActionResponse, ServicesOfferedData } from '@/features/services-offered/types'
+import { updateOfferedServiceAction } from '@/features/services-offered/actions'
 
 const logger = createLogger('EditOfferedServiceForm')
 

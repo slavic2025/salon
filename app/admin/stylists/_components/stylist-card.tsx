@@ -4,13 +4,14 @@
 import Link from 'next/link' // Importă Link
 import { EditStylistDialog } from '@/app/admin/stylists/_components/edit-stylist-dialog'
 import { STYLIST_DISPLAY_FIELDS } from './stylist-display-fields'
-import { deleteStylistAction } from '../actions'
 import { GenericDisplayCard } from '@/components/shared/generic-display-card'
 import { DisplayFieldConfig } from '@/components/shared/display-card-types'
-import { StylistData } from '../types'
+
 import { buttonVariants } from '@/components/ui/button' // Importă buttonVariants
 import { Scissors } from 'lucide-react' // Iconiță
 import { cn } from '@/lib/utils' //
+import { StylistData } from '@/features/stylists/types'
+import { deleteStylistAction } from '@/features/stylists/actions'
 
 interface StylistCardProps {
   stylist: StylistData

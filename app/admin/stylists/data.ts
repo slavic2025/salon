@@ -1,9 +1,9 @@
 // app/admin/stylists/data.ts
 import 'server-only'
 
-import { getStylistsAction } from './actions'
-import { StylistData } from './types'
 import { createLogger } from '@/lib/logger'
+import { StylistData } from '@/features/stylists/types'
+import { getStylistsAction } from '@/features/stylists/actions'
 
 const logger = createLogger('DB_stylistCore')
 

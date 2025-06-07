@@ -1,12 +1,11 @@
 // app/admin/stylists/actions.ts
 'use server'
 
-import { addStylistSchema, editStylistSchema } from '@/lib/zod/schemas'
-import { insertStylist, updateStylist, deleteStylist, fetchAllStylists } from '@/lib/db/stylist-core'
 import { extractStylistDataFromForm } from '@/lib/form'
 import { createLogger } from '@/lib/logger'
 import { createGenericServerActions } from '@/lib/actions/generic-actions'
-import { StylistData } from './types'
+import { addStylistSchema, editStylistSchema, StylistData } from './types'
+import { deleteStylist, fetchAllStylists, insertStylist, updateStylist } from './data-acces'
 
 const stylistActionsLogger = createLogger('StylistActions')
 

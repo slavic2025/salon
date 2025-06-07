@@ -7,12 +7,13 @@ import { useFormStatus } from 'react-dom'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { DialogFooter } from '@/components/ui/dialog'
-import { editStylistAction } from '@/app/admin/stylists/actions' // Importă acțiunea de editare stilist
+
 import { SubmitButton } from '@/components/ui/submit-button'
 import { createLogger } from '@/lib/logger'
 import { StylistFormFields } from './stylist-form-fields' // Importă câmpurile formularului pentru stilist
-import { StylistActionResponse, StylistData } from '@/app/admin/stylists/types' // Importă tipul de răspuns al acțiunii și starea inițială
 import { INITIAL_FORM_STATE } from '@/lib/types'
+import { StylistActionResponse, StylistData } from '@/features/stylists/types'
+import { editStylistAction } from '@/features/stylists/actions'
 
 const logger = createLogger('EditStylistForm') // Noul nume pentru logger
 

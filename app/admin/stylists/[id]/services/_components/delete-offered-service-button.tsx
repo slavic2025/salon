@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/alert-dialog' //
 import { createLogger } from '@/lib/logger'
 import { INITIAL_FORM_STATE, ActionResponse } from '@/lib/types' //
-import { deleteOfferedServiceAction } from '../actions' ///services/actions.ts"]
+import { deleteOfferedServiceAction } from '@/features/services-offered/actions'
 
 const logger = createLogger('DeleteOfferedServiceButton')
 
