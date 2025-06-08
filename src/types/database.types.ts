@@ -317,6 +317,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_current_stylist_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      get_schedules_for_current_stylist: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          created_at: string
+          end_time: string
+          id: string
+          start_time: string
+          stylist_id: string
+          updated_at: string
+          weekday: number
+        }[]
+      }
       is_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean

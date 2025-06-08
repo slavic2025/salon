@@ -11,6 +11,7 @@ export type FormFieldType =
   | 'tel'
   | 'url'
   | 'select'
+  | 'time'
 
 export interface FormFieldOption {
   value: string

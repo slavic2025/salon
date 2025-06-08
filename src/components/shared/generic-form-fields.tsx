@@ -8,7 +8,41 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { FormFieldConfig } from './form-fields-types'
 import { ActionResponse } from '@/types/actions.types'
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+
+function SelectField({
+  field,
+  defaultValue,
+  isInvalid,
+}: {
+  field: FormFieldConfig<any>
+  defaultValue: any
+  isInvalid: boolean
+}) {
+  const [value, setValue] = useState(defaultValue || '')
+
+  return (
+    <>
+      <input type="hidden" name={String(field.id)} value={value} />
+      <Select required={field.required} value={value} onValueChange={setValue}>
+        <SelectTrigger id={String(field.id)} aria-invalid={isInvalid}>
+          <SelectValue placeholder={field.placeholder || 'Selectează...'} />
+        </SelectTrigger>
+        <SelectContent
+          // AICI ESTE MODIFICAREA CHEIE:
+          // Prevenim dialogul să intercepteze click-ul și să reseteze focusul incorect.
+          onPointerDownOutside={(e) => e.preventDefault()}
+        >
+          {field.options?.map((option) => (
+            <SelectItem key={String(option.value)} value={String(option.value)} disabled={option.disabled}>
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </>
+  )
+}
 
 interface GenericFormFieldsProps<T extends Record<string, unknown>> {
   fieldsConfig: FormFieldConfig<T>[]
@@ -73,24 +107,13 @@ export function GenericFormFields<T extends Record<string, unknown>>({
                   )
                 case 'select':
                   return (
-                    <Select
-                      name={inputId}
+                    <SelectField
+                      field={field}
                       defaultValue={
                         defaultValue !== undefined && defaultValue !== null ? String(defaultValue) : undefined
                       }
-                      required={field.required}
-                    >
-                      <SelectTrigger id={inputId} aria-invalid={isInvalid}>
-                        <SelectValue placeholder={field.placeholder || 'Selectează...'} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {field.options?.map((option) => (
-                          <SelectItem key={option.value} value={option.value} disabled={option.disabled}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      isInvalid={isInvalid}
+                    />
                   )
                 default:
                   return (

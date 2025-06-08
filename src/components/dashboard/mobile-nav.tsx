@@ -2,13 +2,23 @@
 'use client'
 
 import { useState } from 'react'
-// 1. Importăm componentele necesare din 'sheet'
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription, // Asigură-te că aceste 3 sunt importate
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { MenuIcon } from 'lucide-react'
 import { DashboardSidebar } from './sidebar'
 
-export function MobileNav() {
+interface MobileNavProps {
+  userRole: string
+}
+
+export function MobileNav({ userRole }: MobileNavProps) {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
@@ -20,14 +30,15 @@ export function MobileNav() {
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="p-0 w-[280px]">
-        {/* 2. Adăugăm un antet pentru accesibilitate */}
+        {/* AICI ESTE ADAUGAREA CRITICĂ: */}
         <SheetHeader className="border-b p-4 text-left">
-          <SheetTitle>Meniu</SheetTitle>
+          <SheetTitle>Meniu Principal</SheetTitle>
           <SheetDescription>Navighează la secțiunea dorită.</SheetDescription>
         </SheetHeader>
 
-        {/* Sidebar-ul este randat după antet */}
-        <DashboardSidebar onLinkClick={() => setIsOpen(false)} />
+        <div className="flex-1 overflow-auto">
+          <DashboardSidebar userRole={userRole} onLinkClick={() => setIsOpen(false)} />
+        </div>
       </SheetContent>
     </Sheet>
   )

@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "prepare": "husky",
-    "test": "vitest"
+    "test": "vitest",
+    "gen:types": "supabase gen types typescript --project-id uyzertmffnwgesiqaete > src/types/database.types.ts",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",

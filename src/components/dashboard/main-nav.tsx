@@ -1,12 +1,19 @@
+// src/components/dashboard/mobile-nav.tsx
 'use client'
 
 import { useState } from 'react'
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { MenuIcon } from 'lucide-react'
 import { DashboardSidebar } from './sidebar'
 
-export function MobileNav() {
+// 1. Definim interfața de props pentru a accepta userRole
+interface MobileNavProps {
+  userRole: string
+}
+
+// 2. Primim userRole ca prop
+export function MobileNav({ userRole }: MobileNavProps) {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
@@ -17,9 +24,9 @@ export function MobileNav() {
           <span className="sr-only">Deschide meniul</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="p-0 w-[280px] flex flex-col">
-        {/* Componenta Sidebar nu are nevoie de un header propriu aici */}
-        <DashboardSidebar onLinkClick={() => setIsOpen(false)} />
+      <SheetContent side="left" className="p-0 w-[280px]">
+        {/* 3. Pasăm userRole mai departe către DashboardSidebar */}
+        <DashboardSidebar userRole={userRole} onLinkClick={() => setIsOpen(false)} />
       </SheetContent>
     </Sheet>
   )

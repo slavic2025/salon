@@ -2,7 +2,7 @@
 import 'server-only'
 import { createClient } from '@/lib/supabase-server'
 import { createLogger } from '@/lib/logger'
-import { ServicesOfferedData } from './services-offered.types'
+import { ServiceOffered } from './services-offered.types'
 import { TablesInsert, TablesUpdate } from '@/types/database.types'
 
 const logger = createLogger('ServicesOfferedRepository')
@@ -12,7 +12,7 @@ type ServiceOfferedInsert = Omit<TablesInsert<'services_offered'>, 'id' | 'creat
 type ServiceOfferedUpdate = TablesUpdate<'services_offered'>
 
 export const servicesOfferedRepository = {
-  async create(data: ServiceOfferedInsert): Promise<ServicesOfferedData> {
+  async create(data: ServiceOfferedInsert): Promise<ServiceOffered> {
     const supabase = await createClient()
     const { data: newRecord, error } = await supabase.from(TABLE_NAME).insert(data).select().single()
     if (error) {
@@ -22,7 +22,7 @@ export const servicesOfferedRepository = {
     return newRecord
   },
 
-  async update(id: string, data: ServiceOfferedUpdate): Promise<ServicesOfferedData> {
+  async update(id: string, data: ServiceOfferedUpdate): Promise<ServiceOffered> {
     const supabase = await createClient()
     const { data: updatedRecord, error } = await supabase.from(TABLE_NAME).update(data).eq('id', id).select().single()
     if (error) {
@@ -41,7 +41,7 @@ export const servicesOfferedRepository = {
     }
   },
 
-  async fetchByStylistId(stylistId: string): Promise<ServicesOfferedData[]> {
+  async fetchByStylistId(stylistId: string): Promise<ServiceOffered[]> {
     const supabase = await createClient()
     const { data, error } = await supabase
       .from(TABLE_NAME)
@@ -53,7 +53,7 @@ export const servicesOfferedRepository = {
       logger.error('Error fetching services for stylist', { stylistId, error })
       throw new Error(error.message)
     }
-    return data as ServicesOfferedData[]
+    return data as ServiceOffered[]
   },
 
   async checkUniqueness(stylistId: string, serviceId: string): Promise<boolean> {
