@@ -15,28 +15,28 @@ import {
 import { AddOfferedServiceForm } from './add-offered-service-form'
 import { Tables } from '@/types/database.types'
 
+// 1. Definim interfața de props pentru a folosi 'trigger'
 interface AddOfferedServiceDialogProps {
   stylistId: string
   availableServices: Tables<'services'>[]
-  triggerButton?: React.ReactNode
+  trigger?: React.ReactNode // Numele standardizat
 }
 
-export function AddOfferedServiceDialog({ stylistId, availableServices, triggerButton }: AddOfferedServiceDialogProps) {
-  // Păstrăm doar state-ul pentru vizibilitatea dialogului
+// 2. Primim `trigger` în loc de `triggerButton`
+export function AddOfferedServiceDialog({ stylistId, availableServices, trigger }: AddOfferedServiceDialogProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        {triggerButton || (
+        {/* 3. Folosim noul nume de prop */}
+        {trigger || (
           <Button>
             <PlusCircle className="mr-2 h-4 w-4" />
             Adaugă Serviciu Oferit
           </Button>
         )}
       </DialogTrigger>
-
-      {/* Eliminăm 'key', deoarece Dialog unmounts on close, resetând starea formularului. */}
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Adaugă un nou serviciu pentru stilist</DialogTitle>
@@ -44,8 +44,6 @@ export function AddOfferedServiceDialog({ stylistId, availableServices, triggerB
             Selectează un serviciu și specifică eventuale prețuri sau durate personalizate.
           </DialogDescription>
         </DialogHeader>
-
-        {/* Pasăm funcția de închidere direct la 'onSuccess' și 'onCancel' */}
         <AddOfferedServiceForm
           stylistId={stylistId}
           availableServices={availableServices}

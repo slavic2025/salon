@@ -1,5 +1,7 @@
 // src/components/shared/generic-display-card.tsx
 'use client'
+
+import React from 'react'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { GenericDeleteDialog } from './generic-delete-dialog'
 import { DisplayItem } from './display-card-types'
@@ -16,10 +18,10 @@ interface GenericDisplayCardProps<T extends DisplayItem> {
   cardTitle: React.ReactNode
   cardDescription?: React.ReactNode
   renderCustomActions?: (entity: T) => React.ReactNode
-  // Proprietăți noi
   avatarUrl?: string | null
   entityInitials?: string
   headerActions?: React.ReactNode
+  deleteRevalidationId?: string
 }
 
 export function GenericDisplayCard<T extends DisplayItem>({
@@ -32,14 +34,15 @@ export function GenericDisplayCard<T extends DisplayItem>({
   renderCustomActions,
   avatarUrl,
   entityInitials,
-  headerActions, // Primim noile props
+  headerActions,
+  deleteRevalidationId,
 }: GenericDisplayCardProps<T>) {
   return (
+    // 1. Am eliminat 'flex flex-col'. Componenta <Card> are deja acest stil.
     <Card className="w-full">
       <CardHeader>
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-4">
-            {/* Randăm Avatarul dacă există */}
             {avatarUrl !== undefined && (
               <Avatar>
                 <AvatarImage src={avatarUrl ?? undefined} alt={entity.name} />
@@ -51,12 +54,46 @@ export function GenericDisplayCard<T extends DisplayItem>({
               {cardDescription && <CardDescription className="pt-1">{cardDescription}</CardDescription>}
             </div>
           </div>
-          {/* Randăm acțiunile din header (ex: badge-ul de status) */}
           {headerActions}
         </div>
       </CardHeader>
-      <CardContent className="grid gap-2 pt-2">{/* ... restul cardului ... */}</CardContent>
-      <CardFooter className="flex justify-end gap-2 p-4 pt-2">{/* ... footer-ul cardului ... */}</CardFooter>
+
+      {/* 2. Am eliminat 'flex-grow' de aici pentru a lăsa conținutul să-și determine înălțimea natural. */}
+      <CardContent className="grid gap-2 pt-2">
+        {displayFieldsConfig.map((field) => {
+          const value = entity[field.id]
+          if (field.hideIfEmpty && !value) return null
+          return (
+            <div
+              key={String(field.id)}
+              className={`flex items-center justify-between text-sm ${field.className || ''}`}
+            >
+              <span className="font-semibold text-muted-foreground">{field.label}:</span>
+              <span className="text-right">{field.format ? field.format(value) : String(value)}</span>
+            </div>
+          )
+        })}
+      </CardContent>
+
+      <CardFooter className="flex justify-end gap-2 p-4 pt-2">
+        {renderCustomActions && renderCustomActions(entity)}
+        <EditDialog entity={entity}>
+          <Button variant="outline" size="sm" className="flex items-center gap-1.5">
+            <Pencil className="h-4 w-4" /> Editează
+          </Button>
+        </EditDialog>
+        <GenericDeleteDialog
+          deleteAction={deleteAction}
+          entityId={entity.id}
+          entityName={entity.name || 'această înregistrare'}
+          revalidationId={deleteRevalidationId}
+          trigger={
+            <Button variant="destructive" size="sm" className="flex items-center gap-1.5">
+              <Trash2 className="h-4 w-4" /> Șterge
+            </Button>
+          }
+        />
+      </CardFooter>
     </Card>
   )
 }

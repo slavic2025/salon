@@ -1,19 +1,24 @@
-// app/admin/services/components/service-card.tsx
+// src/app/(dashboard)/admin/services/_components/service-card.tsx
 'use client'
 
-import { EditServiceDialog } from '@/app/(dashboard)/admin/services/_components/edit-service-dialog'
-import { SERVICE_DISPLAY_FIELDS } from './service-display-fields' // Configurația specifică serviciului
-import { GenericDisplayCard } from '@/components/shared/generic-display-card' // <--- Noul import!
-import { DisplayFieldConfig } from '@/components/shared/display-card-types' // Importă tipurile noi
-import { deleteServiceAction } from '@/features/services/actions'
+import { EditServiceDialog } from './edit-service-dialog'
+import { SERVICE_DISPLAY_FIELDS } from './service-display-fields'
+import { GenericDisplayCard } from '@/components/shared/generic-display-card'
+import { DisplayFieldConfig } from '@/components/shared/display-card-types'
 import { Service } from '@/core/domains/services/service.types'
+import { deleteServiceAction } from '@/features/services/actions'
+import { ActiveBadge } from '@/components/ui/active-badge' // Importăm badge-ul
+import { DEFAULT_CURRENCY_SYMBOL } from '@/lib/constants'
 
 interface ServiceCardProps {
   service: Service
 }
 
 export function ServiceCard({ service }: ServiceCardProps) {
-  const typedDisplayFields: DisplayFieldConfig<Service>[] = SERVICE_DISPLAY_FIELDS as DisplayFieldConfig<Service>[]
+  const typedDisplayFields: DisplayFieldConfig<Service>[] = SERVICE_DISPLAY_FIELDS as any
+
+  // Creăm o descriere mai bogată pentru card
+  const description = `${service.duration_minutes} min • ${Math.round(service.price)} ${DEFAULT_CURRENCY_SYMBOL}`
 
   return (
     <GenericDisplayCard<Service>
@@ -22,9 +27,10 @@ export function ServiceCard({ service }: ServiceCardProps) {
       EditDialog={EditServiceDialog}
       deleteAction={deleteServiceAction}
       cardTitle={service.name}
-      cardDescription={service.description}
-      deleteLabel="Șterge"
-      deleteButtonAriaLabel={`Șterge serviciul ${service.name}`}
+      cardDescription={description} // Folosim descrierea creată
+      // Un serviciu nu are avatar, deci nu pasăm `avatarUrl` sau `entityInitials`
+      // Mutăm badge-ul de status în header-ul cardului pentru vizibilitate maximă
+      headerActions={<ActiveBadge isActive={service.is_active} />}
     />
   )
 }

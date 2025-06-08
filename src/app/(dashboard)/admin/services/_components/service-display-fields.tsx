@@ -37,14 +37,4 @@ export const SERVICE_DISPLAY_FIELDS: (
     label: 'Categorie',
     hideIfEmpty: true,
   },
-  {
-    id: 'is_active',
-    label: 'Activ',
-    format: (value: boolean) =>
-      value ? (
-        <span className="text-green-600 font-medium">Da</span>
-      ) : (
-        <span className="text-red-600 font-medium">Nu</span>
-      ),
-  },
 ]

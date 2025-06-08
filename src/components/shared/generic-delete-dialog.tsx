@@ -3,7 +3,6 @@
 
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -14,38 +13,40 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { useActionForm } from '@/hooks/useActionForm'
+import { ActionResponse, INITIAL_FORM_STATE } from '@/types/actions.types'
 import { Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { ActionResponse, INITIAL_FORM_STATE } from '@/types/actions.types'
+import React from 'react'
 
 interface GenericDeleteDialogProps {
   deleteAction: (prevState: ActionResponse, formData: FormData) => Promise<ActionResponse>
   entityId: string
   entityName: string
-  revalidationId?: string // ID suplimentar necesar pentru revalidare (ex: stylistId)
   trigger?: React.ReactNode
+  revalidationId?: string // <-- 1. Adăugăm proprietatea opțională
 }
 
 export function GenericDeleteDialog({
   deleteAction,
   entityId,
   entityName,
-  revalidationId,
   trigger,
+  revalidationId,
 }: GenericDeleteDialogProps) {
-  const { state, formSubmit, isPending } = useActionForm<ActionResponse, FormData>({
+  const { formSubmit, isPending } = useActionForm<ActionResponse, FormData>({
     action: deleteAction,
     initialState: INITIAL_FORM_STATE,
-    // Toast-urile sunt gestionate de hook
   })
 
   const handleSubmit = () => {
     const formData = new FormData()
     formData.append('id', entityId)
-    // Adaugă ID-ul suplimentar dacă este necesar pentru acțiunile complexe
+
+    // 2. Dacă am primit un ID de revalidare, îl adăugăm în FormData
     if (revalidationId) {
       formData.append('stylist_id_for_revalidation', revalidationId)
     }
+
     formSubmit(formData)
   }
 
@@ -67,7 +68,6 @@ export function GenericDeleteDialog({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isPending}>Anulează</AlertDialogCancel>
-          {/* AlertDialogAction este un buton, nu un form, deci apelăm manual */}
           <button
             onClick={handleSubmit}
             disabled={isPending}

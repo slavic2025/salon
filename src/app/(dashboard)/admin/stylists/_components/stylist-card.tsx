@@ -11,18 +11,15 @@ import { Scissors } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Stylist } from '@/core/domains/stylists/stylist.types'
 import { deleteStylistAction } from '@/features/stylists/actions'
-import { ActiveBadge } from '@/components/ui/active-badge' // Importăm badge-ul
+import { ActiveBadge } from '@/components/ui/active-badge'
 
 interface StylistCardProps {
   stylist: Stylist
 }
 
 export function StylistCard({ stylist }: StylistCardProps) {
-  // Scoatem câmpul "Activ" din lista de detalii, deoarece îl vom afișa în header
   const displayFields = STYLIST_DISPLAY_FIELDS.filter((field) => field.id !== 'is_active')
   const typedDisplayFields: DisplayFieldConfig<Stylist>[] = displayFields as any
-
-  // Extragem primele două litere pentru AvatarFallback
   const initials = stylist.name
     .split(' ')
     .map((n) => n[0])
@@ -37,8 +34,7 @@ export function StylistCard({ stylist }: StylistCardProps) {
       EditDialog={EditStylistDialog}
       deleteAction={deleteStylistAction}
       cardTitle={stylist.name}
-      cardDescription={stylist.email} // Folosim email-ul ca sub-titlu
-      // Proprietăți noi pentru un card mai vizual
+      cardDescription={stylist.email}
       avatarUrl={stylist.profile_picture}
       entityInitials={initials}
       headerActions={<ActiveBadge isActive={stylist.is_active} />}
@@ -47,7 +43,8 @@ export function StylistCard({ stylist }: StylistCardProps) {
           href={`/admin/stylists/${entity.id}/services`}
           className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'flex items-center gap-1.5')}
         >
-          <Scissors className="h-4 w-4" /> Servicii
+          <Scissors className="h-4 w-4" />
+          Servicii
         </Link>
       )}
     />

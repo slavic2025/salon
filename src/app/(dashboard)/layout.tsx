@@ -1,75 +1,24 @@
-// app/admin/layout.tsx
-import { redirect } from 'next/navigation'
-
-import { MainNav } from '@/components/dashboard/main-nav'
 import { UserNav } from '@/components/dashboard/user-nav'
 import { DashboardSidebar } from '@/components/dashboard/sidebar'
-
-import { createClient } from '@/lib/supabase-server'
-import { createLogger } from '@/lib/logger'
+import { MobileNav } from '@/components/dashboard/mobile-nav'
 
 interface AdminLayoutProps {
   children: React.ReactNode
 }
 
-const logger = createLogger('AdminLayout')
-
-export default async function AdminLayout({ children }: AdminLayoutProps) {
-  logger.debug('AdminLayout invoked: Starting authentication and authorization checks.')
-
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    logger.warn('AdminLayout: No user found. Redirecting to login.')
-    redirect('/login')
-  }
-
-  logger.info('AdminLayout: User authenticated.', { userId: user.id })
-
-  const { data: profile, error } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-
-  if (error) {
-    logger.error('AdminLayout: Error fetching user profile from database.', {
-      userId: user.id,
-      message: error.message,
-      details: error.details,
-      hint: error.hint,
-      code: error.code,
-    })
-    redirect('/error')
-  }
-
-  const userRole = profile?.role
-
-  logger.info('AdminLayout: User role retrieved.', { userId: user.id, userRole })
-
-  if (userRole !== 'admin' && userRole !== 'stylist') {
-    logger.warn('AdminLayout: User does not have required role (admin or stylist). Redirecting to login.', {
-      userId: user.id,
-      userRole: userRole || 'none',
-    })
-    redirect('/login')
-  }
-
-  logger.info('AdminLayout: User authorized. Rendering admin content.', { userId: user.id, userRole })
-
+export default function AdminLayout({ children }: AdminLayoutProps) {
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-16 items-center px-4">
-          <MainNav />
-          <div className="ml-auto flex items-center space-x-4">
-            <UserNav />
-          </div>
-        </div>
-      </header>
-      <div className="flex flex-1">
+    <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
+      <div className="hidden border-r bg-muted/40 md:block">
         <DashboardSidebar />
-        <main className="flex-1 p-8 pt-6">{children}</main>
+      </div>
+      <div className="flex flex-col">
+        <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
+          <MobileNav />
+          <div className="w-full flex-1">{/* Spațiu pentru alte elemente, ex: Căutare */}</div>
+          <UserNav />
+        </header>
+        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">{children}</main>
       </div>
     </div>
   )

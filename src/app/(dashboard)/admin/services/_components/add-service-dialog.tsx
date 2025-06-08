@@ -11,15 +11,23 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { AddServiceForm } from './add-service-form' // Importăm noul formular
+import { AddServiceForm } from './add-service-form'
+import React from 'react'
 
-export function AddServiceDialog() {
+// 1. Definim interfața pentru props
+interface AddServiceDialogProps {
+  trigger?: React.ReactNode
+}
+
+// 2. Primim `trigger` ca prop
+export function AddServiceDialog({ trigger }: AddServiceDialogProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        <Button>Adaugă Serviciu Nou</Button>
+        {/* 3. Folosim trigger-ul custom dacă există, altfel butonul default */}
+        {trigger || <Button>Adaugă Serviciu Nou</Button>}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
