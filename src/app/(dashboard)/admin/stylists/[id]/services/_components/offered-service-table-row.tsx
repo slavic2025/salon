@@ -4,7 +4,7 @@
 import { TableCell, TableRow } from '@/components/ui/table'
 import { ActiveBadge } from '@/components/ui/active-badge'
 import { EditOfferedServiceDialog } from './edit-offered-service-dialog'
-import { GenericDeleteDialog } from '@/components/shared/generic-delete-dialog' // <-- Am importat componenta generică
+import { GenericDeleteDialog } from '@/components/shared/generic-delete-dialog'
 import { deleteOfferedServiceAction } from '@/features/services-offered/actions'
 import { ServiceOffered } from '@/core/domains/services-offered/services-offered.types'
 import { Tables } from '@/types/database.types'
@@ -25,7 +25,7 @@ export function OfferedServiceTableRow({ offeredService, availableServices }: Of
       <TableCell className="font-medium">{baseService?.name || 'N/A'}</TableCell>
       <TableCell className="text-right">
         {offeredService.custom_price !== null ? (
-          `${offeredService.custom_price.toFixed(2)} ${DEFAULT_CURRENCY_SYMBOL}`
+          `${Math.round(offeredService.custom_price)} ${DEFAULT_CURRENCY_SYMBOL}`
         ) : (
           <span className="text-muted-foreground">Standard</span>
         )}
@@ -37,10 +37,18 @@ export function OfferedServiceTableRow({ offeredService, availableServices }: Of
           <span className="text-muted-foreground">Standard</span>
         )}
       </TableCell>
+      <TableCell className="text-right">
+        {baseService?.price ? `${Math.round(baseService.price)} ${DEFAULT_CURRENCY_SYMBOL}` : 'N/A'}
+      </TableCell>
+      <TableCell className="text-right">
+        {baseService?.duration_minutes ? `${baseService.duration_minutes} min` : 'N/A'}
+      </TableCell>
       <TableCell className="text-center">
         <ActiveBadge isActive={offeredService.is_active} />
       </TableCell>
-      <TableCell className="text-right space-x-2 flex items-center justify-end gap-2">
+
+      {/* AICI ESTE MODIFICAREA CHEIE: Clasele pentru aliniere și spațiere */}
+      <TableCell className="flex items-center justify-end gap-2">
         <EditOfferedServiceDialog
           offeredService={offeredService}
           availableServices={availableServices}
@@ -50,13 +58,11 @@ export function OfferedServiceTableRow({ offeredService, availableServices }: Of
             </Button>
           }
         />
-
-        {/* AICI ESTE MODIFICAREA: Folosim direct componenta generică */}
         <GenericDeleteDialog
           deleteAction={deleteOfferedServiceAction}
           entityId={offeredService.id}
           entityName={baseService?.name || 'acest serviciu oferit'}
-          revalidationId={offeredService.stylist_id} // Necesar pentru a revalida pagina corectă
+          revalidationId={offeredService.stylist_id}
           trigger={
             <Button variant="destructive" size="sm" className="flex items-center gap-1.5">
               <Trash2 className="h-4 w-4" /> Șterge

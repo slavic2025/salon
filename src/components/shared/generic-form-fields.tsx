@@ -1,22 +1,19 @@
-// components/shared/generic-form-fields.tsx
+// src/components/shared/generic-form-fields.tsx
 'use client'
 
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Textarea } from '@/components/ui/textarea'
-import { createLogger } from '@/lib/logger'
-import { FormFieldConfig } from './form-fields-types' // Acum include 'options' și 'select'
-import { FieldErrors } from '@/types/actions.types'
-// Importă componentele Select de la shadcn/ui
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select' // Asigură-te că shadcn/ui add select a creat acest fișier
-
-const logger = createLogger('GenericFormFields')
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { FormFieldConfig } from './form-fields-types'
+import { ActionResponse } from '@/types/actions.types'
+import React from 'react'
 
 interface GenericFormFieldsProps<T extends Record<string, unknown>> {
   fieldsConfig: FormFieldConfig<T>[]
-  initialData?: T | null
-  errors?: FieldErrors
+  initialData?: Partial<T> | null
+  errors?: ActionResponse['errors']
   isEditMode?: boolean
 }
 
@@ -24,99 +21,98 @@ export function GenericFormFields<T extends Record<string, unknown>>({
   fieldsConfig,
   initialData,
   errors,
-  isEditMode = false,
 }: GenericFormFieldsProps<T>) {
-  logger.debug('Rendering GenericFormFields', { isEditMode, hasInitialData: !!initialData, hasErrors: !!errors })
-
   return (
-    <>
+    // Am eliminat grid-ul și folosim un layout vertical cu spațiere
+    <div className="space-y-4">
       {fieldsConfig.map((field) => {
-        // Asigurăm că initialData[field.id] este tratat ca `string` pentru `Select`
         const defaultValue = initialData ? initialData[field.id] : undefined
         const fieldErrorMessages = errors && errors[String(field.id)] ? errors[String(field.id)] : undefined
-        const inputId = isEditMode ? `edit-${String(field.id)}` : String(field.id)
+        const inputId = String(field.id)
         const isInvalid = !!fieldErrorMessages && fieldErrorMessages.length > 0
 
-        return (
-          <div className={`grid grid-cols-4 items-center gap-4 ${field.className || ''}`} key={String(field.id)}>
-            <Label htmlFor={inputId} className="text-right">
-              {field.label}
-              {field.required && <span className="text-red-500 ml-1">*</span>}
-            </Label>
-
-            {field.type === 'checkbox' ? (
+        // Tratament special pentru checkbox-uri pentru a alinia eticheta lângă căsuță
+        if (field.type === 'checkbox') {
+          return (
+            <div key={inputId} className="flex items-center space-x-2 pt-2">
               <Checkbox
                 id={inputId}
-                name={String(field.id)}
-                defaultChecked={
-                  isEditMode ? (defaultValue as boolean) : defaultValue === undefined ? true : (defaultValue as boolean)
-                }
-                className="col-span-3"
-                aria-invalid={isInvalid} // Adaugă aria-invalid
+                name={inputId}
+                defaultChecked={defaultValue === undefined ? true : (defaultValue as boolean)}
+                aria-invalid={isInvalid}
               />
-            ) : field.type === 'textarea' ? (
-              <Textarea
-                id={inputId}
-                name={String(field.id)}
-                defaultValue={defaultValue !== undefined && defaultValue !== null ? String(defaultValue) : ''}
-                placeholder={field.placeholder}
-                required={field.required}
-                className="col-span-3"
-                aria-invalid={isInvalid} // Adaugă aria-invalid
-              />
-            ) : field.type === 'select' && field.options ? (
-              // NOU: Randare pentru câmp de tip 'select'
-              // Notă: Pentru React Hook Form, adesea Select-ul este înfășurat într-un Controller
-              // Aici, gestionăm valoarea implicită manual, similar cu alte input-uri.
-              // Dacă folosești FormProvider și Controller direct, abordarea ar fi diferită.
-              // Pentru `useActionState` cu FormData, abordarea este mai simplă.
-              <Select
-                name={String(field.id)} // Important pentru FormData
-                defaultValue={defaultValue !== undefined && defaultValue !== null ? String(defaultValue) : undefined}
-                required={field.required}
-              >
-                <SelectTrigger
-                  id={inputId}
-                  className={`col-span-3 ${
-                    isInvalid
-                      ? 'aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40'
-                      : ''
-                  }`}
-                  aria-invalid={isInvalid}
-                >
-                  <SelectValue placeholder={field.placeholder || 'Selectează...'} />
-                </SelectTrigger>
-                <SelectContent>
-                  {field.options.map((option) => (
-                    <SelectItem key={option.value} value={option.value} disabled={option.disabled}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            ) : (
-              // Randare pentru alte tipuri de input (text, number, email, etc.)
-              <Input
-                id={inputId}
-                name={String(field.id)}
-                type={field.type === 'select' ? 'text' : field.type} // Fallback pentru type safety dacă 'select' ajunge aici
-                step={field.step}
-                defaultValue={defaultValue !== undefined && defaultValue !== null ? String(defaultValue) : ''}
-                placeholder={field.placeholder}
-                required={field.required}
-                className="col-span-3"
-                aria-invalid={isInvalid} // Adaugă aria-invalid
-              />
-            )}
-            {fieldErrorMessages && fieldErrorMessages.length > 0 && (
-              <p className="text-red-500 text-sm col-start-2 col-span-3">{fieldErrorMessages.join(', ')}</p>
-            )}
+              <Label htmlFor={inputId} className="font-normal">
+                {field.label}
+                {field.required && <span className="text-destructive ml-1">*</span>}
+              </Label>
+            </div>
+          )
+        }
+
+        // Layout standard pentru toate celelalte câmpuri
+        return (
+          <div key={inputId} className={`grid w-full items-center gap-1.5 ${field.className || ''}`}>
+            <Label htmlFor={inputId}>
+              {field.label}
+              {field.required && <span className="text-destructive ml-1">*</span>}
+            </Label>
+
+            {/* Aici folosim un switch pentru a randa input-ul corect */}
+            {(() => {
+              switch (field.type) {
+                case 'textarea':
+                  return (
+                    <Textarea
+                      id={inputId}
+                      name={inputId}
+                      defaultValue={defaultValue !== undefined && defaultValue !== null ? String(defaultValue) : ''}
+                      placeholder={field.placeholder}
+                      required={field.required}
+                      aria-invalid={isInvalid}
+                    />
+                  )
+                case 'select':
+                  return (
+                    <Select
+                      name={inputId}
+                      defaultValue={
+                        defaultValue !== undefined && defaultValue !== null ? String(defaultValue) : undefined
+                      }
+                      required={field.required}
+                    >
+                      <SelectTrigger id={inputId} aria-invalid={isInvalid}>
+                        <SelectValue placeholder={field.placeholder || 'Selectează...'} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {field.options?.map((option) => (
+                          <SelectItem key={option.value} value={option.value} disabled={option.disabled}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )
+                default:
+                  return (
+                    <Input
+                      id={inputId}
+                      name={inputId}
+                      type={field.type}
+                      step={field.step}
+                      defaultValue={defaultValue !== undefined && defaultValue !== null ? String(defaultValue) : ''}
+                      placeholder={field.placeholder}
+                      required={field.required}
+                      aria-invalid={isInvalid}
+                    />
+                  )
+              }
+            })()}
+
+            {isInvalid && <p className="text-sm text-destructive">{fieldErrorMessages.join(', ')}</p>}
           </div>
         )
       })}
-      {errors?._form && errors._form.length > 0 && (
-        <p className="text-red-500 text-sm text-center col-span-full">{errors._form.join(', ')}</p>
-      )}
-    </>
+      {errors?._form && <p className="text-sm text-destructive text-center">{errors._form.join(', ')}</p>}
+    </div>
   )
 }

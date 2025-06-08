@@ -33,7 +33,7 @@ export function getServiceFormConfig(): FormFieldConfig<Partial<Service>>[] {
       id: 'price',
       label: `Preț (${DEFAULT_CURRENCY_SYMBOL})`,
       type: 'number',
-      step: '0.01',
+      step: '1',
       required: true,
       placeholder: 'Ex: 50.00',
     },

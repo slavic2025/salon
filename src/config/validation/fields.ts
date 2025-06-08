@@ -86,9 +86,11 @@ export const zIntFromForm = (msg = 'Value must be a positive integer.') =>
 // Preprocesează și validează un preț dintr-un input de formular.
 // Asigură-te că este un număr pozitiv și cu maxim două zecimale.
 export const zPriceFromForm = z.preprocess(
-  (val) => (val === null || val === '' ? undefined : parseFloat(String(val))), // Transforma null/empty string în undefined
+  // Folosim parseInt în loc de parseFloat pentru a ignora zecimalele
+  (val) => (val === null || val === '' ? undefined : parseInt(String(val), 10)),
   z
-    .number()
-    .positive({ message: 'Price must be a positive number.' })
-    .multipleOf(0.01, { message: 'Price can have a maximum of two decimal places.' })
+    .number({ invalid_type_error: 'Prețul trebuie să fie un număr.' })
+    .int({ message: 'Prețul trebuie să fie un număr întreg.' })
+    .positive({ message: 'Prețul trebuie să fie un număr pozitiv.' })
+  // Am eliminat .multipleOf(0.01)
 )

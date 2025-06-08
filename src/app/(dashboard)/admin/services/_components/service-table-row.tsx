@@ -27,7 +27,7 @@ export function ServiceTableRow({ service }: ServiceTableRowProps) {
       {/* Aliniem la dreapta celulele numerice */}
       <TableCell className="text-right">{service.duration_minutes}</TableCell>
       <TableCell className="text-right">
-        {service.price.toFixed(2)} {DEFAULT_CURRENCY_SYMBOL}
+        {service.price} {DEFAULT_CURRENCY_SYMBOL}
       </TableCell>
 
       <TableCell>{service.category || '-'}</TableCell>

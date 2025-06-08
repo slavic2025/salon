@@ -30,7 +30,7 @@ export const SERVICE_DISPLAY_FIELDS: (
   {
     id: 'price',
     label: 'Preț',
-    format: (value: number) => `${value.toFixed(2)} ${DEFAULT_CURRENCY_SYMBOL}`,
+    format: (value: number) => `${value} ${DEFAULT_CURRENCY_SYMBOL}`,
   },
   {
     id: 'category',

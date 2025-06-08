@@ -1,6 +1,6 @@
-// components/shared/form-fields-types.ts
+// src/components/shared/form-fields-types.ts
+import React from 'react' // Importăm React
 
-// Adaugă 'select' la tipurile existente
 export type FormFieldType =
   | 'text'
   | 'email'
@@ -14,8 +14,8 @@ export type FormFieldType =
 
 export interface FormFieldOption {
   value: string
-  label: string
-  disabled?: boolean // Opțional, dacă ai nevoie să dezactivezi anumite opțiuni
+  label: React.ReactNode
+  disabled?: boolean
 }
 
 export interface FormFieldConfig<T extends Record<string, unknown>> {
@@ -24,7 +24,7 @@ export interface FormFieldConfig<T extends Record<string, unknown>> {
   type: FormFieldType
   placeholder?: string
   required?: boolean
-  step?: string // Pentru inputuri de tip 'number'
+  step?: string
   className?: string
-  options?: FormFieldOption[] // Noua proprietate pentru câmpurile de tip 'select'
+  options?: FormFieldOption[]
 }

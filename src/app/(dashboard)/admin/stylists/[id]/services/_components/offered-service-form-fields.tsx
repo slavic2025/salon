@@ -30,7 +30,7 @@ export function getOfferedServiceFormFields(
       id: 'custom_price',
       label: `Preț Custom (${DEFAULT_CURRENCY_SYMBOL})`,
       type: 'number',
-      step: '0.01',
+      step: '1',
       placeholder: 'Lasă gol pentru prețul standard',
       required: false,
     },
@@ -53,19 +53,30 @@ export function getOfferedServiceFormFields(
     return commonFields
   }
 
-  // Pentru modul de adăugare, adăugăm câmpul de selecție la început
   const serviceSelectField: FormFieldConfig<AddOfferedServiceInput> = {
     id: 'service_id',
     label: 'Serviciu',
     type: 'select',
     required: true,
+    placeholder: 'Selectează un serviciu de bază',
     options: availableServices.map((service) => ({
       value: service.id,
-      label: `<span class="math-inline">\{service\.name\} \(</span>{service.duration_minutes} min, ${service.price.toFixed(
-        2
-      )} ${DEFAULT_CURRENCY_SYMBOL})`,
+      // Folosim JSX pentru a formata eticheta
+      label: (
+        // AICI SUNT MODIFICĂRILE:
+        // 1. Folosim items-start pentru a alinia la partea de sus
+        // 2. Adăugăm un `gap` pentru spațiere
+        <div className="flex justify-between w-full items-start gap-4">
+          {/* Partea stângă: Numele, care acum poate fi pe mai multe rânduri */}
+          <span className="flex-1 whitespace-normal break-words">{service.name}</span>
+
+          {/* Partea dreaptă: Detaliile, care nu se vor micșora și rămân pe un rând */}
+          <span className="flex-shrink-0 text-sm text-muted-foreground">
+            {service.duration_minutes} min, {service.price} {DEFAULT_CURRENCY_SYMBOL}
+          </span>
+        </div>
+      ),
     })),
-    placeholder: 'Selectează un serviciu de bază',
   }
 
   return [serviceSelectField, ...commonFields]
