@@ -12,14 +12,22 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { AddStylistForm } from './add-stylist-form'
+import React from 'react'
 
-export function AddStylistDialog() {
+// 1. Definim o interfață pentru proprietățile componentei
+interface AddStylistDialogProps {
+  trigger?: React.ReactNode
+}
+
+// 2. Primim `trigger` ca prop în componentă
+export function AddStylistDialog({ trigger }: AddStylistDialogProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        <Button>Adaugă Stilist Nou</Button>
+        {/* 3. Folosim trigger-ul custom dacă este furnizat, altfel afișăm butonul default */}
+        {trigger || <Button>Adaugă Stilist Nou</Button>}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>

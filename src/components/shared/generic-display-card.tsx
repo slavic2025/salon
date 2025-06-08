@@ -1,26 +1,25 @@
-// components/shared/generic-display-card.tsx
+// src/components/shared/generic-display-card.tsx
 'use client'
-
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { SubmitButton } from '@/components/ui/submit-button'
-import { createLogger } from '@/lib/logger'
-import { useActionState, useEffect } from 'react'
-import { toast } from 'sonner'
-import { INITIAL_FORM_STATE, ActionResponse } from '@/types/actions.types'
-import { DisplayFieldConfig, DisplayItem } from './display-card-types' // Importă noile tipuri
-
-const logger = createLogger('GenericDisplayCard')
+import { GenericDeleteDialog } from './generic-delete-dialog'
+import { DisplayItem } from './display-card-types'
+import { ActionResponse } from '@/types/actions.types'
+import { Button } from '@/components/ui/button'
+import { Pencil, Trash2 } from 'lucide-react'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 interface GenericDisplayCardProps<T extends DisplayItem> {
-  entity: T // Entitatea de afișat (ServiceData, Stylist, etc.)
-  displayFieldsConfig: DisplayFieldConfig<T>[] // Configurația câmpurilor de afișat
-  EditDialog: React.ComponentType<{ entity: T }> // Componenta de dialog pentru editare
-  // Acțiunea de ștergere, compatibilă cu useActionState (primește prevState, returnează ActionResponse)
+  entity: T
+  displayFieldsConfig: any[]
+  EditDialog: React.ComponentType<{ entity: T; children?: React.ReactNode }>
   deleteAction: (prevState: ActionResponse, formData: FormData) => Promise<ActionResponse>
-  cardTitle: React.ReactNode // Titlul cardului (e.g., entity.name sau JSX personalizat)
-  cardDescription?: React.ReactNode // Descrierea cardului (e.g., entity.description sau JSX personalizat), opțional
-  deleteLabel?: string // Textul pentru butonul de ștergere, implicit "Șterge"
-  deleteButtonAriaLabel?: string // aria-label pentru butonul de ștergere
+  cardTitle: React.ReactNode
+  cardDescription?: React.ReactNode
+  renderCustomActions?: (entity: T) => React.ReactNode
+  // Proprietăți noi
+  avatarUrl?: string | null
+  entityInitials?: string
+  headerActions?: React.ReactNode
 }
 
 export function GenericDisplayCard<T extends DisplayItem>({
@@ -30,73 +29,34 @@ export function GenericDisplayCard<T extends DisplayItem>({
   deleteAction,
   cardTitle,
   cardDescription,
-  deleteLabel = 'Șterge',
-  deleteButtonAriaLabel,
+  renderCustomActions,
+  avatarUrl,
+  entityInitials,
+  headerActions, // Primim noile props
 }: GenericDisplayCardProps<T>) {
-  // Utilizează useActionState pentru a gestiona starea acțiunii de ștergere
-  const [deleteState, deleteFormAction, isPending] = useActionState(deleteAction, INITIAL_FORM_STATE)
-
-  // Utilizează useEffect pentru a reacționa la schimbările de stare și a afișa toast-uri
-  useEffect(() => {
-    // Verificăm dacă mesajul este definit pentru a evita toast-uri la prima randare (INITIAL_FORM_STATE)
-    if (deleteState.message) {
-      if (deleteState.success) {
-        toast.success('Succes!', {
-          description: deleteState.message,
-        })
-      } else {
-        toast.error('Eroare!', {
-          description: deleteState.message,
-        })
-      }
-    }
-  }, [deleteState]) // Se declanșează la fiecare schimbare a stării
-
-  logger.debug('Rendering GenericDisplayCard', { entityId: entity.id, entityName: entity.name })
-
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>{cardTitle}</CardTitle>
-        {cardDescription && <CardDescription className="text-gray-600">{cardDescription}</CardDescription>}
-      </CardHeader>
-      <CardContent className="grid gap-2">
-        {displayFieldsConfig.map((field) => {
-          const value = entity[field.id]
-
-          // Logica pentru a ascunde câmpurile goale/null
-          if (field.hideIfEmpty && (!value || (typeof value === 'string' && value.trim() === ''))) {
-            logger.debug(`Hiding empty field "${String(field.id)}" for entity "${entity.name || entity.id}"`)
-            return null
-          }
-
-          return (
-            <div key={String(field.id)} className={`flex items-center justify-between ${field.className || ''}`}>
-              <span className="font-semibold">{field.label}:</span>
-              <span>
-                {/* Aplică formatarea dacă este definită, altfel convertește la string */}
-                {field.format ? field.format(value) : String(value)}
-              </span>
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-center gap-4">
+            {/* Randăm Avatarul dacă există */}
+            {avatarUrl !== undefined && (
+              <Avatar>
+                <AvatarImage src={avatarUrl ?? undefined} alt={entity.name} />
+                <AvatarFallback>{entityInitials}</AvatarFallback>
+              </Avatar>
+            )}
+            <div className="grid gap-0.5">
+              <CardTitle>{cardTitle}</CardTitle>
+              {cardDescription && <CardDescription className="pt-1">{cardDescription}</CardDescription>}
             </div>
-          )
-        })}
-      </CardContent>
-      <CardFooter className="flex justify-end gap-2 p-4 pt-0">
-        <EditDialog entity={entity} /> {/* Pasăm entitatea către dialogul de editare */}
-        <form action={deleteFormAction}>
-          {' '}
-          {/* Utilizează funcția de dispatch de la useActionState */}
-          <input type="hidden" name="id" value={entity.id} />
-          <SubmitButton
-            variant="destructive"
-            size="sm"
-            aria-label={deleteButtonAriaLabel || `${deleteLabel} ${entity.name || entity.id}`}
-            disabled={isPending} // Folosim isPending pentru a dezactiva butonul în timpul acțiunii
-          >
-            {deleteLabel}
-          </SubmitButton>
-        </form>
-      </CardFooter>
+          </div>
+          {/* Randăm acțiunile din header (ex: badge-ul de status) */}
+          {headerActions}
+        </div>
+      </CardHeader>
+      <CardContent className="grid gap-2 pt-2">{/* ... restul cardului ... */}</CardContent>
+      <CardFooter className="flex justify-end gap-2 p-4 pt-2">{/* ... footer-ul cardului ... */}</CardFooter>
     </Card>
   )
 }
