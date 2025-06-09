@@ -43,3 +43,8 @@ export type EditStylistInput = z.infer<typeof editStylistSchema>
 
 // Schema Zod pentru ȘTERGERE
 export const deleteStylistSchema = z.string().uuid('ID-ul stilistului trebuie să fie un UUID valid.')
+
+export const inviteSchema = z.object({
+  name: z.string().min(3, { message: 'Numele este obligatoriu.' }),
+  email: z.string().email({ message: 'Adresa de email este invalidă.' }),
+})

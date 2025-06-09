@@ -317,6 +317,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_stylist_with_invite: {
+        Args: { stylist_name: string; stylist_email: string }
+        Returns: Json
+      }
       get_current_stylist_id: {
         Args: Record<PropertyKey, never>
         Returns: string

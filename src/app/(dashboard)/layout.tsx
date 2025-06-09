@@ -23,6 +23,10 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
     redirect('/login')
   }
 
+  if (user.user_metadata?.password_set === false) {
+    redirect('/account-setup')
+  }
+
   // Doar dacă user NU este null, continuăm să preluăm profilul.
   // Am eliminat `!` de la `user.id` deoarece acum suntem siguri că `user` nu este null.
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()

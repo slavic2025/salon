@@ -13,20 +13,16 @@ export async function middleware(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
-      // AICI ESTE MODIFICAREA: Folosim noul model cu getAll și setAll
       cookies: {
-        getAll() {
-          return request.cookies.getAll()
-        },
-        setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
-          // Modificările se fac pe `response`, nu pe `request`
+        getAll: () => request.cookies.getAll(),
+        setAll: (cookiesToSet: { name: string; value: string; options: CookieOptions }[]) => {
           cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options))
         },
       },
     }
   )
 
-  // Reîmprospătăm sesiunea utilizatorului.
+  // Rolul principal al middleware-ului: reîmprospătează token-ul de sesiune
   await supabase.auth.getUser()
 
   return response

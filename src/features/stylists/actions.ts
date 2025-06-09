@@ -9,6 +9,7 @@ import {
   editStylistSchema,
   deleteStylistSchema,
   Stylist,
+  inviteSchema,
 } from '@/core/domains/stylists/stylist.types'
 import { ActionResponse } from '@/types/actions.types'
 import { formatZodErrors } from '@/lib/form'
@@ -43,68 +44,61 @@ function formDataToObject(formData: FormData): Record<string, unknown> {
 export async function addStylistAction(prevState: ActionResponse, formData: FormData): Promise<ActionResponse> {
   const rawData = Object.fromEntries(formData.entries())
 
-  // O schemă simplă doar pentru validarea datelor de invitație
-  const inviteSchema = z.object({
-    name: z.string().min(3, { message: 'Numele este obligatoriu.' }),
-    email: z.string().email({ message: 'Adresa de email este invalidă.' }),
-  })
-
   const validationResult = inviteSchema.safeParse(rawData)
   if (!validationResult.success) {
-    // Nu folosim formatZodErrors aici pentru un mesaj mai simplu
     return { success: false, message: validationResult.error.errors[0].message }
   }
 
   const { name, email } = validationResult.data
+  const supabaseAdmin = createAdminClient()
+
+  let newUserId: string | undefined
 
   try {
-    const supabaseAdmin = createAdminClient()
-
-    // AICI ESTE MODIFICAREA:
-    // Îi spunem lui Supabase unde să trimită user-ul după ce dă click pe link.
+    // Pasul 1: Trimitem invitația. Supabase creează utilizatorul în `auth.users` și îi trimite un email.
     const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
-      data: { password_set: false },
-      // AICI ESTE MODIFICAREA: Trimitem utilizatorul la o pagină de pe client.
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm`,
+      data: { password_set: false }, // Flag esențial pentru fluxul de onboarding
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm`, // Pagina de aterizare client-side
     })
 
     if (inviteError) throw inviteError
     if (!inviteData.user) throw new Error('Nu s-a putut crea utilizatorul invitat.')
 
-    const newUserId = inviteData.user.id
+    newUserId = inviteData.user.id
 
-    // Creăm înregistrarea în tabela `profiles`
-    const { error: profileError } = await supabaseAdmin
-      .from('profiles')
-      .insert({
-        id: newUserId,
-        email: email,
-        name: name,
-        role: 'stylist',
-      })
-      .select()
+    // Pasul 2: Creăm înregistrarea în tabela `profiles` pentru a asocia rolul
+    const { error: profileError } = await supabaseAdmin.from('profiles').insert({
+      id: newUserId,
+      email: email,
+      name: name,
+      role: 'stylist',
+    })
+
     if (profileError) throw profileError
 
-    // Creăm înregistrarea în tabela `stylists`, legând-o de noul cont
-    const { error: stylistError } = await supabaseAdmin
-      .from('stylists')
-      .insert({
-        profile_id: newUserId,
-        name: name,
-        email: email,
-      })
-      .select()
+    // Pasul 3: Creăm înregistrarea în tabela `stylists`
+    const { error: stylistError } = await supabaseAdmin.from('stylists').insert({
+      profile_id: newUserId,
+      name: name,
+      email: email,
+    })
+
     if (stylistError) throw stylistError
 
     revalidatePath('/admin/stylists')
     return { success: true, message: `Invitație trimisă cu succes la ${email}!` }
   } catch (error) {
     logger.error('Error in addStylistAction', { error })
-    // Verificăm erorile comune de la Supabase
+
+    // Cleanup: Dacă s-a creat un utilizator dar un pas ulterior a eșuat, ștergem user-ul orfan.
+    if (newUserId) {
+      await supabaseAdmin.auth.admin.deleteUser(newUserId)
+    }
+
     if ((error as Error).message.includes('unique constraint')) {
       return { success: false, message: 'Un utilizator cu acest email există deja.' }
     }
-    return { success: false, message: (error as Error).message }
+    return { success: false, message: 'A apărut o eroare neașteptată. ' + (error as Error).message }
   }
 }
 
