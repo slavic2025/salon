@@ -1,8 +1,9 @@
 // src/app/(dashboard)/layout.tsx
+import { createClient } from '@/lib/supabase-server'
+import { redirect } from 'next/navigation' // Asigură-te că `redirect` este importat
 import { UserNav } from '@/components/dashboard/user-nav'
 import { DashboardSidebar } from '@/components/dashboard/sidebar'
 import { MobileNav } from '@/components/dashboard/mobile-nav'
-import { createClient } from '@/lib/supabase-server'
 
 interface AdminLayoutProps {
   children: React.ReactNode
@@ -13,7 +14,18 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user!.id).single()
+
+  // AICI ESTE CORECȚIA:
+  // 1. Verificăm dacă obiectul `user` este null.
+  if (!user) {
+    // 2. Dacă este null, redirecționăm la login.
+    // Nicio pagină din acest layout nu ar trebui să fie accesibilă fără un user.
+    redirect('/login')
+  }
+
+  // Doar dacă user NU este null, continuăm să preluăm profilul.
+  // Am eliminat `!` de la `user.id` deoarece acum suntem siguri că `user` nu este null.
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
   const userRole = profile?.role || 'authenticated'
 
   return (
@@ -23,10 +35,8 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
       </div>
       <div className="flex flex-col">
         <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
-          {/* AICI ESTE MODIFICAREA: Pasăm userRole către MobileNav */}
           <MobileNav userRole={userRole} />
-
-          <div className="w-full flex-1">{/* Search... */}</div>
+          <div className="w-full flex-1"></div>
           <UserNav />
         </header>
         <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">{children}</main>

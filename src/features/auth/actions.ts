@@ -3,6 +3,9 @@
 
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase-server'
+import { ActionResponse } from '@/types/actions.types'
+import { formatZodErrors } from '@/lib/form'
+import { z } from 'zod'
 
 export async function signIn(email: string, password: string) {
   const supabase = await createClient()
@@ -57,4 +60,38 @@ export async function signOut() {
   const supabase = await createClient()
   await supabase.auth.signOut()
   redirect('/login')
+}
+
+// Schema de validare pentru formularul de setare a parolei
+const setPasswordSchema = z
+  .object({
+    password: z.string().min(6, 'Parola trebuie să conțină cel puțin 6 caractere.'),
+    passwordConfirm: z.string(),
+  })
+  .refine((data) => data.password === data.passwordConfirm, {
+    message: 'Parolele nu se potrivesc.',
+    path: ['passwordConfirm'], // Atribuie eroarea câmpului de confirmare
+  })
+
+export async function setInitialPasswordAction(prevState: ActionResponse, formData: FormData): Promise<ActionResponse> {
+  const rawData = Object.fromEntries(formData.entries())
+
+  const validationResult = setPasswordSchema.safeParse(rawData)
+  if (!validationResult.success) {
+    return { success: false, message: 'Eroare de validare', errors: formatZodErrors(validationResult.error) }
+  }
+
+  const supabase = await createClient()
+  const { error } = await supabase.auth.updateUser({
+    password: validationResult.data.password,
+    // AICI ESTE PASUL CRITIC: Actualizăm metadata
+    data: { password_set: true },
+  })
+
+  if (error) {
+    return { success: false, message: error.message }
+  }
+
+  // După setarea cu succes a parolei, redirecționăm către dashboard-ul stilistului
+  redirect('/dashboard/schedule')
 }

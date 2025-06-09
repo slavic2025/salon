@@ -12,6 +12,10 @@ import {
 } from '@/core/domains/stylists/stylist.types'
 import { ActionResponse } from '@/types/actions.types'
 import { formatZodErrors } from '@/lib/form'
+import { createAdminClient } from '@/lib/supabase-admin'
+import { z } from 'zod'
+import { createClient } from '@/lib/supabase-server'
+import { redirect } from 'next/navigation'
 
 const logger = createLogger('StylistActions')
 
@@ -37,61 +41,70 @@ function formDataToObject(formData: FormData): Record<string, unknown> {
  * Acțiune pentru adăugarea unui nou stilist.
  */
 export async function addStylistAction(prevState: ActionResponse, formData: FormData): Promise<ActionResponse> {
-  const rawData = formDataToObject(formData)
-  logger.debug('addStylistAction invoked', { rawData })
+  const rawData = Object.fromEntries(formData.entries())
 
-  // 1. Validează datele din formular cu schema Zod
-  const validationResult = addStylistSchema.safeParse(rawData)
+  // O schemă simplă doar pentru validarea datelor de invitație
+  const inviteSchema = z.object({
+    name: z.string().min(3, { message: 'Numele este obligatoriu.' }),
+    email: z.string().email({ message: 'Adresa de email este invalidă.' }),
+  })
 
+  const validationResult = inviteSchema.safeParse(rawData)
   if (!validationResult.success) {
-    const errors = formatZodErrors(validationResult.error)
-    logger.warn('Validation failed for addStylistAction', { errors })
-    return {
-      success: false,
-      message: 'Eroare de validare. Vă rugăm corectați câmpurile.',
-      errors: errors,
-    }
+    // Nu folosim formatZodErrors aici pentru un mesaj mai simplu
+    return { success: false, message: validationResult.error.errors[0].message }
   }
 
-  const validatedData = validationResult.data
+  const { name, email } = validationResult.data
 
   try {
-    // 2. Verifică unicitatea datelor înainte de a crea
-    const uniquenessErrors = await stylistRepository.checkUniqueness(
-      {
-        email: validatedData.email,
-        name: validatedData.name,
-        phone: validatedData.phone,
-      },
-      null // null pentru idToExclude, deoarece creăm o entitate nouă
-    )
+    const supabaseAdmin = createAdminClient()
 
-    if (uniquenessErrors.length > 0) {
-      const errors: Record<string, string[]> = {}
-      uniquenessErrors.forEach((err) => {
-        errors[err.field] = [err.message]
+    // AICI ESTE MODIFICAREA:
+    // Îi spunem lui Supabase unde să trimită user-ul după ce dă click pe link.
+    const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
+      data: { password_set: false },
+      // AICI ESTE MODIFICAREA: Trimitem utilizatorul la o pagină de pe client.
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm`,
+    })
+
+    if (inviteError) throw inviteError
+    if (!inviteData.user) throw new Error('Nu s-a putut crea utilizatorul invitat.')
+
+    const newUserId = inviteData.user.id
+
+    // Creăm înregistrarea în tabela `profiles`
+    const { error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .insert({
+        id: newUserId,
+        email: email,
+        name: name,
+        role: 'stylist',
       })
-      logger.warn('Uniqueness check failed', { errors })
-      return { success: false, message: 'Un stilist cu aceste date există deja.', errors }
-    }
+      .select()
+    if (profileError) throw profileError
 
-    // 3. Apelează repository-ul pentru a crea stilistul
-    await stylistRepository.create(validatedData)
-    logger.info('Stylist created successfully', { name: validatedData.name })
+    // Creăm înregistrarea în tabela `stylists`, legând-o de noul cont
+    const { error: stylistError } = await supabaseAdmin
+      .from('stylists')
+      .insert({
+        profile_id: newUserId,
+        name: name,
+        email: email,
+      })
+      .select()
+    if (stylistError) throw stylistError
 
-    // 4. Revalidează calea pentru a afișa datele noi
     revalidatePath('/admin/stylists')
-
-    return {
-      success: true,
-      message: `Stilistul "${validatedData.name}" a fost adăugat cu succes!`,
-    }
+    return { success: true, message: `Invitație trimisă cu succes la ${email}!` }
   } catch (error) {
-    logger.error('Unexpected error in addStylistAction', { error })
-    return {
-      success: false,
-      message: 'A apărut o eroare de server. Vă rugăm încercați din nou.',
+    logger.error('Error in addStylistAction', { error })
+    // Verificăm erorile comune de la Supabase
+    if ((error as Error).message.includes('unique constraint')) {
+      return { success: false, message: 'Un utilizator cu acest email există deja.' }
     }
+    return { success: false, message: (error as Error).message }
   }
 }
 
@@ -187,4 +200,14 @@ export async function getStylistsAction(): Promise<Stylist[]> {
     })
     return [] // Returnează un array gol în caz de eroare
   }
+}
+
+export async function setInitialPassword(password: string) {
+  const supabase = await createClient()
+  const { error } = await supabase.auth.updateUser({
+    password,
+    data: { password_set: true }, // Marcam că parola a fost setată
+  })
+  if (error) return { error: error.message }
+  redirect('/dashboard/schedule') // Redirecționare după succes
 }
