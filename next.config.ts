@@ -1,7 +1,17 @@
-import type { NextConfig } from "next";
+// next.config.ts
 
-const nextConfig: NextConfig = {
-  /* config options here */
-};
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
+        port: '',
+        pathname: '/**', // Permitem orice cale de pe acest domeniu
+      },
+    ],
+  },
+}
 
-export default nextConfig;
+export default nextConfig

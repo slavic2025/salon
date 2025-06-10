@@ -31,6 +31,19 @@ export const serviceRepository = {
     return await handleSupabaseError(query, `fetchServiceById(${id})`)
   },
 
+  async getActiveServices(): Promise<Service[]> {
+    logger.debug('Fetching active services for public page...')
+    const supabase = await createClient()
+    const query = supabase
+      .from(TABLE_NAME)
+      .select('*')
+      .eq('is_active', true) // Filtram doar serviciile active
+      .order('name', { ascending: true })
+
+    // Folosim acelasi handler de erori
+    return (await handleSupabaseError(query, 'getActiveServices')) as Service[]
+  },
+
   async create(data: ServiceCreateData): Promise<Service> {
     logger.debug('Creating a new service...', { data })
     const supabase = await createClient()

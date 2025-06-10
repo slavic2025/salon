@@ -1,25 +1,23 @@
 // src/app/(dashboard)/layout.tsx
+
 import { createClient } from '@/lib/supabase-server'
-import { redirect } from 'next/navigation' // Asigură-te că `redirect` este importat
+import { redirect } from 'next/navigation'
 import { UserNav } from '@/components/dashboard/user-nav'
 import { DashboardSidebar } from '@/components/dashboard/sidebar'
 import { MobileNav } from '@/components/dashboard/mobile-nav'
+import { headers } from 'next/headers'
 
 interface AdminLayoutProps {
   children: React.ReactNode
 }
 
-export default async function AdminLayout({ children }: AdminLayoutProps) {
+export default async function DashboardLayout({ children }: AdminLayoutProps) {
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // AICI ESTE CORECȚIA:
-  // 1. Verificăm dacă obiectul `user` este null.
   if (!user) {
-    // 2. Dacă este null, redirecționăm la login.
-    // Nicio pagină din acest layout nu ar trebui să fie accesibilă fără un user.
     redirect('/login')
   }
 
@@ -27,10 +25,29 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
     redirect('/account-setup')
   }
 
-  // Doar dacă user NU este null, continuăm să preluăm profilul.
-  // Am eliminat `!` de la `user.id` deoarece acum suntem siguri că `user` nu este null.
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-  const userRole = profile?.role || 'authenticated'
+  const userRole = profile?.role
+
+  // Dacă din orice motiv nu găsim un profil sau un rol, redirecționăm la login.
+  if (!userRole) {
+    console.error(`User with ID ${user.id} has no profile or role. Logging out.`)
+    redirect('/login')
+  }
+
+  const headersList = await headers()
+  const pathname = headersList.get('x-pathname') || ''
+
+  // --- BEST PRACTICE: Logica de autorizare bazată pe rol și rută ---
+  if (userRole === 'admin' && pathname.startsWith('/stylist')) {
+    // Un admin a ajuns pe o rută de stilist, îl trimitem la pagina lui de start.
+    redirect('/admin')
+  }
+
+  if (userRole === 'stylist' && pathname.startsWith('/admin')) {
+    // Un stilist a încercat să acceseze o rută de admin, îl trimitem la pagina lui de start.
+    redirect('/stylist/schedule') // <-- Folosim noua rută
+  }
+  // --- Sfârșitul logicii de autorizare ---
 
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">

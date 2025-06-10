@@ -8,26 +8,9 @@ import { addServiceSchema, editServiceSchema, deleteServiceSchema } from '@/core
 import { ActionResponse } from '@/types/actions.types'
 import { formatZodErrors } from '@/lib/form'
 import { Service } from '@/core/domains/services/service.types'
+import { formDataToObject } from '@/lib/form-utils'
 
 const logger = createLogger('ServiceActions')
-
-function formDataToObject(formData: FormData) {
-  const object: Record<string, any> = {}
-  formData.forEach((value, key) => {
-    if (key === 'is_active') {
-      object[key] = value === 'on'
-    } else if (key === 'description' || key === 'category') {
-      // Allow empty strings to become null for optional fields
-      object[key] = value === '' ? null : value
-    } else {
-      object[key] = value
-    }
-  })
-  if (object.is_active === undefined) {
-    object.is_active = false
-  }
-  return object
-}
 
 export async function addServiceAction(prevState: ActionResponse, formData: FormData): Promise<ActionResponse> {
   const rawData = formDataToObject(formData)

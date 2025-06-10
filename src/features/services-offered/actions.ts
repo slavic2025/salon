@@ -14,29 +14,10 @@ import {
 import { servicesOfferedRepository } from '@/core/domains/services-offered/services-offered.repository'
 import { serviceRepository } from '@/core/domains/services/service.repository'
 import { Tables } from '@/types/database.types'
+import { formDataToObject } from '@/lib/form-utils'
 
 const logger = createLogger('ServicesOfferedActions')
 const REVALIDATION_PATH = (stylistId: string) => `/admin/stylists/${stylistId}/services`
-
-// Funcție ajutătoare pentru a converti FormData într-un obiect curat pentru validare
-function formDataToObject(formData: FormData): Record<string, unknown> {
-  const object: Record<string, unknown> = {}
-  formData.forEach((value, key) => {
-    if (value === '') {
-      // Tratează stringurile goale ca null pentru câmpurile opționale (ex: preț/durată custom)
-      object[key] = null
-    } else if (key === 'is_active') {
-      object[key] = value === 'on'
-    } else {
-      object[key] = value
-    }
-  })
-  // Asigură-te că checkbox-ul are o valoare booleană chiar dacă nu este bifat
-  if (!object.is_active) {
-    object.is_active = false
-  }
-  return object
-}
 
 /**
  * Acțiune pentru adăugarea unui serviciu la un stilist.

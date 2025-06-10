@@ -17,26 +17,9 @@ import { createAdminClient } from '@/lib/supabase-admin'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
+import { formDataToObject } from '@/lib/form-utils'
 
 const logger = createLogger('StylistActions')
-
-// Funcție ajutătoare pentru a converti FormData într-un obiect curat pentru validare
-function formDataToObject(formData: FormData): Record<string, unknown> {
-  const object: Record<string, any> = {}
-  formData.forEach((value, key) => {
-    // Gestionează checkbox-ul care este 'on' când e bifat și absent când nu e.
-    if (key === 'is_active') {
-      object[key] = value === 'on'
-    } else {
-      object[key] = value
-    }
-  })
-  // Asigură că 'is_active' este boolean chiar dacă checkbox-ul nu a fost în FormData
-  if (object.is_active === undefined) {
-    object.is_active = false
-  }
-  return object
-}
 
 /**
  * Acțiune pentru adăugarea unui nou stilist.

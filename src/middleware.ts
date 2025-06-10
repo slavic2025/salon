@@ -24,6 +24,7 @@ export async function middleware(request: NextRequest) {
 
   // Rolul principal al middleware-ului: reîmprospătează token-ul de sesiune
   await supabase.auth.getUser()
+  response.headers.set('x-pathname', request.nextUrl.pathname)
 
   return response
 }
