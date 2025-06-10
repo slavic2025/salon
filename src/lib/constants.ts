@@ -10,3 +10,16 @@ export const DEFAULT_CURRENCY_SYMBOL = 'MDL' as const
  * Numele complet al valutei implicite.
  */
 export const DEFAULT_CURRENCY_NAME = 'Lei Moldovenești' as const
+
+export const ROLES = {
+  ADMIN: 'admin',
+  STYLIST: 'stylist',
+} as const
+
+export const PATHS = {
+  LOGIN: '/login',
+  ACCOUNT_SETUP: '/account-setup',
+  ADMIN_HOME: '/admin',
+  STYLIST_HOME: '/stylist/schedule',
+  STYLIST_ROOT: '/stylist',
+} as const

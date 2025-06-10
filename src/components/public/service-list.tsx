@@ -13,7 +13,7 @@ export function ServiceList({ services }: ServiceListProps) {
   if (services.length === 0) {
     return (
       <EmptyState
-        message="Niciun serviciu disponibil"
+        title="Niciun serviciu disponibil"
         description="Momentan nu sunt servicii active. Te rugăm să revii mai târziu."
         className="mt-16"
       />
