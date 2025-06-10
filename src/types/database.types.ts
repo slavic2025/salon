@@ -317,10 +317,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      create_stylist_with_invite: {
-        Args: { stylist_name: string; stylist_email: string }
-        Returns: Json
-      }
       get_current_stylist_id: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -337,6 +333,21 @@ export type Database = {
           weekday: number
         }[]
       }
+      get_stylists_for_service: {
+        Args: { p_service_id: string }
+        Returns: {
+          created_at: string
+          description: string | null
+          email: string
+          id: string
+          is_active: boolean
+          name: string
+          phone: string | null
+          profile_id: string | null
+          profile_picture: string | null
+          updated_at: string
+        }[]
+      }
       is_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
@@ -344,6 +355,7 @@ export type Database = {
     }
     Enums: {
       booking_status: "pending" | "accepted" | "rejected" | "cancelled"
+      user_role: "admin" | "stylist"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -460,6 +472,7 @@ export const Constants = {
   public: {
     Enums: {
       booking_status: ["pending", "accepted", "rejected", "cancelled"],
+      user_role: ["admin", "stylist"],
     },
   },
 } as const

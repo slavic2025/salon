@@ -41,6 +41,24 @@ export const stylistRepository = {
     return await handleSupabaseError(query, `fetchById(${id})`)
   },
 
+  async fetchByServiceId(serviceId: string): Promise<Stylist[]> {
+    logger.debug(`Fetching stylists for service id via RPC: ${serviceId}`)
+    const supabase = await createClient()
+
+    // Apelăm funcția RPC 'get_stylists_for_service'
+    const { data, error } = await supabase.rpc('get_stylists_for_service', {
+      p_service_id: serviceId,
+    })
+
+    // Verificăm și gestionăm eroarea direct aici
+    if (error) {
+      logger.error('Error in RPC get_stylists_for_service', { error })
+      throw new Error(`Database RPC error: ${error.message}`)
+    }
+
+    return (data as Stylist[]) || []
+  },
+
   /**
    * Creează un nou stilist.
    */

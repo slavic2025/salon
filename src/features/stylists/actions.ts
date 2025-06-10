@@ -188,3 +188,23 @@ export async function setInitialPassword(password: string) {
   if (error) return { error: error.message }
   redirect('/dashboard/schedule') // Redirecționare după succes
 }
+
+export async function getStylistsByServiceAction(serviceId: string) {
+  // Verificare simplă a input-ului
+  if (!serviceId) {
+    logger.warn('getStylistsByServiceAction called with no serviceId')
+    return { success: true, data: [] }
+  }
+
+  try {
+    // Apelăm metoda din repository pe care am optimizat-o cu o funcție RPC.
+    const stylists = await stylistRepository.fetchByServiceId(serviceId)
+
+    // Returnăm un obiect structurat pentru a fi ușor de procesat pe client.
+    return { success: true, data: stylists }
+  } catch (error) {
+    // Prindem orice eroare care ar putea apărea în repository (ex: eroare de la baza de date).
+    logger.error('Failed to fetch stylists by service', { error, serviceId })
+    return { success: false, error: 'A apărut o eroare la preluarea stiliștilor. Te rugăm să încerci din nou.' }
+  }
+}
