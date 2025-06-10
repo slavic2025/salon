@@ -83,14 +83,19 @@ export const zIntFromForm = (msg = 'Value must be a positive integer.') =>
     z.number().int().positive({ message: msg })
   )
 
-// Preprocesează și validează un preț dintr-un input de formular.
-// Asigură-te că este un număr pozitiv și cu maxim două zecimale.
 export const zPriceFromForm = z.preprocess(
-  // Folosim parseInt în loc de parseFloat pentru a ignora zecimalele
-  (val) => (val === null || val === '' ? undefined : parseInt(String(val), 10)),
+  (val) => {
+    // Asigurăm conversia corectă la număr, chiar dacă valoarea vine goală sau ca text
+    const processedVal = String(val).trim()
+    if (processedVal === '') return null // Permitem validarea să prindă câmpul gol
+    return parseInt(processedVal, 10)
+  },
   z
-    .number({ invalid_type_error: 'Prețul trebuie să fie un număr.' })
-    .int({ message: 'Prețul trebuie să fie un număr întreg.' })
-    .positive({ message: 'Prețul trebuie să fie un număr pozitiv.' })
-  // Am eliminat .multipleOf(0.01)
+    .number({
+      required_error: 'Prețul este obligatoriu.',
+      invalid_type_error: 'Prețul trebuie să fie un număr valid.',
+    })
+    .int('Prețul trebuie să fie un număr întreg (fără zecimale).')
+    .nonnegative('Prețul nu poate fi negativ.')
+    .nullable() // Facem schema nullable pentru a oferi mesaje de eroare personalizate
 )

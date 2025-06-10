@@ -12,7 +12,7 @@ export const addServiceSchema = z.object({
   name: zStringMin(1, 'Numele serviciului este obligatoriu.'),
   description: z.string().nullable(),
   duration_minutes: zIntFromForm('Durata trebuie să fie un număr întreg pozitiv.'),
-  price: zPriceFromForm,
+  price: zPriceFromForm.refine((val) => val !== null, { message: 'Prețul este obligatoriu.' }),
   is_active: zBooleanCheckboxDefaultTrue,
   category: z.string().nullable(),
 })

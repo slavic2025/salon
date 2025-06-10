@@ -2,7 +2,7 @@
 
 import { z } from 'zod'
 import { Tables, TablesInsert } from '@/types/database.types'
-import { zBooleanCheckboxDefaultTrue } from '@/config/validation/fields'
+import { zBooleanCheckboxDefaultTrue, zPriceFromForm } from '@/config/validation/fields'
 
 /**
  * Tipul de bază pentru un serviciu oferit, inclusiv detaliile (join) de la serviciul principal.
@@ -20,10 +20,7 @@ export type ServiceOffered = Tables<'services_offered'> & {
 export const addOfferedServiceSchema = z.object({
   service_id: z.string().uuid({ message: 'Trebuie să selectezi un serviciu valid.' }),
   // Preprocesăm valorile pentru a le transforma în numere sau null dacă sunt goale.
-  custom_price: z.preprocess(
-    (val) => (val === '' || val === null || val === undefined ? null : parseFloat(String(val))),
-    z.number().positive({ message: 'Prețul custom trebuie să fie un număr pozitiv.' }).multipleOf(0.01).nullable()
-  ),
+  custom_price: zPriceFromForm,
   custom_duration: z.preprocess(
     (val) => (val === '' || val === null || val === undefined ? null : parseInt(String(val), 10)),
     z.number().int().positive({ message: 'Durata custom trebuie să fie un număr întreg pozitiv.' }).nullable()

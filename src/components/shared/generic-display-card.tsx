@@ -4,7 +4,7 @@
 import React from 'react'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { GenericDeleteDialog } from './generic-delete-dialog'
-import { DisplayItem } from './display-card-types'
+import { DisplayFieldConfig, DisplayItem } from './display-card-types'
 import { ActionResponse } from '@/types/actions.types'
 import { Button } from '@/components/ui/button'
 import { Pencil, Trash2 } from 'lucide-react'
@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 interface GenericDisplayCardProps<T extends DisplayItem> {
   entity: T
-  displayFieldsConfig: any[]
+  displayFieldsConfig: DisplayFieldConfig<T>[]
   EditDialog: React.ComponentType<{ entity: T; children?: React.ReactNode }>
   deleteAction: (prevState: ActionResponse, formData: FormData) => Promise<ActionResponse>
   cardTitle: React.ReactNode
