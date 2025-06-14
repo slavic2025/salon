@@ -13,14 +13,14 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { signOut } from '@/features/auth/actions' // Funcția de logout
+import { signOutAction } from '@/features/auth/actions' // Funcția de logout
 
 export function UserNav() {
   // Aici poți prelua informațiile despre utilizator din sesiune
   // const user = session?.user; // Exemplu dacă folosești NextAuth.js
 
   const handleLogout = async () => {
-    await signOut() // Apelează server action-ul de logout
+    await signOutAction() // Apelează server action-ul de logout
     // Redirecționarea va fi gestionată de Next.js/Middleware sau în server action
   }
 

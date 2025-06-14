@@ -11,20 +11,9 @@ import { ro } from 'date-fns/locale'
 import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
 import { formDataToObject } from '@/lib/form-utils'
+import { formatZodErrors } from '../common/utils'
 
 const logger = createLogger('AppointmentActions')
-
-function formatZodErrors(error: z.ZodError): Record<string, string[]> {
-  const formattedErrors: Record<string, string[]> = {}
-
-  for (const [key, value] of Object.entries(error.format())) {
-    if (typeof value === 'object' && value !== null && '_errors' in value) {
-      formattedErrors[key] = (value as { _errors: string[] })._errors
-    }
-  }
-
-  return formattedErrors
-}
 
 interface AppointmentCreateInput {
   serviceId: string
@@ -80,20 +69,19 @@ export async function createAppointmentAction(
     // Formatăm data pentru email
     const formattedDate = format(startTime, "EEEE, d MMMM yyyy 'la' HH:mm", { locale: ro })
 
-    // Trimitem email-ul de notificare
+    // Trimitem email de confirmare
     await sendEmail({
       to: validationResult.data.clientEmail,
-      subject: 'Cererea ta de programare a fost înregistrată!',
+      subject: 'Programare confirmată',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #4F46E5;">Salut, ${validationResult.data.clientName}!</h2>
-          <p>Am primit cererea ta de programare și o vom procesa în curând.</p>
+          <p>Programarea ta a fost confirmată pentru ${formattedDate}.</p>
           <div style="background-color: #F9FAFB; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h3 style="color: #111827; margin-top: 0;">Detalii Programare:</h3>
             <p><strong>Data și ora:</strong> ${formattedDate}</p>
             <p><strong>Durata:</strong> ${validationResult.data.duration} minute</p>
           </div>
-          <p>Vei primi un email de confirmare finală în curând.</p>
           <p>Dacă ai întrebări, nu ezita să ne contactezi.</p>
           <p style="color: #6B7280; font-size: 14px; margin-top: 30px;">
             Acest email este generat automat, te rugăm să nu răspunzi la acest mesaj.
@@ -102,19 +90,15 @@ export async function createAppointmentAction(
       `,
     })
 
-    revalidatePath('/appointments')
     return {
       success: true,
-      message: 'Programarea a fost trimisă cu succes!',
-      data: { appointmentId: appointment.id },
+      message: 'Programarea a fost creată cu succes.',
     }
   } catch (error) {
-    logger.error('Failed to create appointment', { error })
+    logger.error('Error in createAppointmentAction', { error })
     return {
       success: false,
-      message:
-        (error as Error).message ||
-        'A apărut o eroare la salvarea programării. Vă rugăm încercați din nou sau contactați-ne telefonic.',
+      message: 'A apărut o eroare la crearea programării.',
     }
   }
 }

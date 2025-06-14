@@ -2,13 +2,35 @@ import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { Loader2, ArrowLeft } from 'lucide-react'
-import { TIME_SLOTS } from '../types'
 
 interface DateTimeStepProps {
   stylistId: string
   onSelect: (date: Date, time: string) => void
   onBack: () => void
 }
+
+const TIME_SLOTS = [
+  '09:00',
+  '09:30',
+  '10:00',
+  '10:30',
+  '11:00',
+  '11:30',
+  '12:00',
+  '12:30',
+  '13:00',
+  '13:30',
+  '14:00',
+  '14:30',
+  '15:00',
+  '15:30',
+  '16:00',
+  '16:30',
+  '17:00',
+  '17:30',
+  '18:00',
+  '18:30',
+] as string[]
 
 export function DateTimeStep({ stylistId, onSelect, onBack }: DateTimeStepProps) {
   const [date, setDate] = useState<Date | undefined>(new Date())
@@ -21,7 +43,7 @@ export function DateTimeStep({ stylistId, onSelect, onBack }: DateTimeStepProps)
       // TODO: Înlocuiește cu apelul real către API
       setTimeout(() => {
         // Simulăm că toate sloturile sunt disponibile pentru demo
-        setAvailableTimes(TIME_SLOTS)
+        setAvailableTimes([...TIME_SLOTS])
         setLoadingTimes(false)
       }, 500)
     }
@@ -71,12 +93,10 @@ export function DateTimeStep({ stylistId, onSelect, onBack }: DateTimeStepProps)
               ))}
             </div>
           ) : (
-            <p className="text-sm text-gray-500 text-center">
-              Niciun interval disponibil în ziua selectată.
-            </p>
+            <p className="text-sm text-gray-500 text-center">Niciun interval disponibil în ziua selectată.</p>
           )}
         </div>
       </div>
     </div>
   )
-} 
+}

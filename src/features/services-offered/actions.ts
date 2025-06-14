@@ -2,7 +2,6 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { z } from 'zod'
 import { createLogger } from '@/lib/logger'
 import { formatZodErrors } from '@/lib/form'
 import { ActionResponse } from '@/types/actions.types'
@@ -15,9 +14,10 @@ import { servicesOfferedRepository } from '@/core/domains/services-offered/servi
 import { serviceRepository } from '@/core/domains/services/service.repository'
 import { Tables } from '@/types/database.types'
 import { formDataToObject } from '@/lib/form-utils'
+import { SERVICES_OFFERED_MESSAGES, SERVICES_OFFERED_PATHS } from './constants'
+import { validateStylistId, validateDeleteContext, handleDuplicateError } from './utils'
 
 const logger = createLogger('ServicesOfferedActions')
-const REVALIDATION_PATH = (stylistId: string) => `/admin/stylists/${stylistId}/services`
 
 /**
  * Acțiune pentru adăugarea unui serviciu la un stilist.
@@ -29,9 +29,8 @@ export async function addServiceToStylistAction(
 ): Promise<ActionResponse> {
   logger.debug('addServiceToStylistAction invoked', { stylistId })
 
-  if (!z.string().uuid().safeParse(stylistId).success) {
-    return { success: false, message: 'ID-ul stilistului este invalid.' }
-  }
+  const validationError = validateStylistId(stylistId)
+  if (validationError) return validationError
 
   const rawData = formDataToObject(formData)
   const validationResult = addOfferedServiceSchema.safeParse(rawData)
@@ -39,26 +38,36 @@ export async function addServiceToStylistAction(
   if (!validationResult.success) {
     const errors = formatZodErrors(validationResult.error)
     logger.warn('Validation failed for addServiceToStylistAction', { errors })
-    return { success: false, message: 'Eroare de validare.', errors }
+    return {
+      success: false,
+      message: SERVICES_OFFERED_MESSAGES.ERROR.VALIDATION,
+      errors,
+    }
   }
 
   try {
     const isDuplicate = await servicesOfferedRepository.checkUniqueness(stylistId, validationResult.data.service_id)
+
     if (isDuplicate) {
-      return {
-        success: false,
-        message: 'Acest serviciu este deja oferit de stilist.',
-        errors: { service_id: ['Acest serviciu este deja asociat.'] },
-      }
+      return handleDuplicateError()
     }
 
-    await servicesOfferedRepository.create({ ...validationResult.data, stylist_id: stylistId })
+    await servicesOfferedRepository.create({
+      ...validationResult.data,
+      stylist_id: stylistId,
+    })
 
-    revalidatePath(REVALIDATION_PATH(stylistId))
-    return { success: true, message: 'Serviciul a fost adăugat cu succes stilistului!' }
+    revalidatePath(SERVICES_OFFERED_PATHS.revalidation(stylistId))
+    return {
+      success: true,
+      message: SERVICES_OFFERED_MESSAGES.SUCCESS.ADDED,
+    }
   } catch (error) {
     logger.error('Error in addServiceToStylistAction', { error })
-    return { success: false, message: 'A apărut o eroare de server la adăugarea serviciului.' }
+    return {
+      success: false,
+      message: SERVICES_OFFERED_MESSAGES.ERROR.SERVER.ADD,
+    }
   }
 }
 
@@ -76,18 +85,28 @@ export async function updateOfferedServiceAction(
   if (!validationResult.success) {
     const errors = formatZodErrors(validationResult.error)
     logger.warn('Validation failed for updateOfferedServiceAction', { errors })
-    return { success: false, message: 'Eroare de validare.', errors }
+    return {
+      success: false,
+      message: SERVICES_OFFERED_MESSAGES.ERROR.VALIDATION,
+      errors,
+    }
   }
 
   const { id, stylist_id, ...dataToUpdate } = validationResult.data
 
   try {
     await servicesOfferedRepository.update(id, dataToUpdate)
-    revalidatePath(REVALIDATION_PATH(stylist_id))
-    return { success: true, message: 'Serviciul oferit a fost actualizat cu succes!' }
+    revalidatePath(SERVICES_OFFERED_PATHS.revalidation(stylist_id))
+    return {
+      success: true,
+      message: SERVICES_OFFERED_MESSAGES.SUCCESS.UPDATED,
+    }
   } catch (error) {
     logger.error('Error in updateOfferedServiceAction', { error })
-    return { success: false, message: 'A apărut o eroare de server la actualizarea serviciului.' }
+    return {
+      success: false,
+      message: SERVICES_OFFERED_MESSAGES.ERROR.SERVER.UPDATE,
+    }
   }
 }
 
@@ -101,21 +120,26 @@ export async function deleteOfferedServiceAction(
   const id = formData.get('id')
   const stylistId = formData.get('stylist_id_for_revalidation')
 
-  const idValidation = deleteOfferedServiceSchema.safeParse(id)
-  if (!idValidation.success) {
-    return { success: false, message: 'ID-ul pentru ștergere este invalid.' }
-  }
-  if (typeof stylistId !== 'string' || !z.string().uuid().safeParse(stylistId).success) {
-    return { success: false, message: 'Contextul stilistului este invalid pentru revalidare.' }
+  const validationResult = validateDeleteContext(id, stylistId)
+  if ('success' in validationResult) {
+    return validationResult
   }
 
+  const { id: validId, stylistId: validStylistId } = validationResult
+
   try {
-    await servicesOfferedRepository.remove(idValidation.data)
-    revalidatePath(REVALIDATION_PATH(stylistId))
-    return { success: true, message: 'Serviciul a fost eliminat cu succes de la stilist!' }
+    await servicesOfferedRepository.remove(validId)
+    revalidatePath(SERVICES_OFFERED_PATHS.revalidation(validStylistId))
+    return {
+      success: true,
+      message: SERVICES_OFFERED_MESSAGES.SUCCESS.DELETED,
+    }
   } catch (error) {
     logger.error('Error in deleteOfferedServiceAction', { error })
-    return { success: false, message: 'A apărut o eroare de server la ștergerea serviciului.' }
+    return {
+      success: false,
+      message: SERVICES_OFFERED_MESSAGES.ERROR.SERVER.DELETE,
+    }
   }
 }
 

@@ -4,61 +4,55 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase-server'
 import { ActionResponse } from '@/types/actions.types'
-import { formatZodErrors } from '@/lib/form'
 import { z } from 'zod'
 import { passwordSchema } from './types'
 import { PATHS, ROLES } from '@/lib/constants'
+import { handleValidationError, handleServerError } from '../common/utils'
 
-export async function signIn(email: string, password: string) {
+/**
+ * Acțiune pentru autentificare
+ */
+export async function signInAction(prevState: ActionResponse, formData: FormData): Promise<ActionResponse> {
+  const email = formData.get('email') as string
+  const password = formData.get('password') as string
   const supabase = await createClient()
 
-  // Pasul 1: Autentifică utilizatorul
-  const { error: signInError } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  })
-
+  const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
   if (signInError) {
-    console.error('Login error:', signInError)
-    // Returnăm un mesaj de eroare prietenos pentru UI
-    return { error: 'Credențiale invalide. Vă rugăm verificați email-ul și parola.' }
+    return { success: false, message: 'Credențiale invalide. Vă rugăm verificați email-ul și parola.' }
   }
 
-  // Pasul 2: După autentificare reușită, preluăm obiectul utilizator
   const {
     data: { user },
   } = await supabase.auth.getUser()
-
-  // Pasul 3: Verificăm dacă obiectul utilizator există înainte de a continua
   if (!user) {
-    console.error('User object not found after successful sign-in')
-    return { error: 'Utilizatorul nu a putut fi verificat după logare. Vă rugăm încercați din nou.' }
+    return { success: false, message: 'Utilizatorul nu a putut fi verificat după logare. Vă rugăm încercați din nou.' }
   }
 
-  // Pasul 4: Acum că știm sigur că `user` există, putem folosi `user.id` în siguranță
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select('role')
-    .eq('id', user.id) // Acum este garantat un string, fără erori de tipare
+    .eq('id', user.id)
     .single()
 
   if (profileError) {
-    console.error('Error fetching profile:', profileError)
-    return { error: 'Logare cu succes, dar a apărut o eroare la preluarea rolului.' }
+    return { success: false, message: 'Logare cu succes, dar a apărut o eroare la preluarea rolului.' }
   }
 
-  // Pasul 5: Redirecționăm pe baza rolului folosind constantele definite
   if (profile?.role === ROLES.ADMIN) {
     redirect(PATHS.ADMIN_HOME)
   } else if (profile?.role === ROLES.STYLIST) {
     redirect(PATHS.STYLIST_HOME)
   } else {
-    // Pentru orice alt rol sau niciun rol, redirecționăm la pagina principală
     redirect('/')
   }
+  return { success: true, message: 'Autentificare reușită' }
 }
 
-export async function signOut() {
+/**
+ * Acțiune pentru delogare
+ */
+export async function signOutAction(): Promise<void> {
   const supabase = await createClient()
   await supabase.auth.signOut()
   redirect('/login')
@@ -72,94 +66,79 @@ const setPasswordSchema = z
   })
   .refine((data) => data.password === data.passwordConfirm, {
     message: 'Parolele nu se potrivesc.',
-    path: ['passwordConfirm'], // Atribuie eroarea câmpului de confirmare
+    path: ['passwordConfirm'],
   })
 
+/**
+ * Acțiune pentru setarea parolei inițiale
+ */
 export async function setInitialPasswordAction(prevState: ActionResponse, formData: FormData): Promise<ActionResponse> {
   const rawData = Object.fromEntries(formData.entries())
-
   const validationResult = setPasswordSchema.safeParse(rawData)
   if (!validationResult.success) {
-    return { success: false, message: 'Eroare de validare', errors: formatZodErrors(validationResult.error) }
+    return handleValidationError(validationResult.error, 'Eroare de validare')
   }
 
   const supabase = await createClient()
   const { error } = await supabase.auth.updateUser({
     password: validationResult.data.password,
-    // AICI ESTE PASUL CRITIC: Actualizăm metadata
     data: { password_set: true },
   })
 
   if (error) {
-    return { success: false, message: error.message }
+    return handleServerError(error, 'Eroare la setarea parolei')
   }
 
-  // După setarea cu succes a parolei, redirecționăm către dashboard-ul stilistului
   redirect('/dashboard/schedule')
 }
 
-
-export async function updateUserPasswordAction(prevState: { error?: string }, formData: FormData): Promise<{ error?: string }> {
+/**
+ * Acțiune pentru actualizarea parolei utilizatorului
+ */
+export async function updateUserPasswordAction(prevState: ActionResponse, formData: FormData): Promise<ActionResponse> {
   const rawData = Object.fromEntries(formData)
   const validationResult = passwordSchema.safeParse(rawData)
 
   if (!validationResult.success) {
-    // Returnăm prima eroare de validare
-    return { error: validationResult.error.errors[0].message }
+    return handleValidationError(validationResult.error, 'Eroare de validare')
   }
 
   const { password } = validationResult.data
-
-  // Clientul de server va prelua sesiunea temporară din cookie-uri
   const supabase = await createClient()
-
-  const { data: { session } } = await supabase.auth.getSession()
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
   if (!session) {
-    return { error: 'Sesiune invalidă sau expirată. Te rugăm să accesezi din nou link-ul din email.' }
+    return { success: false, message: 'Sesiune invalidă sau expirată. Te rugăm să accesezi din nou link-ul din email.' }
   }
 
   const { error } = await supabase.auth.updateUser({ password })
   if (error) {
-    return { error: error.message }
+    return handleServerError(error, 'Eroare la actualizarea parolei')
   }
 
-  // Marcam parola ca fiind setată în metadata utilizatorului
   await supabase.auth.updateUser({ data: { password_set: true } })
-
-  // Redirecționăm la dashboard după succes
   redirect('/stylist/schedule')
 }
 
-export async function sendPasswordResetEmailAction(prevState: any, formData: FormData) {
+/**
+ * Acțiune pentru trimiterea email-ului de resetare a parolei
+ */
+export async function sendPasswordResetEmailAction(
+  prevState: ActionResponse,
+  formData: FormData
+): Promise<ActionResponse> {
   try {
     const email = formData.get('email') as string
     const supabase = await createClient()
-
-    // Trimitem email-ul de resetare a parolei
     const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/account-setup`,
     })
-
     if (resetError) {
-      console.error('Error sending reset email:', resetError)
-      return {
-        success: false,
-        message: 'Eroare la trimiterea email-ului de resetare',
-        errors: {}
-      }
+      return handleServerError(resetError, 'Eroare la trimiterea email-ului de resetare')
     }
-
-    return {
-      success: true,
-      message: 'Email-ul de resetare a parolei a fost trimis cu succes',
-      errors: {}
-    }
+    return { success: true, message: 'Email-ul de resetare a parolei a fost trimis cu succes' }
   } catch (error) {
-    console.error('Unexpected error:', error)
-    return {
-      success: false,
-      message: 'A apărut o eroare neașteptată',
-      errors: {}
-    }
+    return handleServerError(error, 'A apărut o eroare neașteptată')
   }
 }
