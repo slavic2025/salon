@@ -149,9 +149,6 @@ export function StylistStep({ serviceId, onSelect, onBack }: StylistStepProps) {
               <p className="font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors">
                 {stylist.full_name}
               </p>
-              {stylist.specialization && (
-                <p className="text-sm text-gray-500">{stylist.specialization}</p>
-              )}
             </div>
           </button>
         ))}
