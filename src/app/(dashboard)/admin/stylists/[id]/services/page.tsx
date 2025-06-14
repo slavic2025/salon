@@ -38,7 +38,7 @@ export default async function StylistServicesPage({ params }: StylistServicesPag
       notFound()
     }
 
-    logger.debug(`Data fetched for stylist ${stylist.name}`, {
+    logger.debug(`Data fetched for stylist ${stylist.full_name}`, {
       servicesOfferedCount: servicesOffered.length,
       availableServicesCount: availableServices.length,
     })

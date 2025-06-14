@@ -6,6 +6,8 @@ import { createClient } from '@/lib/supabase-server'
 import { ActionResponse } from '@/types/actions.types'
 import { formatZodErrors } from '@/lib/form'
 import { z } from 'zod'
+import { passwordSchema } from './types'
+import { PATHS, ROLES } from '@/lib/constants'
 
 export async function signIn(email: string, password: string) {
   const supabase = await createClient()
@@ -45,11 +47,11 @@ export async function signIn(email: string, password: string) {
     return { error: 'Logare cu succes, dar a apărut o eroare la preluarea rolului.' }
   }
 
-  // Pasul 5: Redirecționăm pe baza rolului
-  if (profile?.role === 'admin') {
-    redirect('/admin') // Adminul merge la dashboard-ul general de admin
-  } else if (profile?.role === 'stylist') {
-    redirect('/dashboard/schedule') // Stilistul merge direct la programul său
+  // Pasul 5: Redirecționăm pe baza rolului folosind constantele definite
+  if (profile?.role === ROLES.ADMIN) {
+    redirect(PATHS.ADMIN_HOME)
+  } else if (profile?.role === ROLES.STYLIST) {
+    redirect(PATHS.STYLIST_HOME)
   } else {
     // Pentru orice alt rol sau niciun rol, redirecționăm la pagina principală
     redirect('/')
@@ -94,4 +96,70 @@ export async function setInitialPasswordAction(prevState: ActionResponse, formDa
 
   // După setarea cu succes a parolei, redirecționăm către dashboard-ul stilistului
   redirect('/dashboard/schedule')
+}
+
+
+export async function updateUserPasswordAction(prevState: { error?: string }, formData: FormData): Promise<{ error?: string }> {
+  const rawData = Object.fromEntries(formData)
+  const validationResult = passwordSchema.safeParse(rawData)
+
+  if (!validationResult.success) {
+    // Returnăm prima eroare de validare
+    return { error: validationResult.error.errors[0].message }
+  }
+
+  const { password } = validationResult.data
+
+  // Clientul de server va prelua sesiunea temporară din cookie-uri
+  const supabase = await createClient()
+
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) {
+    return { error: 'Sesiune invalidă sau expirată. Te rugăm să accesezi din nou link-ul din email.' }
+  }
+
+  const { error } = await supabase.auth.updateUser({ password })
+  if (error) {
+    return { error: error.message }
+  }
+
+  // Marcam parola ca fiind setată în metadata utilizatorului
+  await supabase.auth.updateUser({ data: { password_set: true } })
+
+  // Redirecționăm la dashboard după succes
+  redirect('/stylist/schedule')
+}
+
+export async function sendPasswordResetEmailAction(prevState: any, formData: FormData) {
+  try {
+    const email = formData.get('email') as string
+    const supabase = await createClient()
+
+    // Trimitem email-ul de resetare a parolei
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/account-setup`,
+    })
+
+    if (resetError) {
+      console.error('Error sending reset email:', resetError)
+      return {
+        success: false,
+        message: 'Eroare la trimiterea email-ului de resetare',
+        errors: {}
+      }
+    }
+
+    return {
+      success: true,
+      message: 'Email-ul de resetare a parolei a fost trimis cu succes',
+      errors: {}
+    }
+  } catch (error) {
+    console.error('Unexpected error:', error)
+    return {
+      success: false,
+      message: 'A apărut o eroare neașteptată',
+      errors: {}
+    }
+  }
 }

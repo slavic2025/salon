@@ -18,6 +18,7 @@ import { z } from 'zod'
 import { createClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 import { formDataToObject } from '@/lib/form-utils'
+import { sendEmail } from '@/lib/email-service'
 
 const logger = createLogger('StylistActions')
 
@@ -26,61 +27,79 @@ const logger = createLogger('StylistActions')
  */
 export async function addStylistAction(prevState: ActionResponse, formData: FormData): Promise<ActionResponse> {
   const rawData = Object.fromEntries(formData.entries())
+  const validationResult = addStylistSchema.safeParse(rawData)
 
-  const validationResult = inviteSchema.safeParse(rawData)
   if (!validationResult.success) {
-    return { success: false, message: validationResult.error.errors[0].message }
+    return {
+      success: false,
+      message: 'Datele introduse sunt invalide.',
+      errors: formatZodErrors(validationResult.error),
+    }
   }
 
-  const { name, email } = validationResult.data
+  const { full_name, email, phone, description } = validationResult.data
   const supabaseAdmin = createAdminClient()
 
   let newUserId: string | undefined
 
   try {
-    // Pasul 1: Trimitem invitația. Supabase creează utilizatorul în `auth.users` și îi trimite un email.
+    // --- PASUL 1: Trimitem invitația prin email ---
+    logger.debug('Step 1: Inviting user via email...')
     const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
-      data: { password_set: false }, // Flag esențial pentru fluxul de onboarding
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm`, // Pagina de aterizare client-side
+      data: {
+        password_set: false, // Flag esențial pentru ca stilistul să-și seteze parola
+        full_name: full_name, // Trimitem datele pentru a fi disponibile la creare
+        phone: phone,
+      },
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm`,
     })
 
     if (inviteError) throw inviteError
     if (!inviteData.user) throw new Error('Nu s-a putut crea utilizatorul invitat.')
-
     newUserId = inviteData.user.id
+    logger.info(`Step 1 successful. User invited with ID: ${newUserId}`)
 
-    // Pasul 2: Creăm înregistrarea în tabela `profiles` pentru a asocia rolul
+    // --- PASUL 2: Creăm înregistrarea în public.profiles ---
+    logger.debug('Step 2: Creating profile record...')
     const { error: profileError } = await supabaseAdmin.from('profiles').insert({
       id: newUserId,
-      email: email,
-      name: name,
       role: 'stylist',
     })
 
     if (profileError) throw profileError
+    logger.info('Step 2 successful. Profile created.')
 
-    // Pasul 3: Creăm înregistrarea în tabela `stylists`
+    // --- PASUL 3: Creăm înregistrarea în public.stylists ---
+    logger.debug('Step 3: Creating stylist record...')
     const { error: stylistError } = await supabaseAdmin.from('stylists').insert({
       profile_id: newUserId,
-      name: name,
+      full_name: full_name,
       email: email,
+      phone: phone,
+      description: description,
     })
 
     if (stylistError) throw stylistError
+    logger.info('Step 3 successful. Stylist record created.')
 
     revalidatePath('/admin/stylists')
     return { success: true, message: `Invitație trimisă cu succes la ${email}!` }
   } catch (error) {
-    logger.error('Error in addStylistAction', { error })
+    logger.error('Error in addStylistAction transaction', { error })
 
-    // Cleanup: Dacă s-a creat un utilizator dar un pas ulterior a eșuat, ștergem user-ul orfan.
+    // --- Cleanup / Rollback Manual ---
     if (newUserId) {
+      logger.warn(`Attempting cleanup. Deleting orphaned user: ${newUserId}`)
       await supabaseAdmin.auth.admin.deleteUser(newUserId)
     }
 
-    if ((error as Error).message.includes('unique constraint')) {
-      return { success: false, message: 'Un utilizator cu acest email există deja.' }
+    if (
+      (error as Error).message.includes('unique constraint') ||
+      (error as Error).message.includes('User already exists')
+    ) {
+      return { success: false, message: 'Un utilizator cu acest email sau telefon există deja.' }
     }
+
     return { success: false, message: 'A apărut o eroare neașteptată. ' + (error as Error).message }
   }
 }
@@ -107,7 +126,7 @@ export async function editStylistAction(prevState: ActionResponse, formData: For
     const uniquenessErrors = await stylistRepository.checkUniqueness(
       {
         email: dataToUpdate.email,
-        name: dataToUpdate.name,
+        full_name: dataToUpdate.full_name,
         phone: dataToUpdate.phone,
       },
       id
@@ -135,27 +154,45 @@ export async function editStylistAction(prevState: ActionResponse, formData: For
 }
 
 /**
- * Acțiune pentru ștergerea unui stilist.
+ * Acțiune pentru ștergerea completă a unui stilist (auth.users, profiles, stylists).
  */
 export async function deleteStylistAction(prevState: ActionResponse, formData: FormData): Promise<ActionResponse> {
-  const id = formData.get('id')
-
-  const validationResult = deleteStylistSchema.safeParse(id)
-
+  const stylistId = formData.get('id')
+  
+  const validationResult = deleteStylistSchema.safeParse(stylistId)
   if (!validationResult.success) {
-    logger.warn('Validation failed for deleteStylistAction', { id })
+    logger.warn('Validation failed for deleteStylistAction', { id: stylistId })
     return { success: false, message: 'ID-ul stilistului este invalid.' }
   }
-
-  const stylistId = validationResult.data
+  
+  const validStylistId = validationResult.data
+  const supabaseAdmin = createAdminClient()
 
   try {
-    await stylistRepository.remove(stylistId)
-    logger.info('Stylist deleted successfully', { id: stylistId })
+    // --- PASUL 1: Preluăm datele stilistului pentru a găsi ID-ul de profil (auth user ID) ---
+    logger.debug(`Fetching stylist ${validStylistId} to get profile_id for deletion.`)
+    const stylistToDelete = await stylistRepository.fetchById(validStylistId)
+
+    if (!stylistToDelete || !stylistToDelete.profile_id) {
+      throw new Error('Stilistul nu a fost găsit sau nu are un profil de autentificare asociat.')
+    }
+
+    const authUserId = stylistToDelete.profile_id
+    logger.info(`Attempting to delete user with auth ID: ${authUserId}`)
+
+    // --- PASUL 2: Ștergem utilizatorul din `auth.users` ---
+    // Datorită constrângerilor 'ON DELETE CASCADE', înregistrările din
+    // 'profiles' și 'stylists' vor fi șterse automat de baza de date.
+    const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(authUserId)
+
+    if (deleteError) {
+      throw deleteError
+    }
+
+    logger.info('User, profile, and stylist records deleted successfully', { stylistId: validStylistId, authUserId })
 
     revalidatePath('/admin/stylists')
-
-    return { success: true, message: 'Stilistul a fost șters cu succes.' }
+    return { success: true, message: 'Stilistul a fost șters cu succes din tot sistemul.' }
   } catch (error) {
     logger.error('Error in deleteStylistAction', { id: stylistId, error })
     return { success: false, message: (error as Error).message }

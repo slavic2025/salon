@@ -25,7 +25,7 @@ export const stylistRepository = {
   async fetchAll(): Promise<Stylist[]> {
     logger.debug('Fetching all stylists...')
     const supabase = await createClient()
-    const query = supabase.from(TABLE_NAME).select('*').order('name', { ascending: true })
+    const query = supabase.from(TABLE_NAME).select('*').order('full_name', { ascending: true })
     // Pentru fetchAll, 'data' va fi un array (chiar și gol), deci nu poate fi null.
     return (await handleSupabaseError(query, 'fetchAll')) as Stylist[]
   },
@@ -109,7 +109,7 @@ export const stylistRepository = {
    * Returnează o listă de erori dacă se găsesc duplicate.
    */
   async checkUniqueness(
-    fields: Partial<Pick<Stylist, 'name' | 'email' | 'phone'>>,
+    fields: Partial<Pick<Stylist, 'full_name' | 'email' | 'phone'>>,
     idToExclude: string | null
   ): Promise<{ field: keyof typeof fields; message: string }[]> {
     logger.debug('Checking stylist uniqueness...', { fields, idToExclude })

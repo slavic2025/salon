@@ -131,10 +131,10 @@ function SelectStylistStep({
             className="flex items-center gap-4 rounded-lg border border-gray-300 bg-white p-4 text-left shadow-sm transition hover:border-indigo-500 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
             <Avatar className="h-12 w-12">
-              <AvatarImage src={stylist.profile_picture || undefined} alt={stylist.name} />
-              <AvatarFallback>{stylist.name?.charAt(0)}</AvatarFallback>
+              <AvatarImage src={stylist.profile_picture || undefined} alt={stylist.full_name} />
+              <AvatarFallback>{stylist.full_name?.charAt(0)}</AvatarFallback>
             </Avatar>
-            <p className="font-semibold text-gray-900">{stylist.name}</p>
+            <p className="font-semibold text-gray-900">{stylist.full_name}</p>
           </button>
         ))}
       </div>
@@ -258,7 +258,8 @@ function ContactAndSummaryStep({
               <span className="text-gray-500">Serviciu:</span> <span className="font-medium">{data.service?.name}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500">Stilist:</span> <span className="font-medium">{data.stylist?.name}</span>
+              <span className="text-gray-500">Stilist:</span>{' '}
+              <span className="font-medium">{data.stylist?.full_name}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-500">Data:</span>{' '}

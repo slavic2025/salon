@@ -12,7 +12,7 @@ import { Stylist } from '@/core/domains/stylists/stylist.types'
 export function getStylistFormConfig(): FormFieldConfig<Partial<Stylist>>[] {
   return [
     {
-      id: 'name',
+      id: 'full_name',
       label: 'Nume',
       type: 'text',
       required: true,

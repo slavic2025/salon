@@ -23,7 +23,7 @@ export type StylistUpdateData = TablesUpdate<'stylists'>
 
 // Schema Zod pentru ADĂUGARE (folosită în Server Actions pentru validarea formularului)
 export const addStylistSchema = z.object({
-  name: zStringMin(3, 'Numele stilistului trebuie să aibă minim 3 caractere.'),
+  full_name: zStringMin(3, 'Numele stilistului trebuie să aibă minim 3 caractere.'),
   email: zEmailRequired,
   phone: zPhoneRequired.nullable(),
   description: zStringMin(1, 'Descrierea stilistului este obligatorie.').nullable(),
@@ -45,6 +45,7 @@ export type EditStylistInput = z.infer<typeof editStylistSchema>
 export const deleteStylistSchema = z.string().uuid('ID-ul stilistului trebuie să fie un UUID valid.')
 
 export const inviteSchema = z.object({
-  name: z.string().min(3, { message: 'Numele este obligatoriu.' }),
+  full_name: z.string().min(3, { message: 'Numele este obligatoriu.' }),
   email: z.string().email({ message: 'Adresa de email este invalidă.' }),
+  phone: zPhoneRequired.nullable(),
 })

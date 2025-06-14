@@ -20,7 +20,7 @@ interface StylistCardProps {
 export function StylistCard({ stylist }: StylistCardProps) {
   const displayFields = STYLIST_DISPLAY_FIELDS.filter((field) => field.id !== 'is_active')
   const typedDisplayFields: DisplayFieldConfig<Stylist>[] = displayFields as any
-  const initials = stylist.name
+  const initials = stylist.full_name
     .split(' ')
     .map((n) => n[0])
     .slice(0, 2)
@@ -33,7 +33,7 @@ export function StylistCard({ stylist }: StylistCardProps) {
       displayFieldsConfig={typedDisplayFields}
       EditDialog={EditStylistDialog}
       deleteAction={deleteStylistAction}
-      cardTitle={stylist.name}
+      cardTitle={stylist.full_name}
       cardDescription={stylist.email}
       avatarUrl={stylist.profile_picture}
       entityInitials={initials}

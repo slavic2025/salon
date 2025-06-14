@@ -72,29 +72,20 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
-          email: string
           id: string
-          name: string
-          phone: string | null
-          role: string
+          role: Database["public"]["Enums"]["user_role"]
           updated_at: string
         }
         Insert: {
           created_at?: string
-          email: string
           id: string
-          name: string
-          phone?: string | null
-          role?: string
+          role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
         }
         Update: {
           created_at?: string
-          email?: string
           id?: string
-          name?: string
-          phone?: string | null
-          role?: string
+          role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
         }
         Relationships: []
@@ -187,10 +178,10 @@ export type Database = {
         Row: {
           created_at: string
           description: string | null
-          email: string
+          email: string | null
+          full_name: string
           id: string
           is_active: boolean
-          name: string
           phone: string | null
           profile_id: string | null
           profile_picture: string | null
@@ -199,10 +190,10 @@ export type Database = {
         Insert: {
           created_at?: string
           description?: string | null
-          email: string
+          email?: string | null
+          full_name: string
           id?: string
           is_active?: boolean
-          name: string
           phone?: string | null
           profile_id?: string | null
           profile_picture?: string | null
@@ -211,10 +202,10 @@ export type Database = {
         Update: {
           created_at?: string
           description?: string | null
-          email?: string
+          email?: string | null
+          full_name?: string
           id?: string
           is_active?: boolean
-          name?: string
           phone?: string | null
           profile_id?: string | null
           profile_picture?: string | null
@@ -338,10 +329,10 @@ export type Database = {
         Returns: {
           created_at: string
           description: string | null
-          email: string
+          email: string | null
+          full_name: string
           id: string
           is_active: boolean
-          name: string
           phone: string | null
           profile_id: string | null
           profile_picture: string | null

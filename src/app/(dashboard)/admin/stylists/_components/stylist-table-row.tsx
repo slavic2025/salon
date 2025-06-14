@@ -5,12 +5,14 @@ import { TableCell, TableRow } from '@/components/ui/table'
 import { EditStylistDialog } from './edit-stylist-dialog'
 import { ActiveBadge } from '@/components/ui/active-badge'
 import { buttonVariants } from '@/components/ui/button'
-import { Pencil, Scissors, Trash2 } from 'lucide-react' // Am adăugat Trash2 pentru consistență
+import { Pencil, Scissors, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Stylist } from '@/core/domains/stylists/stylist.types'
 import { deleteStylistAction } from '@/features/stylists/actions'
 import { GenericDeleteDialog } from '@/components/shared/generic-delete-dialog'
-import { Button } from '@/components/ui/button' // Asigură-te că Button este importat
+import { Button } from '@/components/ui/button'
+// CORECȚIA 1: Importăm noua componentă
+import { ResetPasswordButton } from './reset-password-button'
 
 interface StylistTableRowProps {
   stylist: Stylist
@@ -19,15 +21,13 @@ interface StylistTableRowProps {
 export function StylistTableRow({ stylist }: StylistTableRowProps) {
   return (
     <TableRow>
-      <TableCell className="font-medium">{stylist.name}</TableCell>
+      {/* ... celulele existente (full_name, email, etc.) ... */}
+      <TableCell className="font-medium">{stylist.full_name}</TableCell>
       <TableCell>{stylist.email}</TableCell>
       <TableCell>{stylist.phone || '-'}</TableCell>
-
-      {/* Adăugăm clase pentru a trunchia textul lung */}
       <TableCell className="max-w-xs truncate" title={stylist.description || ''}>
         {stylist.description || '-'}
       </TableCell>
-
       <TableCell className="text-center">
         <ActiveBadge isActive={stylist.is_active} />
       </TableCell>
@@ -35,7 +35,6 @@ export function StylistTableRow({ stylist }: StylistTableRowProps) {
       {/* Folosim flexbox pentru a alinia și spația butoanele corect */}
       <TableCell className="flex items-center justify-end gap-2">
         <EditStylistDialog entity={stylist}>
-          {/* Butonul de editare standard */}
           <Button variant="outline" size="sm" className="flex items-center gap-1.5">
             <Pencil className="h-4 w-4" /> Editează
           </Button>
@@ -47,11 +46,10 @@ export function StylistTableRow({ stylist }: StylistTableRowProps) {
         >
           <Scissors className="h-4 w-4" /> Servicii
         </Link>
-
         <GenericDeleteDialog
           deleteAction={deleteStylistAction}
           entityId={stylist.id}
-          entityName={stylist.name}
+          entityName={stylist.full_name}
           trigger={
             <Button variant="destructive" size="sm" className="flex items-center gap-1.5">
               <Trash2 className="h-4 w-4" /> Șterge

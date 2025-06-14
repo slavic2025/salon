@@ -27,7 +27,7 @@ export function ServicesOfferedPageContent({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Servicii Oferite de {stylist.name}</h1>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Servicii Oferite de {stylist.full_name}</h1>
           <p className="text-muted-foreground">
             Gestionați serviciile, prețurile și duratele personalizate pentru acest stilist.
           </p>
@@ -46,7 +46,7 @@ export function ServicesOfferedPageContent({
         )}
         emptyMessage="Acest stilist nu are încă niciun serviciu asociat."
         tableHeadingId={`offered-services-table-${stylist.id}`}
-        tableHeadingText={`Tabel cu servicii oferite de ${stylist.name}`}
+        tableHeadingText={`Tabel cu servicii oferite de ${stylist.full_name}`}
       />
 
       {/* Adăugăm vizualizarea pe carduri pentru mobil */}
