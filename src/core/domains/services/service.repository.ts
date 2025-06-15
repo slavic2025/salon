@@ -1,75 +1,68 @@
-// src/core/domains/services/service.repository.ts
+// src/core/domains/services/service.repository.ts (Varianta finală, refactorizată)
 import 'server-only'
-import { createClient } from '@/lib/supabase-server'
+
 import { createLogger } from '@/lib/logger'
-import { Service, ServiceCreateData, ServiceUpdateData } from './service.types'
+import { executeQuery } from '@/lib/db-helpers'
+import type { SupabaseClient } from '@supabase/supabase-js'
+import type { Service, ServiceCreateData, ServiceUpdatePayload } from './service.types'
 
-const logger = createLogger('ServiceRepository')
-const TABLE_NAME = 'services'
+/**
+ * Factory Function care creează și returnează un obiect repository pentru servicii.
+ * @param supabase - O instanță a clientului Supabase.
+ * @returns Un obiect cu metode pentru a interacționa cu tabela 'services'.
+ */
+export function createServiceRepository(supabase: SupabaseClient) {
+  const logger = createLogger('ServiceRepository')
+  const TABLE_NAME = 'services'
 
-async function handleSupabaseError<T>(promise: PromiseLike<{ data: T; error: any }>, context: string): Promise<T> {
-  const { data, error } = await promise
-  if (error) {
-    logger.error(`Supabase query failed in ${context}`, { message: error.message })
-    throw new Error(`Database error during ${context}: ${error.message}`)
+  return {
+    /** Găsește toate serviciile, ordonate după nume. */
+    async findAll(): Promise<Service[]> {
+      logger.debug('Fetching all services...')
+      const query = supabase.from(TABLE_NAME).select('*').order('name', { ascending: true })
+      return executeQuery(logger, query, { context: 'findAllServices' })
+    },
+
+    /** Găsește toate serviciile active, ordonate după nume. */
+    async findActive(): Promise<Service[]> {
+      logger.debug('Fetching active services...')
+      const query = supabase.from(TABLE_NAME).select('*').eq('is_active', true).order('name', { ascending: true })
+      return executeQuery(logger, query, { context: 'findActiveServices' })
+    },
+
+    /** Găsește un serviciu după ID. */
+    async findById(id: string): Promise<Service | null> {
+      logger.debug(`Fetching service by id: ${id}`)
+      const query = supabase.from(TABLE_NAME).select('*').eq('id', id).maybeSingle()
+      return executeQuery(logger, query, { context: 'findServiceById' })
+    },
+
+    /** Creează un nou serviciu. */
+    async create(data: ServiceCreateData): Promise<Service> {
+      logger.debug('Creating a new service...', { data })
+      const query = supabase.from(TABLE_NAME).insert(data).select().single()
+      return executeQuery(logger, query, { context: 'createService', throwOnNull: true })
+    },
+
+    /** Actualizează un serviciu. */
+    async update(payload: ServiceUpdatePayload): Promise<Service> {
+      const { id, data } = payload
+      logger.debug(`Updating service with id: ${id}`, { data })
+      const query = supabase.from(TABLE_NAME).update(data).eq('id', id).select().single()
+      return executeQuery(logger, query, { context: 'updateService', throwOnNull: true })
+    },
+
+    /** Șterge un serviciu. */
+    async delete(id: string): Promise<void> {
+      logger.debug(`Deleting service with id: ${id}`)
+      const query = supabase.from(TABLE_NAME).delete().eq('id', id)
+      await executeQuery(logger, query, { context: 'deleteService' })
+    },
+    /** Găsește un serviciu după nume. */
+    async findByName(name: string): Promise<Service | null> {
+      logger.debug(`Fetching service by name: ${name}`)
+      const query = supabase.from(TABLE_NAME).select('*').eq('name', name).maybeSingle()
+      return executeQuery(logger, query, { context: 'findServiceByName' })
+    },
   }
-  return data
-}
-
-export const serviceRepository = {
-  async fetchAll(): Promise<Service[]> {
-    logger.debug('Fetching all services...')
-    const supabase = await createClient()
-    const query = supabase.from(TABLE_NAME).select('*').order('name', { ascending: true })
-    return (await handleSupabaseError(query, 'fetchAllServices')) as Service[]
-  },
-
-  async fetchById(id: string): Promise<Service | null> {
-    logger.debug(`Fetching service with id: ${id}`)
-    const supabase = await createClient()
-    const query = supabase.from(TABLE_NAME).select('*').eq('id', id).maybeSingle()
-    return await handleSupabaseError(query, `fetchServiceById(${id})`)
-  },
-
-  async getActiveServices(): Promise<Service[]> {
-    logger.debug('Fetching active services for public page...')
-    const supabase = await createClient()
-    const query = supabase
-      .from(TABLE_NAME)
-      .select('*')
-      .eq('is_active', true) // Filtram doar serviciile active
-      .order('name', { ascending: true })
-
-    // Folosim acelasi handler de erori
-    return (await handleSupabaseError(query, 'getActiveServices')) as Service[]
-  },
-
-  async create(data: ServiceCreateData): Promise<Service> {
-    logger.debug('Creating a new service...', { data })
-    const supabase = await createClient()
-    const query = supabase.from(TABLE_NAME).insert(data).select().single()
-    const newService = await handleSupabaseError(query, 'createService')
-    if (!newService) {
-      throw new Error('Database error: Failed to return the new service after creation.')
-    }
-    return newService
-  },
-
-  async update(id: string, data: ServiceUpdateData): Promise<Service> {
-    logger.debug(`Updating service with id: ${id}`, { data })
-    const supabase = await createClient()
-    const query = supabase.from(TABLE_NAME).update(data).eq('id', id).select().single()
-    const updatedService = await handleSupabaseError(query, `updateService(${id})`)
-    if (!updatedService) {
-      throw new Error('Database error: Failed to return the service after update.')
-    }
-    return updatedService
-  },
-
-  async remove(id: string): Promise<void> {
-    logger.debug(`Deleting service with id: ${id}`)
-    const supabase = await createClient()
-    const query = supabase.from(TABLE_NAME).delete().eq('id', id)
-    await handleSupabaseError(query, `removeService(${id})`)
-  },
 }

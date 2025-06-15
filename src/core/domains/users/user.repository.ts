@@ -24,4 +24,15 @@ export const userRepository = {
 
     return data
   },
+
+  async update(id: string, data: Partial<UserProfile>): Promise<void> {
+    logger.debug(`Updating profile for user id: ${id}`, { data })
+    const supabase = await createClient()
+    const { error } = await supabase.from('profiles').update(data).eq('id', id)
+
+    if (error) {
+      logger.error('Error updating user profile', { error })
+      throw error
+    }
+  },
 }

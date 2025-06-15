@@ -45,10 +45,10 @@ export async function getCurrentStylistId(): Promise<string> {
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) throw new Error('Utilizator neautorizat')
+  if (!user) throw new Error(SERVICES_OFFERED_MESSAGES.ERROR.AUTH.UNAUTHORIZED)
 
   const { data: stylist } = await supabase.from('stylists').select('id').eq('profile_id', user.id).single()
-  if (!stylist) throw new Error('Profil stilist negăsit')
+  if (!stylist) throw new Error(SERVICES_OFFERED_MESSAGES.ERROR.AUTH.PROFILE_NOT_FOUND)
 
   return stylist.id
 }

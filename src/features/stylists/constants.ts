@@ -20,6 +20,10 @@ export const STYLIST_MESSAGES = {
       DELETE: 'A apărut o eroare de server la ștergerea stilistului.',
       RESET_PASSWORD: 'A apărut o eroare de server la resetarea parolei.',
     },
+    AUTH: {
+      UNAUTHORIZED: 'Utilizator neautorizat',
+      PROFILE_NOT_FOUND: 'Profil stilist negăsit',
+    },
   },
 } as const
 

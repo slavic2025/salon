@@ -1,62 +1,70 @@
-// src/features/services/actions.ts
+// src/features/services/actions.ts (Varianta finală, refactorizată)
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { createLogger } from '@/lib/logger'
-import { serviceRepository } from '@/core/domains/services/service.repository'
-import { addServiceSchema, editServiceSchema, deleteServiceSchema } from '@/core/domains/services/service.types'
-import { ActionResponse } from '@/types/actions.types'
-import { Service } from '@/core/domains/services/service.types'
+import { createClient } from '@/lib/supabase-server'
+import { createServiceRepository } from '@/core/domains/services/service.repository'
+import { createServiceService } from '@/core/domains/services/service.service'
+import { createServiceSchema, deleteServiceSchema, updateServiceSchema } from '@/core/domains/services/service.types'
+import { SERVICE_CONSTANTS } from '@/core/domains/services/service.constants'
+import { handleError, handleValidationError } from '@/lib/action-helpers'
 import { formDataToObject } from '@/lib/form-utils'
-import { SERVICE_MESSAGES, SERVICE_PATHS } from './constants'
-import { handleValidationError, handleServerError } from '../common/utils'
+import type { ActionResponse } from '@/types/actions.types'
 
-const logger = createLogger('ServiceActions')
-
-type ServiceAction = 'add' | 'edit' | 'delete'
+/**
+ * Funcție ajutătoare care asamblează serviciul pentru 'services'
+ * cu toate dependențele sale, pentru o singură cerere.
+ */
+async function getServiceService() {
+  const supabase = await createClient()
+  const repository = createServiceRepository(supabase)
+  return createServiceService(repository)
+}
 
 /**
  * Acțiune pentru adăugarea unui nou serviciu.
+ * Nu mai validează datele, ci doar le pasează serviciului.
  */
 export async function addServiceAction(prevState: ActionResponse, formData: FormData): Promise<ActionResponse> {
+  // `formDataToObject` este mai bun decât `Object.fromEntries` deoarece poate gestiona valori multiple
   const rawData = formDataToObject(formData)
-  logger.debug('addServiceAction invoked', { rawData })
-
-  const validationResult = addServiceSchema.safeParse(rawData)
-  if (!validationResult.success) {
-    return handleValidationError(validationResult.error, SERVICE_MESSAGES.ERROR.VALIDATION)
-  }
 
   try {
-    await serviceRepository.create(validationResult.data)
-    revalidatePath(SERVICE_PATHS.revalidation())
-    return { success: true, message: SERVICE_MESSAGES.SUCCESS.ADDED }
+    const serviceService = await getServiceService()
+    // Pasăm datele brute; serviciul este responsabil de validare.
+    await serviceService.createService(rawData)
+
+    revalidatePath(SERVICE_CONSTANTS.PATHS.revalidate.list())
+    return { success: true, message: SERVICE_CONSTANTS.MESSAGES.SUCCESS.CREATED }
   } catch (error) {
-    logger.error('Error in addServiceAction', { error })
-    return handleServerError(error, SERVICE_MESSAGES.ERROR.SERVER.ADD)
+    // Prindem atât erorile de validare, cât și cele de business/server din serviciu.
+    return handleError(error, SERVICE_CONSTANTS.MESSAGES.ERROR.SERVER.CREATE)
   }
 }
 
 /**
- * Acțiune pentru actualizarea unui serviciu existent.
+ * Acțiune pentru editarea unui serviciu existent.
  */
 export async function editServiceAction(prevState: ActionResponse, formData: FormData): Promise<ActionResponse> {
   const rawData = formDataToObject(formData)
-  logger.debug('editServiceAction invoked', { rawData })
-
-  const validationResult = editServiceSchema.safeParse(rawData)
-  if (!validationResult.success) {
-    return handleValidationError(validationResult.error, SERVICE_MESSAGES.ERROR.VALIDATION)
+  // Validarea se va face în serviciu, dar putem extrage ID-ul aici
+  const { id } = rawData
+  if (!id || typeof id !== 'string') {
+    return handleError(
+      new Error('ID-ul serviciului lipsește sau este invalid.'),
+      SERVICE_CONSTANTS.MESSAGES.ERROR.VALIDATION.INVALID_ID
+    )
   }
 
   try {
-    const { id, ...dataToUpdate } = validationResult.data
-    await serviceRepository.update(id, dataToUpdate)
-    revalidatePath(SERVICE_PATHS.revalidation())
-    return { success: true, message: SERVICE_MESSAGES.SUCCESS.UPDATED }
+    const serviceService = await getServiceService()
+    // Pasăm datele brute; serviciul va valida și va separa ce e de actualizat.
+    await serviceService.updateService(rawData)
+
+    revalidatePath(SERVICE_CONSTANTS.PATHS.revalidate.details(id))
+    return { success: true, message: SERVICE_CONSTANTS.MESSAGES.SUCCESS.UPDATED }
   } catch (error) {
-    logger.error('Error in editServiceAction', { error })
-    return handleServerError(error, SERVICE_MESSAGES.ERROR.SERVER.UPDATE)
+    return handleError(error, SERVICE_CONSTANTS.MESSAGES.ERROR.SERVER.UPDATE)
   }
 }
 
@@ -64,31 +72,21 @@ export async function editServiceAction(prevState: ActionResponse, formData: For
  * Acțiune pentru ștergerea unui serviciu.
  */
 export async function deleteServiceAction(prevState: ActionResponse, formData: FormData): Promise<ActionResponse> {
-  const id = formData.get('id')
-  const validationResult = deleteServiceSchema.safeParse(id)
-
-  if (!validationResult.success) {
-    return { success: false, message: SERVICE_MESSAGES.ERROR.INVALID_ID }
+  const { id } = formDataToObject(formData)
+  if (!id || typeof id !== 'string') {
+    return handleError(
+      new Error('ID-ul serviciului lipsește sau este invalid.'),
+      SERVICE_CONSTANTS.MESSAGES.ERROR.VALIDATION.INVALID_ID
+    )
   }
 
   try {
-    await serviceRepository.remove(validationResult.data)
-    revalidatePath(SERVICE_PATHS.revalidation())
-    return { success: true, message: SERVICE_MESSAGES.SUCCESS.DELETED }
-  } catch (error) {
-    logger.error('Error in deleteServiceAction', { error })
-    return handleServerError(error, SERVICE_MESSAGES.ERROR.SERVER.DELETE)
-  }
-}
+    const serviceService = await getServiceService()
+    await serviceService.deleteService(id)
 
-/**
- * Acțiune pentru preluarea tuturor serviciilor.
- */
-export async function getServicesAction(): Promise<Service[]> {
-  try {
-    return await serviceRepository.fetchAll()
+    revalidatePath(SERVICE_CONSTANTS.PATHS.revalidate.list())
+    return { success: true, message: SERVICE_CONSTANTS.MESSAGES.SUCCESS.DELETED }
   } catch (error) {
-    logger.error('getServicesAction failed', { error })
-    return []
+    return handleError(error, SERVICE_CONSTANTS.MESSAGES.ERROR.SERVER.DELETE)
   }
 }

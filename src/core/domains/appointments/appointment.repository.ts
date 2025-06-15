@@ -1,67 +1,64 @@
 // src/core/domains/appointments/appointment.repository.ts
-import 'server-only'
+import 'server-only' // Asigură că acest cod rulează doar pe server
 
-import { createClient } from '@/lib/supabase-server'
 import { createLogger } from '@/lib/logger'
-import type { Appointment } from './appointment.types'
-import type { Database } from '@/types/database.types'
+import type { SupabaseClient } from '@supabase/supabase-js'
+import type { Appointment, AppointmentCreatePayload, AppointmentUpdatePayload } from './appointment.types'
+import { executeQuery } from '@/lib/db-helpers'
 
-const logger = createLogger('AppointmentRepository')
-const TABLE_NAME = 'appointments'
+/**
+ * Factory Function care creează și returnează un obiect repository.
+ * @param supabase - O instanță a clientului Supabase.
+ * @returns Un obiect cu metode pentru a interacționa cu tabela 'appointments'.
+ */
+export function createAppointmentRepository(supabase: SupabaseClient) {
+  const logger = createLogger('AppointmentRepository')
+  const TABLE_NAME = 'appointments'
 
-type AppointmentCreateData = Database['public']['Tables']['appointments']['Insert']
+  return {
+    /** Creează o nouă programare. */
+    async create(data: AppointmentCreatePayload): Promise<Appointment> {
+      logger.debug('Creating a new appointment...', { data })
+      const query = supabase.from(TABLE_NAME).insert(data).select().single()
+      return executeQuery(logger, query, { context: 'createAppointment', throwOnNull: true })
+    },
 
-// Funcția de bază pentru a gestiona erorile Supabase
-async function handleSupabaseError<T>(promise: PromiseLike<{ data: T; error: any }>, context: string): Promise<T> {
-  const { data, error } = await promise
-  if (error) {
-    logger.error(`Supabase query failed in ${context}`, { message: error.message, details: error.details })
-    throw new Error(`Database error during ${context}: ${error.message}`)
-  }
-  return data
-}
+    /** Găsește o programare după ID. */
+    async findById(id: string): Promise<Appointment | null> {
+      logger.debug('Finding appointment by id...', { id })
+      const query = supabase.from(TABLE_NAME).select().eq('id', id).maybeSingle()
+      return executeQuery(logger, query, { context: 'findAppointmentById' })
+    },
 
-export const appointmentRepository = {
-  async create(data: AppointmentCreateData): Promise<Appointment> {
-    logger.debug('Creating a new appointment...', { data })
-    const supabase = await createClient()
-    const query = supabase.from(TABLE_NAME).insert(data).select().single()
+    /**
+     * Găsește programări pe baza unor criterii.
+     * Exemplu de metodă pentru a prelua mai multe înregistrări.
+     */
+    async find(criteria: { stylistId: string; startDate: string; endDate: string }): Promise<Appointment[]> {
+      logger.debug('Finding appointments by criteria...', { criteria })
+      const query = supabase
+        .from(TABLE_NAME)
+        .select()
+        .eq('stylist_id', criteria.stylistId)
+        .gte('start_time', criteria.startDate)
+        .lte('end_time', criteria.endDate)
 
-    const newAppointment = await handleSupabaseError(query, 'createAppointment')
-    if (!newAppointment) {
-      throw new Error('Database did not return the new appointment.')
-    }
-    return newAppointment
-  },
+      return executeQuery(logger, query, { context: 'findAppointments' })
+    },
 
-  async get(id: string): Promise<Appointment | null> {
-    logger.debug('Getting appointment...', { id })
-    const supabase = await createClient()
-    const query = supabase.from(TABLE_NAME).select().eq('id', id).single()
-    
-    return handleSupabaseError(query, 'getAppointment')
-  },
+    /** Actualizează o programare. */
+    async update(payload: AppointmentUpdatePayload): Promise<Appointment> {
+      const { id, data } = payload
+      logger.debug('Updating appointment...', { id, data })
+      const query = supabase.from(TABLE_NAME).update(data).eq('id', id).select().single()
+      return executeQuery(logger, query, { context: 'updateAppointment', throwOnNull: true })
+    },
 
-  async update(
-    id: string, 
-    data: Database['public']['Tables']['appointments']['Update']
-  ): Promise<Appointment> {
-    logger.debug('Updating appointment...', { id, data })
-    const supabase = await createClient()
-    const query = supabase.from(TABLE_NAME).update(data).eq('id', id).select().single()
-    
-    const updatedAppointment = await handleSupabaseError(query, 'updateAppointment')
-    if (!updatedAppointment) {
-      throw new Error('Database did not return the updated appointment.')
-    }
-    return updatedAppointment
-  },
-
-  async delete(id: string): Promise<void> {
-    logger.debug('Deleting appointment...', { id })
-    const supabase = await createClient()
-    const query = supabase.from(TABLE_NAME).delete().eq('id', id)
-    
-    await handleSupabaseError(query, 'deleteAppointment')
+    /** Șterge o programare. */
+    async delete(id: string): Promise<void> {
+      logger.debug('Deleting appointment...', { id })
+      const query = supabase.from(TABLE_NAME).delete().eq('id', id)
+      await executeQuery(logger, query, { context: 'deleteAppointment' })
+    },
   }
 }

@@ -15,3 +15,5 @@ export const workScheduleSchema = z
   })
 
 export type WorkScheduleInput = z.infer<typeof workScheduleSchema>
+
+export const deleteWorkScheduleSchema = z.string().uuid('ID-ul programului de lucru este invalid.')

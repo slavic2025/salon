@@ -1,61 +1,200 @@
-// src/core/domains/work-schedules/work-schedule.actions.ts
+// src/features/schedule/actions.ts
 'use server'
 
 import { revalidatePath } from 'next/cache'
 import { createLogger } from '@/lib/logger'
+import { scheduleRepository } from '@/core/domains/schedule/schedule.repository'
+import {
+  addScheduleSchema,
+  editScheduleSchema,
+  deleteScheduleSchema,
+  Schedule,
+} from '@/core/domains/schedule/schedule.types'
 import { ActionResponse } from '@/types/actions.types'
-import { formatZodErrors } from '@/lib/form'
+import { formDataToObject } from '@/lib/form-utils'
+import { SCHEDULE_MESSAGES, SCHEDULE_PATHS } from '@/core/domains/schedule/schedule.constants'
+import { handleError, handleValidationError } from '@/lib/action-helpers'
+import { ScheduleService } from '@/core/domains/schedule/schedule.service'
 
-import { createClient } from '@/lib/supabase-server'
-import { workScheduleSchema } from '@/core/domains/work-schedules/work-schedule.types'
-import { workScheduleRepository } from '@/core/domains/work-schedules/work-schedule.repository'
+const logger = createLogger('ScheduleActions')
+const scheduleService = new ScheduleService()
 
-const logger = createLogger('WorkScheduleActions')
+/**
+ * Acțiune pentru adăugarea unei noi programări.
+ */
+export async function addScheduleAction(prevState: ActionResponse, formData: FormData): Promise<ActionResponse> {
+  const rawData = Object.fromEntries(formData.entries())
+  const validationResult = addScheduleSchema.safeParse(rawData)
 
-// Funcție pentru a obține ID-ul stilistului curent logat
-async function getCurrentStylistId() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) throw new Error('Utilizator neautentificat.')
+  if (!validationResult.success) {
+    return handleValidationError(validationResult.error)
+  }
 
-  const { data: stylist } = await supabase.from('stylists').select('id').eq('profile_id', user.id).single()
-  if (!stylist) throw new Error('Profilul de stilist nu a fost găsit.')
-
-  return stylist.id
-}
-
-export async function addWorkScheduleAction(prevState: ActionResponse, formData: FormData): Promise<ActionResponse> {
   try {
-    const stylistId = await getCurrentStylistId()
-    const rawData = Object.fromEntries(formData.entries())
-
-    const validationResult = workScheduleSchema.safeParse(rawData)
-    if (!validationResult.success) {
-      return { success: false, message: 'Validation Error', errors: formatZodErrors(validationResult.error) }
-    }
-
-    await workScheduleRepository.create({ ...validationResult.data, stylist_id: stylistId })
-
-    revalidatePath('/dashboard/schedule')
-    return { success: true, message: 'Intervalul a fost adăugat cu succes!' }
+    await scheduleService.createSchedule(validationResult.data)
+    revalidatePath(SCHEDULE_PATHS.revalidation())
+    return { success: true, message: SCHEDULE_MESSAGES.SUCCESS.CREATED }
   } catch (error) {
-    logger.error('Error in addWorkScheduleAction', { error })
-    return { success: false, message: (error as Error).message }
+    return handleError(error, 'addScheduleAction')
   }
 }
 
-export async function deleteWorkScheduleAction(prevState: ActionResponse, formData: FormData): Promise<ActionResponse> {
-  const id = formData.get('id')
-  if (typeof id !== 'string') return { success: false, message: 'ID invalid.' }
+/**
+ * Acțiune pentru editarea unei programări existente.
+ */
+export async function editScheduleAction(prevState: ActionResponse, formData: FormData): Promise<ActionResponse> {
+  const rawData = formDataToObject(formData)
+  logger.debug('editScheduleAction invoked', { rawData })
+
+  const validationResult = editScheduleSchema.safeParse(rawData)
+  if (!validationResult.success) {
+    return handleValidationError(validationResult.error)
+  }
+
+  const { id, ...dataToUpdate } = validationResult.data
 
   try {
-    await workScheduleRepository.remove(id)
-    revalidatePath('/dashboard/schedule')
-    return { success: true, message: 'Intervalul a fost șters.' }
+    await scheduleService.updateSchedule(id, dataToUpdate)
+    revalidatePath(SCHEDULE_PATHS.revalidation())
+    return { success: true, message: SCHEDULE_MESSAGES.SUCCESS.UPDATED }
   } catch (error) {
-    logger.error('Error in deleteWorkScheduleAction', { error })
-    return { success: false, message: (error as Error).message }
+    return handleError(error, 'editScheduleAction')
+  }
+}
+
+/**
+ * Acțiune pentru ștergerea unei programări.
+ */
+export async function deleteScheduleAction(prevState: ActionResponse, formData: FormData): Promise<ActionResponse> {
+  const scheduleId = formData.get('id')
+  const validationResult = deleteScheduleSchema.safeParse(scheduleId)
+  if (!validationResult.success) {
+    return { success: false, message: SCHEDULE_MESSAGES.ERROR.VALIDATION.INVALID_ID }
+  }
+
+  const validScheduleId = validationResult.data
+
+  try {
+    await scheduleService.deleteSchedule(validScheduleId)
+    revalidatePath(SCHEDULE_PATHS.revalidation())
+    return { success: true, message: SCHEDULE_MESSAGES.SUCCESS.DELETED }
+  } catch (error) {
+    return handleError(error, 'deleteScheduleAction')
+  }
+}
+
+/**
+ * Acțiune pentru preluarea tuturor programărilor.
+ */
+export async function getSchedulesAction(): Promise<Schedule[]> {
+  try {
+    const schedules = await scheduleRepository.fetchAll()
+    logger.info('Schedules retrieved successfully', { count: schedules.length })
+    return schedules
+  } catch (error) {
+    logger.error('Failed to fetch schedules', { error })
+    return []
+  }
+}
+
+/**
+ * Acțiune pentru preluarea programărilor după stilist.
+ */
+export async function getSchedulesByStylistAction(stylistId: string) {
+  if (!stylistId) {
+    logger.warn('getSchedulesByStylistAction called with no stylistId')
+    return { success: true, data: [] }
+  }
+
+  try {
+    const schedules = await scheduleRepository.fetchByStylistId(stylistId)
+    return { success: true, data: schedules }
+  } catch (error) {
+    return handleError(error, 'getSchedulesByStylistAction')
+  }
+}
+
+/**
+ * Acțiune pentru preluarea programărilor după client.
+ */
+export async function getSchedulesByClientAction(clientId: string) {
+  if (!clientId) {
+    logger.warn('getSchedulesByClientAction called with no clientId')
+    return { success: true, data: [] }
+  }
+
+  try {
+    const schedules = await scheduleRepository.fetchByClientId(clientId)
+    return { success: true, data: schedules }
+  } catch (error) {
+    return handleError(error, 'getSchedulesByClientAction')
+  }
+}
+
+/**
+ * Acțiune pentru preluarea programărilor după serviciu.
+ */
+export async function getSchedulesByServiceAction(serviceId: string) {
+  if (!serviceId) {
+    logger.warn('getSchedulesByServiceAction called with no serviceId')
+    return { success: true, data: [] }
+  }
+
+  try {
+    const schedules = await scheduleRepository.fetchByServiceId(serviceId)
+    return { success: true, data: schedules }
+  } catch (error) {
+    return handleError(error, 'getSchedulesByServiceAction')
+  }
+}
+
+/**
+ * Acțiune pentru preluarea programărilor după dată.
+ */
+export async function getSchedulesByDateAction(date: string) {
+  if (!date) {
+    logger.warn('getSchedulesByDateAction called with no date')
+    return { success: true, data: [] }
+  }
+
+  try {
+    const schedules = await scheduleRepository.fetchByDate(date)
+    return { success: true, data: schedules }
+  } catch (error) {
+    return handleError(error, 'getSchedulesByDateAction')
+  }
+}
+
+/**
+ * Acțiune pentru preluarea programărilor după interval de date.
+ */
+export async function getSchedulesByDateRangeAction(startDate: string, endDate: string) {
+  if (!startDate || !endDate) {
+    logger.warn('getSchedulesByDateRangeAction called with invalid date range', { startDate, endDate })
+    return { success: true, data: [] }
+  }
+
+  try {
+    const schedules = await scheduleRepository.fetchByDateRange(startDate, endDate)
+    return { success: true, data: schedules }
+  } catch (error) {
+    return handleError(error, 'getSchedulesByDateRangeAction')
+  }
+}
+
+/**
+ * Acțiune pentru preluarea programărilor după status.
+ */
+export async function getSchedulesByStatusAction(status: string) {
+  if (!status) {
+    logger.warn('getSchedulesByStatusAction called with no status')
+    return { success: true, data: [] }
+  }
+
+  try {
+    const schedules = await scheduleRepository.fetchByStatus(status)
+    return { success: true, data: schedules }
+  } catch (error) {
+    return handleError(error, 'getSchedulesByStatusAction')
   }
 }

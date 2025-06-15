@@ -1,51 +1,74 @@
-// src/core/domains/stylists/stylist.types.ts
+// src/core/domains/stylists/stylist.types.ts (Varianta refactorizată)
 
 import { z } from 'zod'
-// Importăm ajutoarele de tip pentru Insert și Update
-import { Tables, TablesInsert, TablesUpdate } from '@/types/database.types'
+import { Tables, TablesUpdate } from '@/types/database.types'
 import { zBooleanCheckboxDefaultTrue, zEmailRequired, zPhoneRequired, zStringMin } from '@/config/validation/fields'
 
-// Tipul entității din baza de date (ex: pentru fetch)
+// --- Tipuri de Bază Derivate din DB ---
+
+/** Tipul unui stilist complet, așa cum există în baza de date. */
 export type Stylist = Tables<'stylists'>
 
-// --- TIPURI NOI PENTRU REPOSITORY ---
-// Tipul pentru datele de CREARE (folosit de repository.create)
-// Omit câmpurile auto-generate de DB și cele care nu vin din formularul de bază.
-export type StylistCreateData = Omit<
-  TablesInsert<'stylists'>,
-  'id' | 'created_at' | 'updated_at' | 'profile_id' | 'profile_picture'
->
-
-// Tipul pentru datele de ACTUALIZARE (folosit de repository.update)
-// TablesUpdate are deja toate câmpurile opționale.
+/** Tipul datelor necesare pentru un UPDATE în baza de date. */
 export type StylistUpdateData = TablesUpdate<'stylists'>
-// ------------------------------------
 
-// Schema Zod pentru ADĂUGARE (folosită în Server Actions pentru validarea formularului)
-export const addStylistSchema = z.object({
+// --- Scheme de Validare Zod ---
+
+/**
+ * Schema pentru CREAREA unui nou stilist.
+ * Câmpurile (full_name, etc.) se potrivesc cu coloanele din baza de date.
+ */
+export const createStylistSchema = z.object({
   full_name: zStringMin(3, 'Numele stilistului trebuie să aibă minim 3 caractere.'),
   email: zEmailRequired,
   phone: zPhoneRequired.nullable(),
-  description: zStringMin(1, 'Descrierea stilistului este obligatorie.').nullable(),
+  description: zStringMin(1, 'Descrierea este obligatorie.').nullable(),
   is_active: zBooleanCheckboxDefaultTrue,
+  // profile_id, profile_picture, etc. nu sunt incluse aici deoarece
+  // sunt gestionate de alte procese (ex: la invitarea user-ului).
 })
 
-// Tipul pentru formularul de ADĂUGARE (derivat din schemă)
-export type AddStylistInput = z.infer<typeof addStylistSchema>
-
-// Schema Zod pentru EDITARE
-export const editStylistSchema = addStylistSchema.extend({
+/**
+ * Schema pentru ACTUALIZAREA unui stilist. Extinde schema de creare și adaugă ID-ul.
+ * Folosim .partial() pentru a face toate câmpurile din createStylistSchema opționale.
+ */
+export const updateStylistSchema = createStylistSchema.partial().extend({
   id: z.string().uuid({ message: 'ID-ul stilistului este invalid.' }),
 })
 
-// Tipul pentru formularul de EDITARE
-export type EditStylistInput = z.infer<typeof editStylistSchema>
+/** Schema pentru ȘTERGEREA unui stilist, acum ca obiect pentru consistență. */
+export const deleteStylistSchema = z.object({
+  id: z.string().uuid('ID-ul stilistului trebuie să fie un UUID valid.'),
+})
 
-// Schema Zod pentru ȘTERGERE
-export const deleteStylistSchema = z.string().uuid('ID-ul stilistului trebuie să fie un UUID valid.')
-
-export const inviteSchema = z.object({
+/** Schema pentru trimiterea unei invitații, care este o acțiune separată. */
+export const inviteStylistSchema = z.object({
   full_name: z.string().min(3, { message: 'Numele este obligatoriu.' }),
   email: z.string().email({ message: 'Adresa de email este invalidă.' }),
   phone: zPhoneRequired.nullable(),
 })
+
+// --- Tipuri Derivate din Schemele Zod ---
+
+/** Tipul pentru datele de intrare în formularul de creare. */
+export type CreateStylistInput = z.infer<typeof createStylistSchema>
+/**
+ * Tipul pentru datele de CREARE (folosit de repository.create).
+ * Acum este derivat direct din schemă, fiind singura sursă de adevăr.
+ */
+export type StylistCreateData = CreateStylistInput
+
+/** Tipul pentru datele de intrare în formularul de actualizare. */
+export type UpdateStylistInput = z.infer<typeof updateStylistSchema>
+/** Tipul pentru datele de intrare în formularul de ștergere. */
+export type DeleteStylistInput = z.infer<typeof deleteStylistSchema>
+/** Tipul pentru datele de intrare în formularul de invitare. */
+export type InviteStylistInput = z.infer<typeof inviteStylistSchema>
+
+/**
+ * Definește payload-ul complet pentru metoda de update din repository.
+ */
+export type StylistUpdatePayload = {
+  id: string
+  data: StylistUpdateData
+}

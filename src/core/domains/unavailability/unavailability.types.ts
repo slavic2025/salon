@@ -18,7 +18,7 @@ export type UnavailabilityCreateData = Omit<TablesInsert<'unavailability'>, 'id'
  */
 export const unavailabilitySchema = z
   .object({
-    // `coerce` convertește automat string-urile din formular în obiecte Date
+    stylist_id: z.string().uuid('ID-ul stilistului este invalid.'),
     start_datetime: z.coerce.date({
       required_error: 'Data de început este obligatorie.',
     }),
@@ -27,12 +27,11 @@ export const unavailabilitySchema = z
     }),
     is_all_day: z.boolean().default(false),
     reason: z.string().nullable(),
-    // 'type' poate fi folosit pentru a categorisi (ex: 'Vacanță', 'Concediu Medical')
     type: z.string().nullable(),
   })
   .refine((data) => data.start_datetime < data.end_datetime, {
     message: 'Data de început trebuie să fie înainte de data de sfârșit.',
-    path: ['end_datetime'], // Atribuie eroarea câmpului de sfârșit
+    path: ['end_datetime'],
   })
 
 /**
@@ -44,3 +43,30 @@ export type UnavailabilityInput = z.infer<typeof unavailabilitySchema>
  * Schema Zod pentru ȘTERGEREA unei perioade (validează doar ID-ul).
  */
 export const deleteUnavailabilitySchema = z.string().uuid('ID-ul este invalid.')
+
+/**
+ * Schema Zod pentru actualizarea unei perioade de indisponibilitate.
+ */
+export const updateUnavailabilitySchema = z
+  .object({
+    id: z.string().uuid('ID-ul este invalid.'),
+    stylist_id: z.string().uuid('ID-ul stilistului este invalid.'),
+    start_datetime: z.coerce.date({
+      required_error: 'Data de început este obligatorie.',
+    }),
+    end_datetime: z.coerce.date({
+      required_error: 'Data de sfârșit este obligatorie.',
+    }),
+    is_all_day: z.boolean().default(false),
+    reason: z.string().nullable(),
+    type: z.string().nullable(),
+  })
+  .refine((data) => data.start_datetime < data.end_datetime, {
+    message: 'Data de început trebuie să fie înainte de data de sfârșit.',
+    path: ['end_datetime'],
+  })
+
+/**
+ * Tipul de date pentru actualizarea unei perioade de indisponibilitate.
+ */
+export type UpdateUnavailabilityInput = z.infer<typeof updateUnavailabilitySchema>

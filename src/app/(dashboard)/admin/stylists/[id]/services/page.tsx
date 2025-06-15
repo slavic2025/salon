@@ -3,10 +3,9 @@
 import { createLogger } from '@/lib/logger'
 import { notFound } from 'next/navigation'
 import { ServicesOfferedPageContent } from './_components/services-offered-page-content'
-
-// 1. Importăm direct acțiunile și repository-ul necesar
-import { getAllAvailableServicesAction, getServicesOfferedByStylistAction } from '@/features/services-offered/actions'
 import { stylistRepository } from '@/core/domains/stylists/stylist.repository'
+import { servicesOfferedRepository } from '@/core/domains/services-offered/services-offered.repository'
+import { serviceRepository } from '@/core/domains/services/service.repository'
 
 const logger = createLogger('StylistServicesPage')
 
@@ -29,8 +28,8 @@ export default async function StylistServicesPage({ params }: StylistServicesPag
     // 2. Apelăm direct repository-ul și acțiunile, eliminând dependența de './data.ts'
     const [stylist, servicesOffered, availableServices] = await Promise.all([
       stylistRepository.fetchById(stylistId),
-      getServicesOfferedByStylistAction(stylistId),
-      getAllAvailableServicesAction(),
+      servicesOfferedRepository.fetchByStylistId(stylistId),
+      serviceRepository.fetchAll(),
     ])
 
     if (!stylist) {

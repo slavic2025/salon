@@ -83,19 +83,15 @@ export const zIntFromForm = (msg = 'Value must be a positive integer.') =>
     z.number().int().positive({ message: msg })
   )
 
-export const zPriceFromForm = z.preprocess(
-  (val) => {
-    // Asigurăm conversia corectă la număr, chiar dacă valoarea vine goală sau ca text
-    const processedVal = String(val).trim()
-    if (processedVal === '') return null // Permitem validarea să prindă câmpul gol
-    return parseInt(processedVal, 10)
-  },
-  z
+export const zPriceFromForm = (required_error = 'Câmpul este obligatoriu.') =>
+  z.coerce // Pasul 1: Folosim 'coerce' pentru a forța conversia tipului
     .number({
-      required_error: 'Prețul este obligatoriu.',
+      // Mesaj de eroare dacă valoarea nu poate fi convertită în număr (ex: "abc")
       invalid_type_error: 'Prețul trebuie să fie un număr valid.',
     })
     .int('Prețul trebuie să fie un număr întreg (fără zecimale).')
     .nonnegative('Prețul nu poate fi negativ.')
-    .nullable() // Facem schema nullable pentru a oferi mesaje de eroare personalizate
-)
+    .refine((val) => val > 0, {
+      // Adăugăm un refine pentru a ne asigura că prețul nu este 0, dacă aceasta este regula
+      message: 'Prețul trebuie să fie mai mare decât zero.',
+    })
