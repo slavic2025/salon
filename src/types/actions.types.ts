@@ -1,22 +1,26 @@
 // lib/types.ts
 
 /**
- * Definește structura generică pentru răspunsurile acțiunilor de server.
- * Permite specificarea tipului pentru câmpurile de eroare (T),
- * defaulting la Record<string, string[]> dacă nu este specificat.
+ * Definește structura erorilor de câmp returnate de Zod (`.flatten().fieldErrors`).
+ * Permite ca valoarea pentru un câmp să fie `undefined` dacă acel câmp nu are erori.
  */
+export type ZodFieldErrors = Record<string, string[] | undefined>
+
 /**
- * Definește structura generică pentru răspunsurile acțiunilor de server.
- * @template TData - Tipul datelor returnate la succes (opțional).
- * @template TErrors - Tipul obiectului de erori de validare.
+ * Interfața standard și unică pentru răspunsul unei Server Action.
+ * Este generică pentru a permite tiparea specifică a datelor (`TData`)
+ * și a erorilor (`TErrors`).
+ *
+ * @template TData - Tipul proprietății `data` returnate în caz de succes.
+ * @template TErrors - Tipul proprietății `errors` returnate în caz de eșec de validare.
  */
-export interface ActionResponse<TData = unknown, TErrors = Record<string, string[]>> {
+export interface ActionResponse<TData = unknown, TErrors = ZodFieldErrors> {
   success: boolean
   message?: string
   errors?: TErrors & {
-    _form?: string[] // Eroare generală la nivel de formular
+    _form?: string[]
   }
-  data?: TData // Date returnate la succes
+  data?: TData
 }
 
 export const INITIAL_FORM_STATE: ActionResponse = {

@@ -5,7 +5,7 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 // Pasul 1: Importăm funcția centralizată în loc de clientul Supabase direct.
 import { createClient } from '@/lib/supabase-browser'
-import { AUTH_EVENTS } from '@/core/domains/auth/auth.constants'
+import { AUTH_CONSTANTS } from '@/core/domains/auth/auth.constants'
 
 export function AuthListener() {
   const router = useRouter()
@@ -19,7 +19,7 @@ export function AuthListener() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event) => {
       // La orice login sau logout...
-      if (event === AUTH_EVENTS.SIGNED_IN || event === AUTH_EVENTS.SIGNED_OUT) {
+      if (event === AUTH_CONSTANTS.EVENTS.SIGNED_IN || event === AUTH_CONSTANTS.EVENTS.SIGNED_OUT) {
         // ... facem un refresh la pagină pentru a actualiza componentele de pe server.
         router.refresh()
       }

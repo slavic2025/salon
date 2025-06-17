@@ -9,6 +9,8 @@ import { AUTH_CONSTANTS } from '@/core/domains/auth/auth.constants'
 import { handleError } from '@/lib/action-helpers'
 import { formDataToObject } from '@/lib/form-utils'
 import type { ActionResponse } from '@/types/actions.types'
+import { createSafeAction } from '@/lib/safe-action'
+import { signInSchema, signUpSchema, sendPasswordResetSchema, setPasswordSchema } from '@/core/domains/auth/auth.types'
 
 /**
  * Funcție ajutătoare care asamblează serviciul de autentificare
@@ -24,36 +26,30 @@ async function getAuthService() {
 /**
  * Acțiune pentru autentificare.
  */
-export async function signInAction(prevState: ActionResponse, formData: FormData): Promise<ActionResponse> {
-  const rawData = formDataToObject(formData)
-  try {
+export const signInAction = createSafeAction(signInSchema, async (input) => {
+  // Aici scriem doar logica de business pură
+  const authService = await getAuthService()
+  const result = await authService.signIn(input)
+
+  // La succes, "fabrica" va împacheta acest rezultat în { success: true, data: result }
+  return result
+})
+
+export const signUpAction = createSafeAction(
+  signUpSchema,
+  async (input) => {
+    // Aici rămâne doar logica de business pură
     const authService = await getAuthService()
-    const { redirectPath } = await authService.signIn(rawData)
+    await authService.signUp(input)
 
-    // Redirect-ul este acum gestionat aici, în acțiune.
-    return redirect(redirectPath)
-  } catch (error) {
-    // Serviciul aruncă erori (inclusiv de validare), iar acțiunea le prinde
-    // și le formatează pentru UI.
-    return handleError(error, AUTH_CONSTANTS.MESSAGES.ERROR.SERVER.SIGN_IN)
+    // La succes, poți returna un mesaj customizat care va fi adăugat la `data`
+    return { successMessage: AUTH_CONSTANTS.MESSAGES.SUCCESS.SIGNED_UP }
+  },
+  {
+    // Aici pasăm mesajul de eroare specific pentru această acțiune
+    serverErrorMessage: AUTH_CONSTANTS.MESSAGES.ERROR.SERVER.SIGN_UP,
   }
-}
-
-/**
- * Acțiune pentru înregistrare.
- */
-export async function signUpAction(prevState: ActionResponse, formData: FormData): Promise<ActionResponse> {
-  const rawData = formDataToObject(formData)
-  try {
-    const authService = await getAuthService()
-    await authService.signUp(rawData)
-
-    // La înregistrare, de obicei nu facem redirect, ci afișăm un mesaj de succes.
-    return { success: true, message: AUTH_CONSTANTS.MESSAGES.SUCCESS.SIGNED_UP }
-  } catch (error) {
-    return handleError(error, AUTH_CONSTANTS.MESSAGES.ERROR.SERVER.SIGN_UP)
-  }
-}
+)
 
 /**
  * Acțiune pentru deconectare.
@@ -72,33 +68,26 @@ export async function signOutAction(): Promise<ActionResponse> {
   return redirect(AUTH_CONSTANTS.PATHS.redirect.afterLogout)
 }
 
-/**
- * Acțiune pentru trimiterea email-ului de resetare a parolei.
- */
-export async function sendPasswordResetEmailAction(
-  prevState: ActionResponse,
-  formData: FormData
-): Promise<ActionResponse> {
-  const rawData = formDataToObject(formData)
-  try {
+export const sendPasswordResetEmailAction = createSafeAction(
+  sendPasswordResetSchema,
+  async (input) => {
     const authService = await getAuthService()
-    await authService.sendPasswordResetEmail(rawData)
-    return { success: true, message: AUTH_CONSTANTS.MESSAGES.SUCCESS.PASSWORD_RESET_SENT }
-  } catch (error) {
-    return handleError(error, AUTH_CONSTANTS.MESSAGES.ERROR.SERVER.SEND_RESET_EMAIL)
+    await authService.sendPasswordResetEmail(input)
+    return { message: AUTH_CONSTANTS.MESSAGES.SUCCESS.PASSWORD_RESET_SENT }
+  },
+  {
+    serverErrorMessage: AUTH_CONSTANTS.MESSAGES.ERROR.SERVER.SEND_RESET_EMAIL,
   }
-}
+)
 
-/**
- * Acțiune pentru actualizarea parolei (când utilizatorul este deja logat).
- */
-export async function updatePasswordAction(prevState: ActionResponse, formData: FormData): Promise<ActionResponse> {
-  const rawData = formDataToObject(formData)
-  try {
+export const updatePasswordAction = createSafeAction(
+  setPasswordSchema,
+  async (input) => {
     const authService = await getAuthService()
-    await authService.updatePassword(rawData)
-    return { success: true, message: AUTH_CONSTANTS.MESSAGES.SUCCESS.PASSWORD_UPDATED }
-  } catch (error) {
-    return handleError(error, AUTH_CONSTANTS.MESSAGES.ERROR.SERVER.UPDATE_PASSWORD)
+    await authService.updatePassword(input)
+    return { message: AUTH_CONSTANTS.MESSAGES.SUCCESS.PASSWORD_UPDATED }
+  },
+  {
+    serverErrorMessage: AUTH_CONSTANTS.MESSAGES.ERROR.SERVER.UPDATE_PASSWORD,
   }
-}
+)

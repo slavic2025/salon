@@ -1,106 +1,101 @@
-// components/auth/LoginForm.tsx
 'use client'
 
-import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useRouter } from 'next/navigation'
-import { z } from 'zod'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { ExclamationTriangleIcon } from '@radix-ui/react-icons'
+import { useActionForm } from '@/hooks/useActionForm'
 import { signInAction } from '@/features/auth/actions'
-import { loginSchema } from '@/features/auth/types'
-import { ActionResponse } from '@/types/actions.types'
+import { SignInResult, signInSchema, type SignInInput } from '@/core/domains/auth/auth.types'
+import type { ActionResponse } from '@/types/actions.types'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { SubmitButton } from '@/components/ui/submit-button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-type LoginInput = z.infer<typeof loginSchema>
+// Tipul pentru rezultatul de succes al acțiunii de sign-in
+type SignInSuccessData = {
+  redirectPath?: string
+}
 
-export const LoginForm: React.FC = () => {
-  const router = useRouter()
-  const [serverError, setServerError] = useState<string | null>(null)
+export function LoginForm() {
+  // Pasul 1: Inițializăm hook-ul de acțiune
+  // `formSubmit` este funcția pe care o vom apela pentru a trimite datele.
+  // `isPending` ne va spune dacă acțiunea este în curs de execuție.
+  const { formSubmit, isPending } = useActionForm<ActionResponse<SignInResult>, FormData>({
+    action: signInAction,
+    initialState: { success: false },
+    onSuccess: (data) => {
+      // Când acțiunea are succes, verificăm dacă avem o cale de redirectare
+      if (data?.redirectPath) {
+        window.location.href = data.redirectPath
+      }
+    },
+  })
 
-  const form = useForm<LoginInput>({
-    resolver: zodResolver(loginSchema),
+  // Pasul 2: Inițializăm react-hook-form pentru validare pe client
+  const form = useForm<SignInInput>({
+    resolver: zodResolver(signInSchema),
     defaultValues: {
       email: '',
       password: '',
     },
   })
 
-  const onSubmit = async (data: LoginInput) => {
-    setServerError(null)
-    form.clearErrors()
-
-    try {
-      const formData = new FormData()
-      formData.append('email', data.email)
-      formData.append('password', data.password)
-
-      const result = await signInAction({ success: false }, formData)
-
-      if (!result.success) {
-        setServerError(result.message || 'Eroare de autentificare')
-        if (result.errors) {
-          Object.entries(result.errors).forEach(([field, messages]) => {
-            form.setError(field as keyof LoginInput, { message: messages[0] })
-          })
-        }
-      } else {
-        form.reset()
-        router.push('/admin/appointments')
-        router.refresh()
-      }
-    } catch (error) {
-      console.error('Login submission client-side error:', error)
-      setServerError('A apărut o eroare neașteptată. Te rugăm să încerci din nou.')
+  // Pasul 3: Definim funcția de submit care face legătura între cele două hook-uri
+  // Această funcție este apelată de `react-hook-form` DOAR dacă validarea pe client trece.
+  const onSubmit = (values: SignInInput) => {
+    // Convertim obiectul validat `values` în `FormData`, formatul așteptat de Server Action.
+    const formData = new FormData()
+    // Folosim un loop pentru a adăuga dinamic toate câmpurile
+    for (const key in values) {
+      formData.append(key, values[key as keyof SignInInput])
     }
+
+    // Apelăm acțiunea de pe server cu datele din formular
+    formSubmit(formData)
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Adresă de email</FormLabel>
-              <FormControl>
-                <Input type="email" autoComplete="email" placeholder="nume@exemplu.com" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <Card>
+      <CardHeader>
+        <CardTitle>Login</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Form {...form}>
+          {/* Pasul 4: Conectăm funcția noastră `onSubmit` la formular folosind `form.handleSubmit` */}
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Adresă de email</FormLabel>
+                  <FormControl>
+                    <Input type="email" placeholder="nume@exemplu.com" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Parolă</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="••••••••" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Parolă</FormLabel>
-              <FormControl>
-                <Input type="password" autoComplete="current-password" placeholder="••••••••" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {serverError && (
-          <Alert variant="destructive">
-            <ExclamationTriangleIcon className="h-4 w-4" />
-            <AlertTitle>Eroare de Autentificare</AlertTitle>
-            <AlertDescription>{serverError}</AlertDescription>
-          </Alert>
-        )}
-
-        <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-          {form.formState.isSubmitting ? 'Autentificare...' : 'Autentifică-te'}
-        </Button>
-      </form>
-    </Form>
+            <SubmitButton className="w-full" isPending={isPending}>
+              Autentifică-te
+            </SubmitButton>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
   )
 }

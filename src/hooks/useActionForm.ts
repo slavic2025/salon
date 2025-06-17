@@ -4,15 +4,9 @@
 import { useEffect, useRef, useActionState } from 'react'
 import { toast } from 'sonner'
 import { createLogger, Logger } from '@/lib/logger'
+import { ActionResponse } from '@/types/actions.types'
 
-export interface BaseActionResponse<TData = unknown, TErrors = Record<string, string[]>> {
-  success: boolean
-  message?: string
-  errors?: TErrors & { _form?: string[] }
-  data?: TData
-}
-
-interface UseActionFormProps<S extends BaseActionResponse, P> {
+interface UseActionFormProps<S extends ActionResponse, P> {
   action: (prevState: S, payload: P) => Promise<S> | S
   initialState: S
   onSuccess?: (data?: S['data']) => void
@@ -24,7 +18,7 @@ interface UseActionFormProps<S extends BaseActionResponse, P> {
   loggerInstance?: Logger
 }
 
-export function useActionForm<S extends BaseActionResponse, P>({
+export function useActionForm<S extends ActionResponse, P>({
   action,
   initialState,
   onSuccess,
