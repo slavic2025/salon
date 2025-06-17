@@ -1,4 +1,5 @@
 // src/core/domains/stylists/stylist.constants.ts
+import { uuidField, dateField, timeField } from '@/config/validation/fields'
 
 /**
  * Definește statusurile interne posibile pentru un stilist.
@@ -47,6 +48,9 @@ const MESSAGES = {
     AUTH: {
       UNAUTHORIZED: 'Utilizator neautorizat.',
       PROFILE_NOT_FOUND: 'Profilul stilistului nu a fost găsit.',
+      CREATE_USER_FAILED: 'Nu s-a putut crea utilizatorul în sistem.',
+      DELETE_USER_FAILED: 'Nu s-a putut șterge utilizatorul din sistem.',
+      UPDATE_USER_FAILED: 'Nu s-a putut actualiza utilizatorul în sistem.',
     },
     // Erori neașteptate de la server, per acțiune
     SERVER: {
@@ -55,9 +59,11 @@ const MESSAGES = {
       UPDATE: 'A apărut o eroare de server la actualizarea stilistului.',
       DELETE: 'A apărut o eroare de server la ștergerea stilistului.',
       RESET_PASSWORD: 'A apărut o eroare de server la resetarea parolei.',
+      PASSWORD_RESET_FAILED: 'Nu s-a putut trimite email-ul de resetare a parolei.',
     },
     // Erori generice
     NOT_FOUND: 'Stilistul nu a fost găsit.',
+    UNIQUENESS_CHECK_FAILED: 'Verificarea unicității a eșuat.',
   },
 } as const
 

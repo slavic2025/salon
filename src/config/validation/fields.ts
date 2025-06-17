@@ -15,6 +15,15 @@ export const zEnvNonemptyTrimmedRequiredOnNotLocal = zEnvNonemptyTrimmed
     message: 'This field is required in non-local environments.',
   })
 
+// --- CÂMPURI GENERICE ---
+export const uuidField = (label: string) => z.string().uuid(`${label} este invalid.`)
+
+export const dateField = (label: string) =>
+  z.string().regex(/^\d{4}-\d{2}-\d{2}$/, `Formatul datei pentru ${label} este invalid (YYYY-MM-DD).`)
+
+export const timeField = (label: string) =>
+  z.string().regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, `Formatul orei pentru ${label} este invalid (HH:MM).`)
+
 // --- STRINGURI ---
 // Un șir obligatoriu, non-gol. Folosește mesajul implicit al lui min(1) dacă este gol.
 // `required_error` este pentru când valoarea este `undefined` sau `null` la nivelul obiectului,

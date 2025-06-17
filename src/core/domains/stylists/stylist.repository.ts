@@ -21,7 +21,8 @@ export function createStylistRepository(supabase: SupabaseClient) {
     async findAll(): Promise<Stylist[]> {
       logger.debug('Fetching all stylists...')
       const query = supabase.from(TABLE_NAME).select('*').order('full_name', { ascending: true })
-      return executeQuery(logger, query, { context: 'findAllStylists' })
+      const result = await executeQuery<Stylist[]>(logger, query, { context: 'findAllStylists' })
+      return result || []
     },
 
     /** Găsește un stilist după ID. */

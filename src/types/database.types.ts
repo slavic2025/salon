@@ -183,7 +183,6 @@ export type Database = {
           id: string
           is_active: boolean
           phone: string | null
-          profile_id: string | null
           profile_picture: string | null
           updated_at: string
         }
@@ -192,10 +191,9 @@ export type Database = {
           description?: string | null
           email?: string | null
           full_name: string
-          id?: string
+          id: string
           is_active?: boolean
           phone?: string | null
-          profile_id?: string | null
           profile_picture?: string | null
           updated_at?: string
         }
@@ -207,15 +205,14 @@ export type Database = {
           id?: string
           is_active?: boolean
           phone?: string | null
-          profile_id?: string | null
           profile_picture?: string | null
           updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "stylists_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: false
+            foreignKeyName: "stylists_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -265,7 +262,7 @@ export type Database = {
           },
         ]
       }
-      work_schedules: {
+      work_schedule: {
         Row: {
           created_at: string
           end_time: string
@@ -334,7 +331,6 @@ export type Database = {
           id: string
           is_active: boolean
           phone: string | null
-          profile_id: string | null
           profile_picture: string | null
           updated_at: string
         }[]

@@ -1,29 +1,33 @@
+// src/core/domains/work-schedules/work-schedule.repository.ts
 import 'server-only'
-import { createClient } from '@/lib/supabase-server'
-import { WorkSchedule, WorkScheduleInput } from './work-schedule.types'
-import { TablesInsert } from '@/types/database.types'
 
-export const workScheduleRepository = {
-  async fetchByStylistId(stylistId: string): Promise<WorkSchedule[]> {
-    const supabase = await createClient()
-    const { data, error } = await supabase
-      .from('work_schedules')
-      .select('*')
-      .eq('stylist_id', stylistId)
-      .order('weekday')
-      .order('start_time')
-    if (error) throw error
-    return data
-  },
-  async create(data: TablesInsert<'work_schedules'>): Promise<WorkSchedule> {
-    const supabase = await createClient()
-    const { data: newRecord, error } = await supabase.from('work_schedules').insert(data).select().single()
-    if (error) throw error
-    return newRecord
-  },
-  async remove(id: string): Promise<void> {
-    const supabase = await createClient()
-    const { error } = await supabase.from('work_schedules').delete().eq('id', id)
-    if (error) throw error
-  },
+import { createLogger } from '@/lib/logger'
+import { executeQuery } from '@/lib/db-helpers'
+import type { SupabaseClient } from '@supabase/supabase-js'
+import type { WorkSchedule, WorkScheduleCreateData } from './work-schedule.types'
+
+export function createWorkScheduleRepository(supabase: SupabaseClient) {
+  const logger = createLogger('WorkScheduleRepository')
+  const TABLE_NAME = 'work_schedules'
+
+  return {
+    async findByStylistId(stylistId: string): Promise<WorkSchedule[]> {
+      logger.debug(`Fetching schedules for stylist id: ${stylistId}`)
+      const query = supabase.from(TABLE_NAME).select('*').eq('stylist_id', stylistId).order('weekday')
+      const result = await executeQuery<WorkSchedule[]>(logger, query, { context: 'findSchedulesByStylistId' })
+      return result || []
+    },
+
+    async create(data: WorkScheduleCreateData): Promise<WorkSchedule> {
+      logger.debug('Creating a new schedule...', { data })
+      const query = supabase.from(TABLE_NAME).insert(data).select().single()
+      return executeQuery<WorkSchedule>(logger, query, { context: 'createSchedule', throwOnNull: true })
+    },
+
+    async delete(id: string): Promise<void> {
+      logger.debug(`Deleting schedule with id: ${id}`)
+      const query = supabase.from(TABLE_NAME).delete().eq('id', id)
+      await executeQuery(logger, query, { context: 'deleteSchedule' })
+    },
+  }
 }

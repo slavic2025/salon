@@ -14,11 +14,30 @@ import { Logger } from '@/lib/logger'
  * @returns Datele returnate de query.
  * @throws {DatabaseError} Dacă query-ul eșuează sau dacă returnează null când nu ar trebui.
  */
+
+// --- Semnături de Supraîncărcare ---
+
+// Semnătura 1: Când throwOnNull este true, promitem să returnăm T (niciodată null).
+export async function executeQuery<T>(
+  logger: Logger,
+  promise: PromiseLike<{ data: T | null; error: any }>,
+  options: { context: string; throwOnNull: true }
+): Promise<T>
+
+// Semnătura 2: Pentru toate celelalte cazuri, promitem să returnăm T sau null.
 export async function executeQuery<T>(
   logger: Logger,
   promise: PromiseLike<{ data: T | null; error: any }>,
   options: { context: string; throwOnNull?: boolean }
-): Promise<T> {
+): Promise<T | null>
+
+// --- Implementarea Unică ---
+// Aceasta rămâne neschimbată, dar acum TypeScript o va lega de semnăturile de mai sus.
+export async function executeQuery<T>(
+  logger: Logger,
+  promise: PromiseLike<{ data: T | null; error: any }>,
+  options: { context: string; throwOnNull?: boolean }
+): Promise<T | null> {
   const { data, error } = await promise
 
   if (error) {
@@ -31,5 +50,5 @@ export async function executeQuery<T>(
     throw new DatabaseError(`No result found for ${options.context}.`, null)
   }
 
-  return data as T
+  return data
 }

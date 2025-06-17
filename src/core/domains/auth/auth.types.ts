@@ -1,5 +1,6 @@
 import { zEmailRequired, zPasswordRequired } from '@/config/validation/fields'
 import { z } from 'zod'
+import { User } from '@supabase/supabase-js'
 
 // Schema pentru autentificare
 export const signInSchema = z.object({
@@ -35,6 +36,15 @@ export const setPasswordSchema = z
     path: ['confirmPassword'],
   })
 
+export const sendPasswordResetSchema = z.object({
+  email: z.string().email('Adresa de email este invalidă.'),
+})
+
+export type SignInResult = {
+  user: User
+  role: string | null
+  redirectPath: string
+}
 // Tipuri derivate din scheme
 export type SignInInput = z.infer<typeof signInSchema>
 export type SignUpInput = z.infer<typeof signUpSchema>

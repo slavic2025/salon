@@ -42,8 +42,8 @@ export function createAppointmentRepository(supabase: SupabaseClient) {
         .eq('stylist_id', criteria.stylistId)
         .gte('start_time', criteria.startDate)
         .lte('end_time', criteria.endDate)
-
-      return executeQuery(logger, query, { context: 'findAppointments' })
+      const result = await executeQuery(logger, query, { context: 'findAppointments' })
+      return result || []
     },
 
     /** Actualizează o programare. */

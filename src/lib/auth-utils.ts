@@ -4,8 +4,8 @@
 import { createClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
-import { userRepository } from '@/core/domains/users/user.repository'
-import type { UserProfile } from '@/core/domains/users/user.types'
+import { userRepository } from '@/core/domains/profiles/profile.repository'
+import type { UserProfile } from '@/core/domains/profiles/profile.types'
 import { PATHS, ROLES } from '@/lib/constants'
 
 /**

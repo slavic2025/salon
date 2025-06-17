@@ -51,7 +51,7 @@ export async function editServiceAction(prevState: ActionResponse, formData: For
   const { id } = rawData
   if (!id || typeof id !== 'string') {
     return handleError(
-      new Error('ID-ul serviciului lipsește sau este invalid.'),
+      new Error(SERVICE_CONSTANTS.MESSAGES.ERROR.VALIDATION.INVALID_ID),
       SERVICE_CONSTANTS.MESSAGES.ERROR.VALIDATION.INVALID_ID
     )
   }
@@ -75,7 +75,7 @@ export async function deleteServiceAction(prevState: ActionResponse, formData: F
   const { id } = formDataToObject(formData)
   if (!id || typeof id !== 'string') {
     return handleError(
-      new Error('ID-ul serviciului lipsește sau este invalid.'),
+      new Error(SERVICE_CONSTANTS.MESSAGES.ERROR.VALIDATION.INVALID_ID),
       SERVICE_CONSTANTS.MESSAGES.ERROR.VALIDATION.INVALID_ID
     )
   }

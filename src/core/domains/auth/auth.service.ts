@@ -1,98 +1,101 @@
-import { createClient } from '@/lib/supabase-server'
-import { SignInInput, SignUpInput, ResetPasswordInput } from './auth.types'
-import { AUTH_MESSAGES } from './auth.constants'
-import { PATHS, ROLES } from '@/lib/constants'
-import { SetPasswordInput } from './auth.types'
+import { createLogger } from '@/lib/logger'
+import { AppError } from '@/lib/errors'
+import { AUTH_CONSTANTS } from './auth.constants'
+import { createProfileRepository } from '../profiles/profile.repository'
+import type { SupabaseClient } from '@supabase/supabase-js'
+import {
+  type SignInInput,
+  type SignUpInput,
+  type SetPasswordInput,
+  type SignInResult,
+  signInSchema,
+  signUpSchema,
+  sendPasswordResetSchema,
+  setPasswordSchema,
+} from './auth.types'
+import { ROLES } from '@/lib/constants'
 
-export class AuthService {
-  async signIn(data: SignInInput) {
-    const supabase = await createClient()
-    const { error: signInError } = await supabase.auth.signInWithPassword(data)
-    if (signInError) {
-      return { success: false, message: AUTH_MESSAGES.ERROR.INVALID_CREDENTIALS }
-    }
+// Definirea tipurilor pentru dependențe
+type ProfileRepository = ReturnType<typeof createProfileRepository>
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    if (!user) {
-      return { success: false, message: AUTH_MESSAGES.ERROR.USER_VERIFICATION_FAILED }
-    }
+/**
+ * Factory Function care creează serviciul de autentificare.
+ * @param supabase - Instanța clientului Supabase.
+ * @param profileRepository - Repository-ul pentru gestionarea datelor de profil.
+ */
+export function createAuthService(supabase: SupabaseClient, profileRepository: ProfileRepository) {
+  const logger = createLogger('AuthService')
 
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
+  return {
+    /** Gestionează procesul de autentificare, orchestrând apelurile. */
+    async signIn(input: Record<string, unknown>): Promise<SignInResult> {
+      const validatedData = signInSchema.parse(input)
+      const { error: signInError } = await supabase.auth.signInWithPassword(validatedData)
+      if (signInError) {
+        throw new AppError(AUTH_CONSTANTS.MESSAGES.ERROR.CREDENTIALS.INVALID, signInError)
+      }
 
-    if (profileError) {
-      return { success: false, message: AUTH_MESSAGES.ERROR.ROLE_FETCH_FAILED }
-    }
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (!user) {
+        throw new AppError(AUTH_CONSTANTS.MESSAGES.ERROR.CREDENTIALS.INVALID_SESSION)
+      }
 
-    let redirectPath = '/'
-    if (profile?.role === ROLES.ADMIN) {
-      redirectPath = PATHS.ADMIN_HOME
-    } else if (profile?.role === ROLES.STYLIST) {
-      redirectPath = PATHS.STYLIST_HOME
-    }
+      // Folosim ProfileRepository pentru a prelua rolul, respectând arhitectura
+      const profile = await profileRepository.findById(user.id)
+      if (!profile) {
+        throw new AppError(AUTH_CONSTANTS.MESSAGES.ERROR.AUTHORIZATION.PROFILE_NOT_FOUND)
+      }
 
-    return { success: true, user, role: profile.role, redirectPath }
-  }
+      // Stabilim o cale implicită în cazul în care utilizatorul nu are un rol special
+      let redirectPath: string = AUTH_CONSTANTS.PATHS.redirect.afterLogin
 
-  async signUp(data: SignUpInput) {
-    const supabase = await createClient()
-    const { error } = await supabase.auth.signUp({
-      email: data.email,
-      password: data.password,
-    })
-    if (error) throw error
-  }
+      // Suprascriem calea dacă utilizatorul are un rol specific
+      if (profile.role === ROLES.ADMIN) {
+        redirectPath = AUTH_CONSTANTS.PATHS.redirect.adminHome
+      } else if (profile.role === ROLES.STYLIST) {
+        redirectPath = AUTH_CONSTANTS.PATHS.redirect.stylistHome
+      }
 
-  async resetPassword(data: ResetPasswordInput) {
-    const supabase = await createClient()
-    const { error } = await supabase.auth.resetPasswordForEmail(data.email)
-    if (error) throw error
-    return { success: true }
-  }
+      return { user, role: profile.role, redirectPath }
+    },
 
-  async signOut(): Promise<void> {
-    const supabase = await createClient()
-    await supabase.auth.signOut()
-  }
+    /** Gestionează înregistrarea unui utilizator nou. */
+    async signUp(input: Record<string, unknown>): Promise<void> {
+      const validatedData = signUpSchema.parse(input)
+      const { error } = await supabase.auth.signUp(validatedData)
+      if (error) throw new AppError(AUTH_CONSTANTS.MESSAGES.ERROR.SERVER.SIGN_UP, error)
+    },
 
-  async setInitialPassword(data: SetPasswordInput) {
-    const supabase = await createClient()
-    const { error } = await supabase.auth.updateUser({
-      // Extragem parola din obiectul `data` aici, în interiorul serviciului
-      password: data.password,
-      data: { password_set: true },
-    })
+    /** Gestionează deconectarea. */
+    async signOut(): Promise<void> {
+      const { error } = await supabase.auth.signOut()
+      if (error) throw new AppError(AUTH_CONSTANTS.MESSAGES.ERROR.SERVER.SIGN_OUT, error)
+    },
 
-    if (error) {
-      throw error
-    }
-  }
+    /** Actualizează parola unui utilizator autentificat. */
+    async updatePassword(input: Record<string, unknown>): Promise<void> {
+      try {
+        const validatedData = setPasswordSchema.parse(input)
+        const { error } = await supabase.auth.updateUser({ password: validatedData.password })
+        if (error) {
+          throw new AppError(AUTH_CONSTANTS.MESSAGES.ERROR.SERVER.UPDATE_PASSWORD, error)
+        }
+      } catch (error) {
+        logger.error('Update password failed', { error })
+        if (error instanceof AppError) throw error
+        throw new AppError(AUTH_CONSTANTS.MESSAGES.ERROR.SERVER.UPDATE_PASSWORD, error)
+      }
+    },
 
-  async updatePassword(data: SetPasswordInput): Promise<void> {
-    const supabase = await createClient()
-    const {
-      data: { session },
-    } = await supabase.auth.getSession()
-    if (!session) {
-      throw new Error('Sesiune invalidă sau expirată. Te rugăm să accesezi din nou link-ul din email.')
-    }
-
-    const { error } = await supabase.auth.updateUser({ password })
-    if (error) throw error
-
-    await supabase.auth.updateUser({ data: { password_set: true } })
-  }
-
-  async sendPasswordResetEmail(email: string): Promise<void> {
-    const supabase = await createClient()
-    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/account-setup`,
-    })
-    if (resetError) throw resetError
+    /** Trimite email-ul de resetare a parolei. */
+    async sendPasswordResetEmail(input: Record<string, unknown>): Promise<void> {
+      const { email } = sendPasswordResetSchema.parse(input)
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}${AUTH_CONSTANTS.PATHS.pages.updatePassword}`,
+      })
+      if (error) throw new AppError(AUTH_CONSTANTS.MESSAGES.ERROR.SERVER.SEND_RESET_EMAIL, error)
+    },
   }
 }

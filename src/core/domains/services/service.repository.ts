@@ -17,14 +17,14 @@ export function createServiceRepository(supabase: SupabaseClient) {
 
   return {
     /** Găsește toate serviciile, ordonate după nume. */
-    async findAll(): Promise<Service[]> {
+    async findAll(): Promise<Service[] | null> {
       logger.debug('Fetching all services...')
       const query = supabase.from(TABLE_NAME).select('*').order('name', { ascending: true })
       return executeQuery(logger, query, { context: 'findAllServices' })
     },
 
     /** Găsește toate serviciile active, ordonate după nume. */
-    async findActive(): Promise<Service[]> {
+    async findActive(): Promise<Service[] | null> {
       logger.debug('Fetching active services...')
       const query = supabase.from(TABLE_NAME).select('*').eq('is_active', true).order('name', { ascending: true })
       return executeQuery(logger, query, { context: 'findActiveServices' })
