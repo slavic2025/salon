@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/atoms/card'
 import { SetPasswordForm } from './_components/set-password-form'
 
 export default function AccountSetupPage() {
@@ -17,9 +17,12 @@ export default function AccountSetupPage() {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession()
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession()
         console.log('Account setup - Current session:', session)
-        
+
         if (error) {
           console.error('Session error:', error)
           setStatus('Eroare la verificarea sesiunii. Se redirecționează...')
@@ -66,9 +69,7 @@ export default function AccountSetupPage() {
 
   return (
     <div className="container max-w-md mx-auto py-10">
-      <h1 className="text-2xl font-bold text-center mb-6">
-        {isReset ? 'Resetează Parola' : 'Setează Parola'}
-      </h1>
+      <h1 className="text-2xl font-bold text-center mb-6">{isReset ? 'Resetează Parola' : 'Setează Parola'}</h1>
       <SetPasswordForm />
     </div>
   )

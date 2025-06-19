@@ -1,4 +1,4 @@
-import { EmptyState } from '@/components/ui/empty-state'
+import { EmptyState } from '@/components/molecules/empty-state'
 import type { Service } from '@/core/domains/services/service.types'
 import { DEFAULT_CURRENCY_SYMBOL } from '@/lib/constants'
 
@@ -23,7 +23,7 @@ export function ServiceStep({ services, onSelect }: ServiceStepProps) {
         <h3 className="text-lg font-semibold leading-6 text-gray-900">Alege un serviciu</h3>
         <p className="mt-1 text-sm text-gray-500">Selectează serviciul dorit din lista de mai jos</p>
       </div>
-      
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {services.map((service) => (
           <button
@@ -35,11 +35,11 @@ export function ServiceStep({ services, onSelect }: ServiceStepProps) {
               <p className="font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors">
                 {service.name}
               </p>
-              <p className="mt-1 text-sm text-gray-500 flex-grow">
-                {service.description}
-              </p>
+              <p className="mt-1 text-sm text-gray-500 flex-grow">{service.description}</p>
               <div className="mt-4 flex justify-between items-center text-sm font-medium">
-                <span className="text-indigo-600">{service.price} {DEFAULT_CURRENCY_SYMBOL}</span>
+                <span className="text-indigo-600">
+                  {service.price} {DEFAULT_CURRENCY_SYMBOL}
+                </span>
                 <span className="text-gray-500">{service.duration_minutes} min</span>
               </div>
             </div>
@@ -48,4 +48,4 @@ export function ServiceStep({ services, onSelect }: ServiceStepProps) {
       </div>
     </div>
   )
-} 
+}

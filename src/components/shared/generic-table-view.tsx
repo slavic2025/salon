@@ -1,6 +1,6 @@
 // components/shared/generic-table-view.tsx
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { EmptyState } from '@/components/ui/empty-state'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/atoms/table'
+import { EmptyState } from '@/components/molecules/empty-state'
 import { createLogger } from '@/lib/logger'
 import React from 'react' // Asigură-te că importăm React
 

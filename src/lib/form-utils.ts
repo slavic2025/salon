@@ -31,3 +31,16 @@ export function formDataToObject(
 
   return object
 }
+
+export function objectToFormData(obj: Record<string, any>): FormData {
+  const formData = new FormData()
+
+  Object.entries(obj).forEach(([key, value]) => {
+    // Adăugăm în FormData doar valorile care nu sunt null sau undefined
+    if (value !== null && value !== undefined) {
+      formData.append(key, String(value))
+    }
+  })
+
+  return formData
+}

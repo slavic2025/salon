@@ -13,11 +13,11 @@ export type Database = {
         Row: {
           client_email: string
           client_name: string
-          client_phone: string | null
+          client_phone: string
           created_at: string
           end_time: string
           id: string
-          notes: string | null
+          notes: string
           service_id: string
           start_time: string
           status: string
@@ -27,11 +27,11 @@ export type Database = {
         Insert: {
           client_email: string
           client_name: string
-          client_phone?: string | null
+          client_phone: string
           created_at?: string
           end_time: string
           id?: string
-          notes?: string | null
+          notes: string
           service_id: string
           start_time: string
           status: string
@@ -41,11 +41,11 @@ export type Database = {
         Update: {
           client_email?: string
           client_name?: string
-          client_phone?: string | null
+          client_phone?: string
           created_at?: string
           end_time?: string
           id?: string
-          notes?: string | null
+          notes?: string
           service_id?: string
           start_time?: string
           status?: string
@@ -92,9 +92,9 @@ export type Database = {
       }
       services: {
         Row: {
-          category: string | null
+          category: string
           created_at: string
-          description: string | null
+          description: string
           duration_minutes: number
           id: string
           is_active: boolean
@@ -103,9 +103,9 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          category?: string | null
+          category: string
           created_at?: string
-          description?: string | null
+          description: string
           duration_minutes: number
           id?: string
           is_active?: boolean
@@ -114,9 +114,9 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          category?: string | null
+          category?: string
           created_at?: string
-          description?: string | null
+          description?: string
           duration_minutes?: number
           id?: string
           is_active?: boolean
@@ -177,35 +177,35 @@ export type Database = {
       stylists: {
         Row: {
           created_at: string
-          description: string | null
-          email: string | null
+          description: string
+          email: string
           full_name: string
           id: string
           is_active: boolean
-          phone: string | null
-          profile_picture: string | null
+          phone: string
+          profile_picture: string
           updated_at: string
         }
         Insert: {
           created_at?: string
-          description?: string | null
-          email?: string | null
+          description: string
+          email: string
           full_name: string
           id: string
           is_active?: boolean
-          phone?: string | null
-          profile_picture?: string | null
+          phone: string
+          profile_picture: string
           updated_at?: string
         }
         Update: {
           created_at?: string
-          description?: string | null
-          email?: string | null
+          description?: string
+          email?: string
           full_name?: string
           id?: string
           is_active?: boolean
-          phone?: string | null
-          profile_picture?: string | null
+          phone?: string
+          profile_picture?: string
           updated_at?: string
         }
         Relationships: [
@@ -224,10 +224,10 @@ export type Database = {
           end_datetime: string
           id: string
           is_all_day: boolean
-          reason: string | null
+          reason: string
           start_datetime: string
           stylist_id: string
-          type: string | null
+          type: string
           updated_at: string
         }
         Insert: {
@@ -235,10 +235,10 @@ export type Database = {
           end_datetime: string
           id?: string
           is_all_day?: boolean
-          reason?: string | null
+          reason: string
           start_datetime: string
           stylist_id: string
-          type?: string | null
+          type: string
           updated_at?: string
         }
         Update: {
@@ -246,10 +246,10 @@ export type Database = {
           end_datetime?: string
           id?: string
           is_all_day?: boolean
-          reason?: string | null
+          reason?: string
           start_datetime?: string
           stylist_id?: string
-          type?: string | null
+          type?: string
           updated_at?: string
         }
         Relationships: [
@@ -325,13 +325,13 @@ export type Database = {
         Args: { p_service_id: string }
         Returns: {
           created_at: string
-          description: string | null
-          email: string | null
+          description: string
+          email: string
           full_name: string
           id: string
           is_active: boolean
-          phone: string | null
-          profile_picture: string | null
+          phone: string
+          profile_picture: string
           updated_at: string
         }[]
       }

@@ -1,7 +1,7 @@
 // src/app/update-password/page.tsx
 
 import { UpdatePasswordForm } from './_components/update-password-form'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/atoms/card'
 
 export default function UpdatePasswordPage() {
   return (

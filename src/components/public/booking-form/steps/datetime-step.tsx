@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Calendar } from '@/components/ui/calendar'
+import { Button } from '@/components/atoms/button'
+import { Calendar } from '@/components/atoms/calendar'
 import { Loader2, ArrowLeft } from 'lucide-react'
 
 interface DateTimeStepProps {

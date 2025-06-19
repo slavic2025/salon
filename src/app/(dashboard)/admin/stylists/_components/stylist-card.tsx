@@ -6,12 +6,12 @@ import { EditStylistDialog } from './edit-stylist-dialog'
 import { STYLIST_DISPLAY_FIELDS } from './stylist-display-fields'
 import { GenericDisplayCard } from '@/components/shared/generic-display-card'
 import { DisplayFieldConfig } from '@/components/shared/display-card-types'
-import { buttonVariants } from '@/components/ui/button'
+import { buttonVariants } from '@/components/atoms/button'
 import { Scissors } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Stylist } from '@/core/domains/stylists/stylist.types'
 import { deleteStylistAction } from '@/features/stylists/actions'
-import { ActiveBadge } from '@/components/ui/active-badge'
+import { ActiveBadge } from '@/components/molecules/active-badge'
 
 interface StylistCardProps {
   stylist: Stylist

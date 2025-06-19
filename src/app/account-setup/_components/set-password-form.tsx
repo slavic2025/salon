@@ -4,10 +4,10 @@
 import { useActionForm } from '@/hooks/useActionForm'
 import { setInitialPasswordAction } from '@/features/auth/actions' // Asigură-te că acțiunea există
 import { INITIAL_FORM_STATE } from '@/types/actions.types'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import { SubmitButton } from '@/components/ui/submit-button'
-import { CardFooter } from '@/components/ui/card'
+import { Label } from '@/components/atoms/label'
+import { Input } from '@/components/atoms/input'
+import { SubmitButton } from '@/components/molecules/submit-button'
+import { CardFooter } from '@/components/atoms/card'
 
 export function SetPasswordForm() {
   // Folosim hook-ul nostru custom pentru a gestiona starea formularului și submit-ul
@@ -33,8 +33,8 @@ export function SetPasswordForm() {
       {state.message && !state.success && <p className="text-sm text-destructive text-center">{state.message}</p>}
 
       <CardFooter className="p-0 pt-2">
-        <SubmitButton className="w-full" disabled={isPending} pendingText="Se setează...">
-          Setează Parola și Continuă
+        <SubmitButton className="w-full" isPending={isPending} pendingText="Se setează...">
+          Setează parola
         </SubmitButton>
       </CardFooter>
     </form>

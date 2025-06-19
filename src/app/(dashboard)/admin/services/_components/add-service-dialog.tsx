@@ -1,40 +1,53 @@
-// src/app/(dashboard)/admin/services/_components/add-service-dialog.tsx
 'use client'
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
-import { AddServiceForm } from './add-service-form'
-import React from 'react'
+import { useState, useTransition } from 'react'
+import { useActionForm } from '@/hooks/useActionForm'
+import { addServiceAction } from '@/features/services/actions'
+import { objectToFormData } from '@/lib/form-utils'
+import { Button } from '@/components/atoms/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/atoms/dialog'
+import { ServiceForm } from '@/components/organisms/ServiceForm'
+import { PlusCircle } from 'lucide-react'
+import type { CreateServiceInput } from '@/core/domains/services/service.types'
 
-// 1. Definim interfața pentru props
-interface AddServiceDialogProps {
-  trigger?: React.ReactNode
-}
+export function AddServiceDialog() {
+  const [isOpen, setIsOpen] = useState(false)
+  const [isTransitionPending, startTransition] = useTransition()
 
-// 2. Primim `trigger` ca prop
-export function AddServiceDialog({ trigger }: AddServiceDialogProps) {
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  // Hook-ul `useActionForm` gestionează starea acțiunii de server
+  const { formSubmit, isPending: isActionPending } = useActionForm({
+    action: addServiceAction,
+    initialState: { success: false },
+    onSuccess: () => {
+      // La succes, închidem dialogul
+      setIsOpen(false)
+    },
+  })
+
+  // Funcția care conectează `react-hook-form` (din ServiceForm) cu Server Action-ul
+  const handleFormSubmit = (values: CreateServiceInput) => {
+    const formData = objectToFormData(values)
+    startTransition(() => {
+      formSubmit(formData)
+    })
+  }
+
+  const isFormPending = isActionPending || isTransitionPending
 
   return (
-    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        {/* 3. Folosim trigger-ul custom dacă există, altfel butonul default */}
-        {trigger || <Button>Adaugă Serviciu Nou</Button>}
+        <Button>
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Adaugă Serviciu
+        </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent>
         <DialogHeader>
-          <DialogTitle>Adaugă Serviciu Nou</DialogTitle>
-          <DialogDescription>Completează detaliile pentru noul serviciu.</DialogDescription>
+          <DialogTitle>Adaugă un serviciu nou</DialogTitle>
         </DialogHeader>
-        <AddServiceForm onSuccess={() => setIsDialogOpen(false)} onCancel={() => setIsDialogOpen(false)} />
+        {/* Randăm organismul nostru reutilizabil `ServiceForm` */}
+        <ServiceForm isPending={isFormPending} onSubmit={handleFormSubmit} className="grid gap-4 py-4" />
       </DialogContent>
     </Dialog>
   )

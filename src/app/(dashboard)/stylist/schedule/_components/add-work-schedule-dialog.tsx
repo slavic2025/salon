@@ -1,7 +1,7 @@
 // src/app/(dashboard)/dashboard/schedule/_components/add-work-schedule-dialog.tsx
 'use client'
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/atoms/button'
 // Importăm și DialogDescription
 import {
   Dialog,
@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from '@/components/atoms/dialog'
 import { AddWorkScheduleForm } from './add-work-schedule-form'
 import { PlusIcon } from 'lucide-react'
 

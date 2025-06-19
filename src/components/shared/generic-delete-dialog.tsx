@@ -10,8 +10,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import { Button, buttonVariants } from '@/components/ui/button'
+} from '@/components/atoms/alert-dialog'
+import { Button, buttonVariants } from '@/components/atoms/button'
 import { useActionForm } from '@/hooks/useActionForm'
 import { ActionResponse, INITIAL_FORM_STATE } from '@/types/actions.types'
 import { Trash2 } from 'lucide-react'

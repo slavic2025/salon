@@ -1,49 +1,60 @@
-// src/lib/auth-utils.ts
 'use server'
 
-import { createClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
-import { userRepository } from '@/core/domains/profiles/profile.repository'
-import type { UserProfile } from '@/core/domains/profiles/profile.types'
-import { PATHS, ROLES } from '@/lib/constants'
+import { createClient } from '@/lib/supabase-server'
+// Pasul 1: Importăm "fabrica" de repository, nu instanța
+import { createProfileRepository } from '@/core/domains/profiles/profile.repository'
+import { AUTH_CONSTANTS } from '@/core/domains/auth/auth.constants'
+import { ROLES } from '@/lib/constants'
+import type { Profile } from '@/core/domains/profiles/profile.types'
 
 /**
- * Funcție helper care gestionează toată logica de autentificare și autorizare.
- * Verifică sesiunea, parola setată și rolul utilizatorului.
- * Redirecționează dacă este necesar.
- * @returns {Promise<UserProfile>} Profilul utilizatorului validat.
+ * Funcție helper care protejează paginile, gestionând logica de autentificare și autorizare.
+ * Respectă arhitectura "per-cerere".
+ * @returns {Promise<Profile>} Profilul utilizatorului validat.
  */
-export async function protectPage(): Promise<UserProfile> {
+export async function protectPage(): Promise<Profile> {
+  // Creează clientul Supabase specific acestei cereri
   const supabase = await createClient()
+
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect(PATHS.LOGIN)
+    // Folosim căile din constantele de auth
+    redirect(AUTH_CONSTANTS.PATHS.pages.signIn)
   }
 
+  // Verificăm dacă parola a fost setată (dacă e cazul)
   if (user.user_metadata?.password_set === false) {
-    redirect(PATHS.ACCOUNT_SETUP)
+    redirect(AUTH_CONSTANTS.PATHS.pages.accountSetup)
   }
 
-  const userProfile = await userRepository.fetchProfileById(user.id)
-  if (!userProfile?.role) {
-    console.error(`User with ID ${user.id} has no profile or role. Logging out.`)
-    redirect(PATHS.LOGIN)
+  // Pasul 2: Creăm o instanță a repository-ului DOAR pentru această cerere
+  const profileRepository = createProfileRepository(supabase)
+
+  // Pasul 3: Folosim noua instanță și metoda standardizată `findById`
+  const profile = await profileRepository.findById(user.id)
+
+  if (!profile?.role) {
+    // Dacă nu există profil sau rol, delogăm utilizatorul forțat
+    console.error(`User with ID ${user.id} has no profile or role. Redirecting to login.`)
+    redirect(AUTH_CONSTANTS.PATHS.pages.signIn)
   }
 
+  // Logica de autorizare bazată pe rută rămâne aceeași, dar folosește constantele corecte
   const headersList = await headers()
   const pathname = headersList.get('x-pathname') || ''
 
-  if (userProfile.role === ROLES.ADMIN && pathname.startsWith(PATHS.STYLIST_ROOT)) {
-    redirect(PATHS.ADMIN_HOME)
+  if (profile.role === ROLES.ADMIN && pathname.startsWith(AUTH_CONSTANTS.PATHS.redirect.stylistHome)) {
+    redirect(AUTH_CONSTANTS.PATHS.redirect.adminHome)
   }
 
-  if (userProfile.role === ROLES.STYLIST && pathname.startsWith(PATHS.ADMIN_HOME)) {
-    redirect(PATHS.STYLIST_HOME)
+  if (profile.role === ROLES.STYLIST && pathname.startsWith(AUTH_CONSTANTS.PATHS.redirect.adminHome)) {
+    redirect(AUTH_CONSTANTS.PATHS.redirect.stylistHome)
   }
 
-  return userProfile
+  return profile
 }

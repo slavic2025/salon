@@ -10,8 +10,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
+} from '@/components/atoms/dialog'
+import { Button } from '@/components/atoms/button'
 import { DisplayItem } from './display-card-types'
 
 // 1. Adăugăm `onCancel` la interfața pentru props-urile formularului

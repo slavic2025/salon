@@ -2,8 +2,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import { Button } from '@/components/ui/button'
+import { Sheet, SheetContent, SheetTrigger } from '@/components/atoms/sheet'
+import { Button } from '@/components/atoms/button'
 import { MenuIcon } from 'lucide-react'
 import { DashboardSidebar } from './sidebar'
 

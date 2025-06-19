@@ -1,8 +1,8 @@
 // components/dashboard/user-nav.tsx
 'use client'
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/atoms/avatar'
+import { Button } from '@/components/atoms/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from '@/components/atoms/dropdown-menu'
 import { signOutAction } from '@/features/auth/actions' // Funcția de logout
 
 export function UserNav() {

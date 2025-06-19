@@ -15,7 +15,7 @@ import type { ActionResponse } from '@/types/actions.types'
  * Funcție ajutătoare care asamblează serviciul pentru 'services'
  * cu toate dependențele sale, pentru o singură cerere.
  */
-async function getServiceService() {
+export async function getServiceService() {
   const supabase = await createClient()
   const repository = createServiceRepository(supabase)
   return createServiceService(repository)

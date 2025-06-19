@@ -1,6 +1,6 @@
 // src/components/public/hero-section.tsx
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/atoms/button'
 import Link from 'next/link'
 
 export function HeroSection() {

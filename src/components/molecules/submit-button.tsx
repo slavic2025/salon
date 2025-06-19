@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Button, type ButtonProps } from '@/components/ui/button'
+import { Button, type ButtonProps } from '@/components/atoms/button'
 import { Loader2 } from 'lucide-react'
 
 // Pasul 1: Definim proprietățile. `isPending` este acum singura sursă de adevăr pentru starea butonului.

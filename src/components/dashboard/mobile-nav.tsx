@@ -9,8 +9,8 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@/components/ui/sheet'
-import { Button } from '@/components/ui/button'
+} from '@/components/atoms/sheet'
+import { Button } from '@/components/atoms/button'
 import { MenuIcon } from 'lucide-react'
 import { DashboardSidebar } from './sidebar'
 

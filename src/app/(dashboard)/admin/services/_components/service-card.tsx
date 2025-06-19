@@ -1,36 +1,67 @@
-// src/app/(dashboard)/admin/services/_components/service-card.tsx
 'use client'
 
+import { type Service } from '@/core/domains/services/service.types'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/atoms/card'
+import { Button } from '@/components/atoms/button'
+import { ActiveBadge } from '@/components/molecules/active-badge'
 import { EditServiceDialog } from './edit-service-dialog'
-import { SERVICE_DISPLAY_FIELDS } from './service-display-fields'
-import { GenericDisplayCard } from '@/components/shared/generic-display-card'
-import { DisplayFieldConfig } from '@/components/shared/display-card-types'
-import { Service } from '@/core/domains/services/service.types'
+import { DeleteConfirmationDialog } from '@/components/molecules/delete-confirmation-dialog'
 import { deleteServiceAction } from '@/features/services/actions'
-import { ActiveBadge } from '@/components/ui/active-badge' // Importăm badge-ul
-import { DEFAULT_CURRENCY_SYMBOL } from '@/lib/constants'
+import { formatCurrency } from '@/lib/formatters'
 
+export function ServiceCard({ service }: ServiceCardProps) {
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex justify-between items-start">
+          <div>
+            <CardTitle>{service.name}</CardTitle>
+            <CardDescription>{service.description}</CardDescription>
+          </div>
+          <ActiveBadge isActive={service.is_active} />
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="flex justify-between items-center">
+          <div>
+            <p className="text-sm">
+              <strong>Preț:</strong> {formatCurrency(service.price)}
+            </p>
+            <p className="text-sm">
+              <strong>Durată:</strong> {service.duration_minutes} min
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <EditServiceDialog service={service} />
+
+            {/* Utilizarea noului dialog compus. Este mult mai declarativ. */}
+            <DeleteConfirmationDialog action={deleteServiceAction} itemId={service.id}>
+              <DeleteConfirmationDialog.Trigger asChild>
+                <Button variant="destructive" size="icon">
+                  <Trash2 className="h-4 w-4" />
+                  <span className="sr-only">Șterge Serviciul</span>
+                </Button>
+              </DeleteConfirmationDialog.Trigger>
+              <DeleteConfirmationDialog.Content>
+                <DeleteConfirmationDialog.Header>
+                  <DeleteConfirmationDialog.Title>Confirmă Ștergerea</DeleteConfirmationDialog.Title>
+                  <DeleteConfirmationDialog.Description>
+                    Ești sigur că vrei să ștergi serviciul "{service.name}"? Această acțiune este ireversibilă.
+                  </DeleteConfirmationDialog.Description>
+                </DeleteConfirmationDialog.Header>
+              </DeleteConfirmationDialog.Content>
+            </DeleteConfirmationDialog>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+// Definim tipul pentru props aici, dacă nu este deja într-un fișier separat
 interface ServiceCardProps {
   service: Service
 }
 
-export function ServiceCard({ service }: ServiceCardProps) {
-  const typedDisplayFields: DisplayFieldConfig<Service>[] = SERVICE_DISPLAY_FIELDS as any
-
-  // Creăm o descriere mai bogată pentru card
-  const description = `${service.duration_minutes} min • ${Math.round(service.price)} ${DEFAULT_CURRENCY_SYMBOL}`
-
-  return (
-    <GenericDisplayCard<Service>
-      entity={service}
-      displayFieldsConfig={typedDisplayFields}
-      EditDialog={EditServiceDialog}
-      deleteAction={deleteServiceAction}
-      cardTitle={service.name}
-      cardDescription={description} // Folosim descrierea creată
-      // Un serviciu nu are avatar, deci nu pasăm `avatarUrl` sau `entityInitials`
-      // Mutăm badge-ul de status în header-ul cardului pentru vizibilitate maximă
-      headerActions={<ActiveBadge isActive={service.is_active} />}
-    />
-  )
-}
+// Nu uita să imporți iconița Trash2
+import { Trash2 } from 'lucide-react'

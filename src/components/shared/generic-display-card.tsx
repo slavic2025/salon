@@ -2,13 +2,13 @@
 'use client'
 
 import React from 'react'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/atoms/card'
 import { GenericDeleteDialog } from './generic-delete-dialog'
 import { DisplayFieldConfig, DisplayItem } from './display-card-types'
 import { ActionResponse } from '@/types/actions.types'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/atoms/button'
 import { Pencil, Trash2 } from 'lucide-react'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/atoms/avatar'
 
 interface GenericDisplayCardProps<T extends DisplayItem> {
   entity: T

@@ -2,7 +2,7 @@
 'use client'
 import { StylistCard } from './stylist-card' // Importă componenta StylistCard
 import { createLogger } from '@/lib/logger'
-import { EmptyState } from '@/components/ui/empty-state'
+import { EmptyState } from '@/components/molecules/empty-state'
 import { Stylist } from '@/core/domains/stylists/stylist.types'
 
 const logger = createLogger('StylistCardView') // Noul nume pentru logger

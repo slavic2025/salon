@@ -2,9 +2,9 @@
 'use client'
 
 import { useRef } from 'react'
-import { Button } from '@/components/ui/button'
-import { DialogFooter } from '@/components/ui/dialog'
-import { SubmitButton } from '@/components/ui/submit-button'
+import { Button } from '@/components/atoms/button'
+import { DialogFooter } from '@/components/atoms/dialog'
+import { SubmitButton } from '@/components/molecules/submit-button'
 import { INITIAL_FORM_STATE, ActionResponse } from '@/types/actions.types'
 import { GenericFormFields } from '@/components/shared/generic-form-fields'
 import { getOfferedServiceFormFields } from './offered-service-form-fields'
@@ -54,7 +54,9 @@ export function AddOfferedServiceForm({
         <Button type="button" variant="outline" onClick={onCancel} disabled={isPending}>
           Anulează
         </Button>
-        <SubmitButton idleText="Adaugă Serviciu Oferit" pendingText="Se adaugă..." disabled={isPending} />
+        <SubmitButton isPending={isPending} pendingText="Se adaugă...">
+          Adaugă Serviciu Oferit
+        </SubmitButton>
       </DialogFooter>
     </form>
   )

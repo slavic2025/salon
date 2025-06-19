@@ -2,7 +2,7 @@
 'use client'
 
 import { GenericDisplayCard } from '@/components/shared/generic-display-card'
-import { ActiveBadge } from '@/components/ui/active-badge'
+import { ActiveBadge } from '@/components/molecules/active-badge'
 import { ServiceOffered } from '@/core/domains/services-offered/services-offered.types'
 import { deleteOfferedServiceAction } from '@/features/services-offered/actions'
 import { EditOfferedServiceDialog } from './edit-offered-service-dialog'

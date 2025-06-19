@@ -1,4 +1,4 @@
-import { EmptyState } from '@/components/ui/empty-state'
+import { EmptyState } from '@/components/molecules/empty-state'
 import { AlertCircle } from 'lucide-react'
 import { StylistHeader } from './stylist-header'
 

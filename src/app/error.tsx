@@ -3,7 +3,7 @@
 
 import { useEffect } from 'react'
 import { XCircle } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/atoms/button'
 import { createLogger } from '@/lib/logger' // Asigură-te că și logger-ul este disponibil global
 
 interface ErrorPageProps {

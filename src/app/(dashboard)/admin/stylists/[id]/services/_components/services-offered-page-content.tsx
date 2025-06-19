@@ -9,7 +9,7 @@ import { GenericTableView } from '@/components/shared/generic-table-view'
 import { OFFERED_SERVICE_TABLE_HEADERS } from './offered-service-table-headers'
 import { OfferedServiceTableRow } from './offered-service-table-row'
 import { ServiceOfferedCardView } from './service-offered-card-view' // Importăm noua componentă
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/atoms/button'
 import { PlusIcon } from 'lucide-react'
 
 interface ServicesOfferedPageContentProps {

@@ -2,9 +2,9 @@
 'use client'
 
 import { useRef } from 'react'
-import { Button } from '@/components/ui/button'
-import { DialogFooter } from '@/components/ui/dialog'
-import { SubmitButton } from '@/components/ui/submit-button'
+import { Button } from '@/components/atoms/button'
+import { DialogFooter } from '@/components/atoms/dialog'
+import { SubmitButton } from '@/components/molecules/submit-button'
 import { INITIAL_FORM_STATE } from '@/types/actions.types'
 import { addStylistAction } from '@/features/stylists/actions'
 import { useActionForm } from '@/hooks/useActionForm'
@@ -38,7 +38,9 @@ export function AddStylistForm({ onSuccess, onCancel }: AddStylistFormProps) {
         <Button type="button" variant="outline" onClick={onCancel} disabled={isPending}>
           Anulează
         </Button>
-        <SubmitButton idleText="Adaugă Stilist" pendingText="Se adaugă..." disabled={isPending} />
+        <SubmitButton isPending={isPending} pendingText="Se adaugă...">
+          Adaugă Stilist
+        </SubmitButton>
       </DialogFooter>
     </form>
   )

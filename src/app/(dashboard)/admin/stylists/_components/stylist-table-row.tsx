@@ -1,16 +1,16 @@
 // src/app/(dashboard)/admin/stylists/_components/stylist-table-row.tsx
 'use client'
 import Link from 'next/link'
-import { TableCell, TableRow } from '@/components/ui/table'
+import { TableCell, TableRow } from '@/components/atoms/table'
 import { EditStylistDialog } from './edit-stylist-dialog'
-import { ActiveBadge } from '@/components/ui/active-badge'
-import { buttonVariants } from '@/components/ui/button'
+import { ActiveBadge } from '@/components/molecules/active-badge'
+import { buttonVariants } from '@/components/atoms/button'
 import { Pencil, Scissors, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Stylist } from '@/core/domains/stylists/stylist.types'
 import { deleteStylistAction } from '@/features/stylists/actions'
 import { GenericDeleteDialog } from '@/components/shared/generic-delete-dialog'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/atoms/button'
 // CORECȚIA 1: Importăm noua componentă
 import { ResetPasswordButton } from './reset-password-button'
 

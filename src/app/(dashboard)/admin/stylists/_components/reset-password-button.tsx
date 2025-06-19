@@ -4,7 +4,7 @@
 import React, { useEffect } from 'react'
 import { useFormState, useFormStatus } from 'react-dom'
 import { toast } from 'sonner'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/atoms/button'
 import { KeyRound } from 'lucide-react'
 import { resetPasswordAction } from '@/features/stylists/actions'
 

@@ -1,15 +1,15 @@
 // src/app/(dashboard)/admin/stylists/[id]/services/_components/offered-service-table-row.tsx
 'use client'
 
-import { TableCell, TableRow } from '@/components/ui/table'
-import { ActiveBadge } from '@/components/ui/active-badge'
+import { TableCell, TableRow } from '@/components/atoms/table'
+import { ActiveBadge } from '@/components/molecules/active-badge'
 import { EditOfferedServiceDialog } from './edit-offered-service-dialog'
 import { GenericDeleteDialog } from '@/components/shared/generic-delete-dialog'
 import { deleteOfferedServiceAction } from '@/features/services-offered/actions'
 import { ServiceOffered } from '@/core/domains/services-offered/services-offered.types'
 import { Tables } from '@/types/database.types'
 import { DEFAULT_CURRENCY_SYMBOL } from '@/lib/constants'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/atoms/button'
 import { Pencil, Trash2 } from 'lucide-react'
 
 interface OfferedServiceTableRowProps {

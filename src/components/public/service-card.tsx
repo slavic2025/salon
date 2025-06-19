@@ -1,7 +1,7 @@
 // src/components/public/service-card.tsx
 
 import { Service } from '@/core/domains/services/service.types'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/atoms/card'
 import { Clock, Tag } from 'lucide-react'
 import Image from 'next/image'
 

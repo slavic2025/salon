@@ -2,10 +2,10 @@
 'use client'
 import { WorkSchedule } from '@/core/domains/work-schedules/work-schedule.types'
 import { AddWorkScheduleDialog } from './add-work-schedule-dialog'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/atoms/card'
 import { GenericDeleteDialog } from '@/components/shared/generic-delete-dialog'
 import { Trash2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/atoms/button'
 import { deleteWorkScheduleAction } from '@/features/schedule/actions'
 
 const weekdays = ['Duminică', 'Luni', 'Marți', 'Miercuri', 'Joi', 'Vineri', 'Sâmbătă']

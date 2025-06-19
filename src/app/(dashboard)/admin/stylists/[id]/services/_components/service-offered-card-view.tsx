@@ -1,7 +1,7 @@
 // src/app/(dashboard)/admin/stylists/[id]/services/_components/service-offered-card-view.tsx
 'use client'
 
-import { EmptyState } from '@/components/ui/empty-state'
+import { EmptyState } from '@/components/molecules/empty-state'
 import { ServiceOffered } from '@/core/domains/services-offered/services-offered.types'
 import { ServiceOfferedCard } from './service-offered-card'
 import { Tables } from '@/types/database.types'

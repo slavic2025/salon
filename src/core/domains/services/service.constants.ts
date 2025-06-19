@@ -70,10 +70,26 @@ const PATHS = {
   },
 } as const
 
+const FORM_DEFAULTS = {
+  DURATION_MINUTES: 30,
+  PRICE: 50,
+  IS_ACTIVE: true,
+} as const
+
+const FORM_CONSTRAINTS = {
+  PRICE: { MIN: 0, MAX: 10000 },
+  DURATION: { MIN: 1, MAX: 480 },
+  NAME_MAX_LENGTH: 100,
+  DESCRIPTION_MAX_LENGTH: 500,
+  CATEGORY_MAX_LENGTH: 50,
+} as const
+
 // Exportăm un singur obiect care conține toate constantele domeniului 'services'
 export const SERVICE_CONSTANTS = {
   CATEGORIES,
   STATUS,
   MESSAGES,
   PATHS,
+  FORM_DEFAULTS,
+  FORM_CONSTRAINTS,
 } as const

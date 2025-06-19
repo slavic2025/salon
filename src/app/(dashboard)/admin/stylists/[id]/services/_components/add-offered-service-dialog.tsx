@@ -2,7 +2,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/atoms/button'
 import { PlusCircle } from 'lucide-react'
 import {
   Dialog,
@@ -11,7 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from '@/components/atoms/dialog'
 import { AddOfferedServiceForm } from './add-offered-service-form'
 import { Tables } from '@/types/database.types'
 

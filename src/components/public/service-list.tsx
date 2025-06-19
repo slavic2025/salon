@@ -2,7 +2,7 @@
 
 import { Service } from '@/core/domains/services/service.types'
 
-import { EmptyState } from '@/components/ui/empty-state'
+import { EmptyState } from '@/components/molecules/empty-state'
 import { ServiceCard } from './service-card'
 
 interface ServiceListProps {

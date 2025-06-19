@@ -1,57 +1,34 @@
-// src/app/(dashboard)/admin/services/_components/services-page-content.tsx
 'use client'
 
-import { createLogger } from '@/lib/logger'
-import { AddServiceDialog } from './add-service-dialog'
-import { GenericTableView } from '@/components/shared/generic-table-view'
-import { ServiceTableRow } from './service-table-row'
-import { SERVICE_TABLE_HEADERS } from './service-table-headers'
 import { Service } from '@/core/domains/services/service.types'
-import { ServiceCardView } from './service-card-view' // Vom presupune că acest component există
-import { Button } from '@/components/ui/button'
-import { PlusIcon } from 'lucide-react'
-
-const logger = createLogger('ServicesPageContent')
+import { AddServiceDialog } from './add-service-dialog'
+import { ServiceCard } from './service-card'
+import { EmptyState } from '@/components/molecules/empty-state'
 
 interface ServicesPageContentProps {
   services: Service[]
 }
 
 export function ServicesPageContent({ services }: ServicesPageContentProps) {
-  logger.debug('Rendering ServicesPageContent', { numServices: services.length })
-
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Gestionare Servicii</h1>
-        {/* Butonul clasic, vizibil doar pe desktop */}
-        <div className="hidden md:block">
-          <AddServiceDialog />
-        </div>
+    <div className="p-4 md:p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Management Servicii</h1>
+        <AddServiceDialog />
       </div>
 
-      <GenericTableView
-        data={services}
-        headers={SERVICE_TABLE_HEADERS}
-        renderRow={(service) => <ServiceTableRow key={service.id} service={service} />}
-        emptyMessage="Nu există servicii adăugate încă."
-        tableHeadingId="services-table-heading"
-        tableHeadingText="Tabel cu servicii"
-      />
-
-      <ServiceCardView services={services} />
-
-      {/* Butonul Flotant (FAB), vizibil doar pe mobil */}
-      <div className="md:hidden">
-        <AddServiceDialog
-          trigger={
-            <Button className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg">
-              <PlusIcon className="h-6 w-6" />
-              <span className="sr-only">Adaugă Serviciu Nou</span>
-            </Button>
-          }
+      {services.length === 0 ? (
+        <EmptyState
+          title="Niciun Serviciu Găsit"
+          description="Momentan nu ai niciun serviciu adăugat. Apasă butonul de mai sus pentru a crea primul serviciu."
         />
-      </div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {services.map((service) => (
+            <ServiceCard key={service.id} service={service} />
+          ))}
+        </div>
+      )}
     </div>
   )
 }

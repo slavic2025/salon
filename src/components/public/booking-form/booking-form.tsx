@@ -1,7 +1,7 @@
 // src/components/public/booking-form/booking-form.tsx
 'use client'
 
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/components/atoms/card'
 import type { Service } from '@/core/domains/services/service.types'
 import { StepIndicator } from './step-indicator'
 import { ServiceStep } from './steps/service-step'

@@ -1,5 +1,5 @@
 // app/admin/page.tsx
-import { Heading } from '@/components/ui/heading'
+import { Heading } from '@/components/atoms/heading'
 
 export default function AdminDashboardPage() {
   return (

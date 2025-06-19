@@ -1,60 +1,57 @@
-// src/app/(dashboard)/admin/services/_components/service-table-row.tsx
 'use client'
 
-import { TableCell, TableRow } from '@/components/ui/table'
-import { EditServiceDialog } from './edit-service-dialog'
-import { DEFAULT_CURRENCY_SYMBOL } from '@/lib/constants'
-import { ActiveBadge } from '@/components/ui/active-badge'
-import { Service } from '@/core/domains/services/service.types'
-import { deleteServiceAction } from '@/features/services/actions'
-import { GenericDeleteDialog } from '@/components/shared/generic-delete-dialog'
-import { Button } from '@/components/ui/button'
+import { TableCell, TableRow } from '@/components/atoms/table'
+import { Button } from '@/components/atoms/button'
 import { Pencil, Trash2 } from 'lucide-react'
+import { ActiveBadge } from '@/components/molecules/active-badge'
+import { EditServiceDialog } from './edit-service-dialog'
+import { DeleteConfirmationDialog } from '@/components/molecules/delete-confirmation-dialog'
+import { formatCurrency } from '@/lib/formatters'
+import { deleteServiceAction } from '@/features/services/actions'
+import type { Service } from '@/core/domains/services/service.types'
 
 interface ServiceTableRowProps {
   service: Service
 }
 
 export function ServiceTableRow({ service }: ServiceTableRowProps) {
-  // Am eliminat logica `useActionState` de aici, deoarece este gestionată de GenericDeleteDialog
   return (
     <TableRow>
       <TableCell className="font-medium">{service.name}</TableCell>
-      <TableCell className="max-w-xs truncate" title={service.description || ''}>
+      <TableCell className="max-w-xs truncate" title={service.description ?? ''}>
         {service.description || '-'}
       </TableCell>
+      <TableCell className="text-right">{service.duration_minutes} min</TableCell>
 
-      {/* Aliniem la dreapta celulele numerice */}
-      <TableCell className="text-right">{service.duration_minutes}</TableCell>
-      <TableCell className="text-right">
-        {service.price} {DEFAULT_CURRENCY_SYMBOL}
-      </TableCell>
+      {/* Folosim helper-ul pentru a formata prețul */}
+      <TableCell className="text-right">{formatCurrency(service.price)}</TableCell>
 
       <TableCell>{service.category || '-'}</TableCell>
-
-      {/* Aliniem la centru conținutul celulei "Activ" */}
       <TableCell className="text-center">
         <ActiveBadge isActive={service.is_active} />
       </TableCell>
+      <TableCell>
+        <div className="flex items-center justify-end gap-2">
+          <EditServiceDialog service={service} />
 
-      {/* Folosim flexbox pentru a alinia și spația butoanele */}
-      <TableCell className="flex items-center justify-end gap-2">
-        <EditServiceDialog entity={service}>
-          <Button variant="outline" size="sm" className="flex items-center gap-1.5">
-            <Pencil className="h-4 w-4" /> Editează
-          </Button>
-        </EditServiceDialog>
-
-        <GenericDeleteDialog
-          deleteAction={deleteServiceAction}
-          entityId={service.id}
-          entityName={service.name}
-          trigger={
-            <Button variant="destructive" size="sm" className="flex items-center gap-1.5">
-              <Trash2 className="h-4 w-4" /> Șterge
-            </Button>
-          }
-        />
+          {/* Utilizarea noului dialog compus. Este mult mai declarativ. */}
+          <DeleteConfirmationDialog action={deleteServiceAction} itemId={service.id}>
+            <DeleteConfirmationDialog.Trigger asChild>
+              <Button variant="destructive" size="icon">
+                <Trash2 className="h-4 w-4" />
+                <span className="sr-only">Șterge</span>
+              </Button>
+            </DeleteConfirmationDialog.Trigger>
+            <DeleteConfirmationDialog.Content>
+              <DeleteConfirmationDialog.Header>
+                <DeleteConfirmationDialog.Title>Confirmă Ștergerea</DeleteConfirmationDialog.Title>
+                <DeleteConfirmationDialog.Description>
+                  Ești sigur că vrei să ștergi serviciul "{service.name}"? Această acțiune este ireversibilă.
+                </DeleteConfirmationDialog.Description>
+              </DeleteConfirmationDialog.Header>
+            </DeleteConfirmationDialog.Content>
+          </DeleteConfirmationDialog>
+        </div>
       </TableCell>
     </TableRow>
   )

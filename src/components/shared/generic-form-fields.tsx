@@ -1,11 +1,11 @@
 // src/components/shared/generic-form-fields.tsx
 'use client'
 
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Input } from '@/components/atoms/input'
+import { Label } from '@/components/atoms/label'
+import { Checkbox } from '@/components/atoms/checkbox'
+import { Textarea } from '@/components/atoms/textarea'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/atoms/select'
 import { FormFieldConfig } from './form-fields-types'
 import { ActionResponse } from '@/types/actions.types'
 import React, { useState, useEffect } from 'react'

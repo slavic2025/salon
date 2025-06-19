@@ -2,9 +2,9 @@
 'use client'
 
 import { useRef } from 'react'
-import { Button } from '@/components/ui/button'
-import { DialogFooter } from '@/components/ui/dialog'
-import { SubmitButton } from '@/components/ui/submit-button'
+import { Button } from '@/components/atoms/button'
+import { DialogFooter } from '@/components/atoms/dialog'
+import { SubmitButton } from '@/components/molecules/submit-button'
 import { StylistFormFields } from './stylist-form-fields'
 import { INITIAL_FORM_STATE } from '@/types/actions.types'
 import { useActionForm } from '@/hooks/useActionForm'
@@ -43,7 +43,9 @@ export function EditStylistForm({ entity, onSuccess }: EditStylistFormProps) {
         <Button type="button" variant="outline" disabled={isPending} onClick={onSuccess}>
           Anulează
         </Button>
-        <SubmitButton idleText="Salvează modificările" pendingText="Se salvează..." disabled={isPending} />
+        <SubmitButton isPending={isPending} pendingText="Se salvează...">
+          Salvează modificările
+        </SubmitButton>
       </DialogFooter>
     </form>
   )

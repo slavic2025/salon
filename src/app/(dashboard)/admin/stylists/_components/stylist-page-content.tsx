@@ -8,7 +8,7 @@ import { StylistTableRow } from './stylist-table-row'
 import { STYLIST_TABLE_HEADERS } from './stylist-table-headers'
 import { StylistCardView } from './stylist-card-view'
 import { Stylist } from '@/core/domains/stylists/stylist.types'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/atoms/button'
 import { PlusIcon } from 'lucide-react'
 
 const logger = createLogger('StylistsPageContent')

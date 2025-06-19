@@ -1,8 +1,8 @@
 // components/shared/generic-table-item-row.tsx
 'use client' // Aceasta componentă este client-side din cauza useFormState și useEffect
 
-import { TableCell, TableRow } from '@/components/ui/table'
-import { SubmitButton } from '@/components/ui/submit-button'
+import { TableCell, TableRow } from '@/components/atoms/table'
+import { SubmitButton } from '@/components/molecules/submit-button'
 import React, { useEffect } from 'react'
 import { useFormState } from 'react-dom'
 import { toast } from 'sonner' // Importăm direct toast din sonner
