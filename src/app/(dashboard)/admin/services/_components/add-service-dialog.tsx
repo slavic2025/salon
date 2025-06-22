@@ -46,7 +46,6 @@ export function AddServiceDialog() {
         <DialogHeader>
           <DialogTitle>Adaugă un serviciu nou</DialogTitle>
         </DialogHeader>
-        {/* Randăm organismul nostru reutilizabil `ServiceForm` */}
         <ServiceForm isPending={isFormPending} onSubmit={handleFormSubmit} className="grid gap-4 py-4" />
       </DialogContent>
     </Dialog>

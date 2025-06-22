@@ -1,8 +1,9 @@
-// src/app/(dashboard)/admin/stylists/_components/add-stylist-dialog.tsx
 'use client'
 
-import { useState } from 'react'
-import { Button } from '@/components/atoms/button'
+import { useState, useTransition, type ReactNode } from 'react'
+import { useActionForm } from '@/hooks/useActionForm'
+import { addStylistAction } from '@/features/stylists/actions'
+import { objectToFormData } from '@/lib/form-utils'
 import {
   Dialog,
   DialogContent,
@@ -11,30 +12,44 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/atoms/dialog'
-import { AddStylistForm } from './add-stylist-form'
-import React from 'react'
+import { StylistForm } from '@/components/organisms/StylistForm'
+import type { CreateStylistInput } from '@/core/domains/stylists/stylist.types'
+import { Button } from '@/components/atoms/button'
+import { PlusCircle } from 'lucide-react'
 
-// 1. Definim o interfață pentru proprietățile componentei
-interface AddStylistDialogProps {
-  trigger?: React.ReactNode
-}
+export function AddStylistDialog() {
+  const [isOpen, setIsOpen] = useState(false)
+  const [isTransitionPending, startTransition] = useTransition()
 
-// 2. Primim `trigger` ca prop în componentă
-export function AddStylistDialog({ trigger }: AddStylistDialogProps) {
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const { formSubmit, isPending: isActionPending } = useActionForm({
+    action: addStylistAction,
+    initialState: { success: false },
+    onSuccess: () => setIsOpen(false),
+  })
+
+  const handleFormSubmit = (values: CreateStylistInput) => {
+    const formData = objectToFormData(values)
+    startTransition(() => {
+      formSubmit(formData)
+    })
+  }
+
+  const isFormPending = isActionPending || isTransitionPending
 
   return (
-    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        {/* 3. Folosim trigger-ul custom dacă este furnizat, altfel afișăm butonul default */}
-        {trigger || <Button>Adaugă Stilist Nou</Button>}
+        <Button>
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Adaugă Stilist
+        </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Adaugă Stilist Nou</DialogTitle>
           <DialogDescription>Completează detaliile pentru noul stilist.</DialogDescription>
         </DialogHeader>
-        <AddStylistForm onSuccess={() => setIsDialogOpen(false)} onCancel={() => setIsDialogOpen(false)} />
+        <StylistForm isPending={isFormPending} onSubmit={handleFormSubmit} />
       </DialogContent>
     </Dialog>
   )

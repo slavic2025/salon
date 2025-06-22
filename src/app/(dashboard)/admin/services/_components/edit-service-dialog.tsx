@@ -6,7 +6,14 @@ import { useActionForm } from '@/hooks/useActionForm'
 import { editServiceAction } from '@/features/services/actions'
 import { objectToFormData } from '@/lib/form-utils'
 import { Button } from '@/components/atoms/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/atoms/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogDescription,
+} from '@/components/atoms/dialog'
 import { ServiceForm } from '@/components/organisms/ServiceForm'
 import { type Service, type CreateServiceInput } from '@/core/domains/services/service.types'
 import { Pencil } from 'lucide-react'
@@ -17,8 +24,6 @@ interface EditServiceDialogProps {
 
 export function EditServiceDialog({ service }: EditServiceDialogProps) {
   const [isOpen, setIsOpen] = useState(false)
-
-  // Pasul 2: Inițializăm hook-ul `useTransition`
   const [isTransitionPending, startTransition] = useTransition()
 
   const { formSubmit, isPending: isActionPending } = useActionForm({
@@ -36,13 +41,11 @@ export function EditServiceDialog({ service }: EditServiceDialogProps) {
     }
     const formData = objectToFormData(payload)
 
-    // Pasul 3: Împachetăm apelul la acțiune în `startTransition`
     startTransition(() => {
       formSubmit(formData)
     })
   }
 
-  // Combinăm cele două stări de pending pentru o reflectare corectă în UI
   const isFormPending = isActionPending || isTransitionPending
 
   return (
@@ -56,13 +59,9 @@ export function EditServiceDialog({ service }: EditServiceDialogProps) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Editează Serviciul</DialogTitle>
+          <DialogDescription>Completează formularul pentru a edita serviciul.</DialogDescription>
         </DialogHeader>
-        <ServiceForm
-          // Pasăm starea de pending combinată către formular
-          isPending={isFormPending}
-          initialData={service}
-          onSubmit={handleFormSubmit}
-        />
+        <ServiceForm isPending={isFormPending} initialData={service} onSubmit={handleFormSubmit} />
       </DialogContent>
     </Dialog>
   )

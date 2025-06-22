@@ -1,54 +1,96 @@
+'use client'
+
 import { useState } from 'react'
 import { Button } from '@/components/atoms/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/atoms/card'
 import { Input } from '@/components/atoms/input'
 import { Label } from '@/components/atoms/label'
-import { Loader2, ArrowLeft } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
-import type { BookingFormData } from '../types'
+import { useBookingStore } from '@/stores/use-booking-store'
+import { addAppointmentAction } from '@/features/appointments/actions'
 import { DEFAULT_CURRENCY_SYMBOL } from '@/lib/constants'
 
-interface ConfirmStepProps {
-  data: BookingFormData
-  onBack: () => void
-  onSubmit: (contact: BookingFormData['contact']) => void
+interface ContactInfo {
+  name: string
+  email: string
+  phone: string
 }
 
-export function ConfirmStep({ data, onBack, onSubmit }: ConfirmStepProps) {
-  const [contact, setContact] = useState(data.contact)
+export function ConfirmStep() {
+  const { formData, prevStep, resetBooking } = useBookingStore()
+  const [contact, setContact] = useState<ContactInfo>({
+    name: '',
+    email: '',
+    phone: '',
+  })
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Verificăm dacă avem toate datele necesare
+  if (!formData.service || !formData.stylist || !formData.date || !formData.time) {
+    return (
+      <div className="text-center">
+        <p className="text-red-600 mb-4">Date incomplete pentru programare</p>
+        <button onClick={prevStep} className="text-indigo-600 hover:text-indigo-800">
+          ← Înapoi
+        </button>
+      </div>
+    )
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
 
     try {
-      // Validare simplă
+      // Validare
       if (!contact.name || !contact.email || !contact.phone) {
         toast.error('Te rugăm să completezi toate câmpurile de contact.')
         return
       }
 
-      await onSubmit(contact)
+      const payload = {
+        serviceId: formData.service!.id,
+        stylistId: formData.stylist!.id,
+        date: formData.date!.toISOString().split('T')[0], // YYYY-MM-DD format
+        time: formData.time!,
+        duration: formData.service!.duration_minutes,
+        clientName: contact.name,
+        clientEmail: contact.email,
+        clientPhone: contact.phone,
+      }
+
+      // Convertim payload-ul în FormData
+      const formDataToSend = new FormData()
+      Object.entries(payload).forEach(([key, value]) => {
+        formDataToSend.append(key, String(value))
+      })
+
+      const result = await addAppointmentAction({ success: false }, formDataToSend)
+
+      if (result.success) {
+        toast.success('Programarea ta a fost trimisă!', {
+          description: result.message || 'Vei primi un email de confirmare în curând.',
+        })
+        resetBooking()
+      } else {
+        toast.error('A apărut o eroare', {
+          description: result.message || 'Te rugăm să încerci din nou.',
+        })
+      }
     } catch (error) {
-      toast.error('A apărut o eroare la procesarea programării.')
+      console.error('Error submitting booking:', error)
+      toast.error('Eroare neașteptată', {
+        description: 'A apărut o problemă tehnică. Te rugăm să încerci din nou mai târziu.',
+      })
     } finally {
       setIsSubmitting(false)
     }
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h3 className="text-lg font-semibold leading-6 text-gray-900">Sumar și Confirmare</h3>
-          <p className="mt-1 text-sm text-gray-500">Verifică detaliile și completează informațiile de contact</p>
-        </div>
-        <Button variant="outline" onClick={onBack}>
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Înapoi
-        </Button>
-      </div>
+    <div>
+      <h3 className="text-xl font-semibold mb-4">Pasul 4: Confirmă programarea</h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <Card>
@@ -58,16 +100,16 @@ export function ConfirmStep({ data, onBack, onSubmit }: ConfirmStepProps) {
           <CardContent className="space-y-4 text-sm">
             <div className="flex justify-between">
               <span className="text-gray-500">Serviciu:</span>
-              <span className="font-medium">{data.service?.name}</span>
+              <span className="font-medium">{formData.service.name}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-500">Stilist:</span>
-              <span className="font-medium">{data.stylist?.full_name}</span>
+              <span className="font-medium">{formData.stylist.full_name}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-500">Data:</span>
               <span className="font-medium">
-                {data.date?.toLocaleDateString('ro-RO', {
+                {formData.date.toLocaleDateString('ro-RO', {
                   weekday: 'long',
                   year: 'numeric',
                   month: 'long',
@@ -77,12 +119,12 @@ export function ConfirmStep({ data, onBack, onSubmit }: ConfirmStepProps) {
             </div>
             <div className="flex justify-between">
               <span className="text-gray-500">Ora:</span>
-              <span className="font-medium">{data.time}</span>
+              <span className="font-medium">{formData.time}</span>
             </div>
             <div className="flex justify-between border-t pt-4">
               <span className="font-semibold">Total:</span>
               <span className="font-semibold text-indigo-600">
-                {data.service?.price} {DEFAULT_CURRENCY_SYMBOL}
+                {formData.service.price} {DEFAULT_CURRENCY_SYMBOL}
               </span>
             </div>
           </CardContent>

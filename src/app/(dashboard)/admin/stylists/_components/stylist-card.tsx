@@ -1,25 +1,22 @@
-// src/app/(dashboard)/admin/stylists/_components/stylist-card.tsx
 'use client'
 
 import Link from 'next/link'
-import { EditStylistDialog } from './edit-stylist-dialog'
-import { STYLIST_DISPLAY_FIELDS } from './stylist-display-fields'
-import { GenericDisplayCard } from '@/components/shared/generic-display-card'
-import { DisplayFieldConfig } from '@/components/shared/display-card-types'
-import { buttonVariants } from '@/components/atoms/button'
-import { Scissors } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { Stylist } from '@/core/domains/stylists/stylist.types'
-import { deleteStylistAction } from '@/features/stylists/actions'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/atoms/card'
+import { Button, buttonVariants } from '@/components/atoms/button'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/atoms/avatar'
 import { ActiveBadge } from '@/components/molecules/active-badge'
+import { EditStylistDialog } from './edit-stylist-dialog'
+import { DeleteConfirmationDialog } from '@/components/molecules/delete-confirmation-dialog'
+import { deleteStylistAction } from '@/features/stylists/actions'
+import { Mail, Phone, Scissors, Trash2 } from 'lucide-react'
+import type { Stylist } from '@/core/domains/stylists/stylist.types'
 
 interface StylistCardProps {
   stylist: Stylist
 }
 
 export function StylistCard({ stylist }: StylistCardProps) {
-  const displayFields = STYLIST_DISPLAY_FIELDS.filter((field) => field.id !== 'is_active')
-  const typedDisplayFields: DisplayFieldConfig<Stylist>[] = displayFields as any
   const initials = stylist.full_name
     .split(' ')
     .map((n) => n[0])
@@ -28,25 +25,62 @@ export function StylistCard({ stylist }: StylistCardProps) {
     .toUpperCase()
 
   return (
-    <GenericDisplayCard<Stylist>
-      entity={stylist}
-      displayFieldsConfig={typedDisplayFields}
-      EditDialog={EditStylistDialog}
-      deleteAction={deleteStylistAction}
-      cardTitle={stylist.full_name}
-      cardDescription={stylist.email}
-      avatarUrl={stylist.profile_picture}
-      entityInitials={initials}
-      headerActions={<ActiveBadge isActive={stylist.is_active} />}
-      renderCustomActions={(entity) => (
-        <Link
-          href={`/admin/stylists/${entity.id}/services`}
-          className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'flex items-center gap-1.5')}
-        >
-          <Scissors className="h-4 w-4" />
-          Servicii
-        </Link>
-      )}
-    />
+    <Card>
+      <CardHeader>
+        <div className="flex justify-between items-start">
+          <div className="flex items-center gap-4">
+            <Avatar>
+              <AvatarImage src={stylist.profile_picture ?? undefined} alt={`Poza lui ${stylist.full_name}`} />
+              <AvatarFallback>{initials}</AvatarFallback>
+            </Avatar>
+            <div>
+              <CardTitle>{stylist.full_name}</CardTitle>
+              <CardDescription>Stilist</CardDescription>
+            </div>
+          </div>
+          <ActiveBadge isActive={stylist.is_active} />
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="text-sm text-muted-foreground space-y-2">
+          <div className="flex items-center gap-2">
+            <Mail className="h-4 w-4" />
+            <span>{stylist.email}</span>
+          </div>
+          {stylist.phone && (
+            <div className="flex items-center gap-2">
+              <Phone className="h-4 w-4" />
+              <span>{stylist.phone}</span>
+            </div>
+          )}
+        </div>
+        <div className="flex justify-end items-center gap-2 pt-4 border-t">
+          <Link
+            href={`/admin/stylists/${stylist.id}/services`}
+            className={cn(buttonVariants({ variant: 'outline', size: 'sm' }))}
+          >
+            <Scissors className="mr-2 h-4 w-4" />
+            Servicii
+          </Link>
+          <EditStylistDialog stylist={stylist} />
+          <DeleteConfirmationDialog action={deleteStylistAction} itemId={stylist.id}>
+            <DeleteConfirmationDialog.Trigger asChild>
+              <Button variant="destructive" size="icon" aria-label="Șterge Stilistul">
+                <Trash2 className="h-4 w-4" />
+                <span className="sr-only">Șterge Stilistul</span>
+              </Button>
+            </DeleteConfirmationDialog.Trigger>
+            <DeleteConfirmationDialog.Content>
+              <DeleteConfirmationDialog.Header>
+                <DeleteConfirmationDialog.Title>Confirmă Ștergerea</DeleteConfirmationDialog.Title>
+                <DeleteConfirmationDialog.Description>
+                  Ești sigur că vrei să ștergi stilistul "{stylist.full_name}"? Această acțiune este ireversibilă.
+                </DeleteConfirmationDialog.Description>
+              </DeleteConfirmationDialog.Header>
+            </DeleteConfirmationDialog.Content>
+          </DeleteConfirmationDialog>
+        </div>
+      </CardContent>
+    </Card>
   )
 }

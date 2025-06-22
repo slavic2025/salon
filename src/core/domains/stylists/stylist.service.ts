@@ -4,8 +4,15 @@ import { createLogger } from '@/lib/logger'
 import { AppError, UniquenessError } from '@/lib/errors'
 import { createAdminClient } from '@/lib/supabase-admin'
 import { createStylistRepository } from './stylist.repository'
-import { createStylistSchema, updateStylistSchema, type Stylist, type StylistUpdatePayload } from './stylist.types'
+import {
+  createStylistFormSchema,
+  StylistCreateData,
+  updateStylistSchema,
+  type Stylist,
+  type StylistUpdatePayload,
+} from './stylist.types'
 import { STYLIST_CONSTANTS } from './stylist.constants'
+import { getDefaultAvatarUrl, uploadImage } from '@/lib/storage-service'
 
 type StylistRepository = ReturnType<typeof createStylistRepository>
 
@@ -56,34 +63,39 @@ export function createStylistService(repository: StylistRepository) {
     /**
      * Orchestrează crearea completă a unui stilist: cont de autentificare + profil de stilist.
      */
-    async createStylist(input: Record<string, unknown>): Promise<Stylist> {
-      logger.debug('Creating a new stylist from invitation...')
-      const payload = createStylistSchema.parse(input)
+    async createAndInviteStylist(input: Record<string, unknown>): Promise<Stylist> {
+      logger.debug('Creating and inviting a new stylist...')
 
-      await _checkUniqueness({ email: payload.email })
+      const { profile_picture, ...formData } = createStylistFormSchema.parse(input)
+      await _checkUniqueness({ email: formData.email })
 
       const supabaseAdmin = createAdminClient()
       const {
         data: { user },
-        error: creationError,
-      } = await supabaseAdmin.auth.admin.createUser({
-        email: payload.email,
-        email_confirm: true,
-      })
+        error: inviteError,
+      } = await supabaseAdmin.auth.admin.inviteUserByEmail(formData.email)
 
-      if (creationError || !user) {
-        throw new AppError(STYLIST_CONSTANTS.MESSAGES.ERROR.AUTH.CREATE_USER_FAILED, creationError)
+      if (inviteError || !user) {
+        throw new AppError(STYLIST_CONSTANTS.MESSAGES.ERROR.AUTH.CREATE_USER_FAILED, inviteError)
+      }
+
+      let imageUrl = getDefaultAvatarUrl()
+      if (profile_picture && profile_picture.size > 0) {
+        imageUrl = await uploadImage(profile_picture, `stylist-${user.id}`)
+      }
+
+      const dbPayload: StylistCreateData = {
+        id: user.id,
+        full_name: formData.full_name,
+        email: formData.email,
+        phone: formData.phone,
+        description: formData.description,
+        profile_picture: imageUrl,
       }
 
       try {
-        const newStylist = await repository.create({
-          full_name: payload.full_name,
-          email: payload.email,
-          phone: payload.phone,
-          description: payload.description,
-          is_active: payload.is_active,
-        })
-        // Aici ai putea trimite un email de bun venit, separat de cel de invitație de la Supabase
+        const newStylist = await repository.create(dbPayload)
+        logger.info(`Stylist profile and data created successfully for user ${user.id}`)
         return newStylist
       } catch (repoError) {
         logger.error('Stylist data creation failed, rolling back auth user...', { userId: user.id })

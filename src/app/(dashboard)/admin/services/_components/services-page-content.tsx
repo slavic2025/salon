@@ -1,9 +1,10 @@
 'use client'
 
-import { Service } from '@/core/domains/services/service.types'
+import { type Service } from '@/core/domains/services/service.types'
 import { AddServiceDialog } from './add-service-dialog'
-import { ServiceCard } from './service-card'
 import { EmptyState } from '@/components/molecules/empty-state'
+import { ServiceCardView } from './service-card-view'
+import { ServicesTable } from './services-table'
 
 interface ServicesPageContentProps {
   services: Service[]
@@ -19,15 +20,21 @@ export function ServicesPageContent({ services }: ServicesPageContentProps) {
 
       {services.length === 0 ? (
         <EmptyState
-          title="Niciun Serviciu Găsit"
-          description="Momentan nu ai niciun serviciu adăugat. Apasă butonul de mai sus pentru a crea primul serviciu."
+          title="Niciun Serviciu Adăugat"
+          description="Momentan nu există servicii. Apasă 'Adaugă Serviciu' pentru a crea primul."
         />
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {services.map((service) => (
-            <ServiceCard key={service.id} service={service} />
-          ))}
-        </div>
+        <>
+          {/* Pasul 2: Randăm VEDEREA DE CARDURI, dar o ascundem pe ecranele mari (lg și peste) */}
+          <div className="lg:hidden">
+            <ServiceCardView services={services} />
+          </div>
+
+          {/* Pasul 3: Randăm VEDEREA DE TABEL, dar o afișăm doar pe ecranele mari */}
+          <div className="hidden lg:block">
+            <ServicesTable services={services} />
+          </div>
+        </>
       )}
     </div>
   )

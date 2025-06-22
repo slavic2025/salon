@@ -8,6 +8,11 @@ import { EditServiceDialog } from './edit-service-dialog'
 import { DeleteConfirmationDialog } from '@/components/molecules/delete-confirmation-dialog'
 import { deleteServiceAction } from '@/features/services/actions'
 import { formatCurrency } from '@/lib/formatters'
+import { Trash2 } from 'lucide-react'
+
+interface ServiceCardProps {
+  service: Service
+}
 
 export function ServiceCard({ service }: ServiceCardProps) {
   return (
@@ -37,7 +42,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
             {/* Utilizarea noului dialog compus. Este mult mai declarativ. */}
             <DeleteConfirmationDialog action={deleteServiceAction} itemId={service.id}>
               <DeleteConfirmationDialog.Trigger asChild>
-                <Button variant="destructive" size="icon">
+                <Button variant="destructive" size="icon" aria-label="Șterge Serviciul">
                   <Trash2 className="h-4 w-4" />
                   <span className="sr-only">Șterge Serviciul</span>
                 </Button>
@@ -57,11 +62,3 @@ export function ServiceCard({ service }: ServiceCardProps) {
     </Card>
   )
 }
-
-// Definim tipul pentru props aici, dacă nu este deja într-un fișier separat
-interface ServiceCardProps {
-  service: Service
-}
-
-// Nu uita să imporți iconița Trash2
-import { Trash2 } from 'lucide-react'

@@ -1,49 +1,41 @@
-// // src/app/page.tsx
+// Importăm ambele componente exportate explicit
+import { BookingForm, BookingFormStep } from '@/components/organisms/booking/BookingForm'
+import { ServiceStep } from '@/components/public/booking-form/steps/service-step'
+import { StylistStep } from '@/components/public/booking-form/steps/stylist-step'
+import { DateTimeStep } from '@/components/public/booking-form/steps/datetime-step'
+import { ConfirmStep } from '@/components/public/booking-form/steps/confirm-step'
+import { getServiceService } from '@/features/services/actions'
+// ... alte importuri
 
-// import { serviceRepository } from '@/core/domains/services/service.repository'
-// import { ServiceList } from '@/components/public/service-list'
-// import { HeroSection } from '@/components/public/hero-section'
-// import { BookingForm } from '@/components/public/booking-form/booking-form'
+export default async function HomePage() {
+  const serviceService = await getServiceService()
+  const services = await serviceService.findAllServices()
 
-// // Aceasta este o componenta server-side, deci putem folosi async/await direct
-// export default async function HomePage() {
-//   // Apelam functia din repository pentru a lua serviciile active
-//   const services = await serviceRepository.getActiveServices()
+  return (
+    <main>
+      {/* ... HeroSection ... */}
+      <section id="programare">
+        {/* Folosim componenta principală ca un container */}
+        <BookingForm>
+          {/* Și folosim componenta de pas pentru fiecare etapă */}
+          <BookingFormStep stepIndex={1}>
+            <ServiceStep services={services} />
+          </BookingFormStep>
 
-//   return (
-//     <main className="flex min-h-screen flex-col items-center">
-//       {/* Sectiunea principala de intampinare */}
-//       <HeroSection />
+          <BookingFormStep stepIndex={2}>
+            <StylistStep />
+          </BookingFormStep>
 
-//       {/* Secțiunea de Programare */}
-//       <section id="programare" className="w-full bg-slate-50 py-16 sm:py-24">
-//         <div className="mx-auto max-w-7xl px-6 lg:px-8">
-//           <div className="text-center">
-//             <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Programează-te Online</h2>
-//             <p className="mt-4 text-lg leading-8 text-gray-600">
-//               Rapid, simplu și convenabil. Alege serviciul și găsește un loc liber.
-//             </p>
-//           </div>
-//           <div className="mt-12">
-//             <BookingForm services={services} />
-//           </div>
-//         </div>
-//       </section>
+          <BookingFormStep stepIndex={3}>
+            <DateTimeStep />
+          </BookingFormStep>
 
-//       {/* Sectiunea care listeaza serviciile */}
-//       <div className="w-full bg-slate-50 py-16 sm:py-24">
-//         <div className="mx-auto max-w-7xl px-6 lg:px-8">
-//           <h2 className="text-center text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-//             Serviciile Noastre
-//           </h2>
-//           <p className="mt-4 text-center text-lg leading-8 text-gray-600">
-//             Descoperă gama noastră de servicii premium, create pentru a-ți oferi o experiență de neuitat.
-//           </p>
-
-//           {/* Componenta care randeaza lista de servicii */}
-//           <ServiceList services={services} />
-//         </div>
-//       </div>
-//     </main>
-//   )
-// }
+          <BookingFormStep stepIndex={4}>
+            <ConfirmStep />
+          </BookingFormStep>
+        </BookingForm>
+      </section>
+      {/* ... ServiceList ... */}
+    </main>
+  )
+}

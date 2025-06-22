@@ -10,14 +10,29 @@ import { UniquenessError } from '@/lib/errors'
 import { handleError, handleUniquenessErrors } from '@/lib/action-helpers'
 import { formDataToObject } from '@/lib/form-utils'
 import type { ActionResponse } from '@/types/actions.types'
+import type { Stylist } from '@/core/domains/stylists/stylist.types'
 
 /**
  * Funcție ajutătoare care asamblează serviciul pentru 'stylists'.
  */
-async function getStylistService() {
+export async function getStylistService() {
   const supabase = await createClient()
   const repository = createStylistRepository(supabase)
   return createStylistService(repository)
+}
+
+/**
+ * Acțiune pentru obținerea stiliștilor activi.
+ */
+export async function getActiveStylistsAction(): Promise<{ success: boolean; data?: Stylist[]; error?: string }> {
+  try {
+    const stylistService = await getStylistService()
+    const allStylists = await stylistService.findAllStylists()
+    const activeStylists = allStylists.filter((stylist) => stylist.is_active)
+    return { success: true, data: activeStylists }
+  } catch (error) {
+    return { success: false, error: 'Eroare la încărcarea stiliștilor' }
+  }
 }
 
 /**
@@ -27,7 +42,7 @@ export async function addStylistAction(prevState: ActionResponse, formData: Form
   const rawData = formDataToObject(formData)
   try {
     const stylistService = await getStylistService()
-    await stylistService.createStylist(rawData)
+    await stylistService.createAndInviteStylist(rawData)
 
     revalidatePath(STYLIST_CONSTANTS.PATHS.revalidate.list())
     return { success: true, message: STYLIST_CONSTANTS.MESSAGES.SUCCESS.CREATED }
