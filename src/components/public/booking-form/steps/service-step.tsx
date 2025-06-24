@@ -1,16 +1,11 @@
-// Această componentă poate fi definită direct în page.tsx sau într-un fișier separat
+// src/components/public/booking-form/steps/service-step.tsx
 'use client'
 
 import { useBookingStore } from '@/stores/use-booking-store'
 import { type Service } from '@/core/domains/services/service.types'
 
-interface ServiceStepProps {
-  services: Service[]
-}
-
-export function ServiceStep({ services }: ServiceStepProps) {
+export function ServiceStep({ services }: { services: Service[] }) {
   const selectService = useBookingStore((state) => state.selectService)
-
   return (
     <div>
       <h3 className="text-xl font-semibold mb-4">Pasul 1: Alege un serviciu</h3>
@@ -19,7 +14,7 @@ export function ServiceStep({ services }: ServiceStepProps) {
           <button
             key={service.id}
             onClick={() => selectService(service)}
-            className="p-4 border rounded-lg text-center hover:bg-gray-100"
+            className="p-4 border rounded-lg text-center hover:bg-gray-100 transition-colors"
           >
             {service.name}
           </button>

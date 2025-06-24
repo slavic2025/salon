@@ -95,22 +95,29 @@ export async function deleteStylistAction(prevState: ActionResponse, formData: F
   }
 }
 
-/**
- * Acțiune pentru trimiterea email-ului de resetare a parolei.
- */
-export async function resetPasswordAction(prevState: ActionResponse, formData: FormData): Promise<ActionResponse> {
-  const { id } = formDataToObject(formData)
-  if (!id || typeof id !== 'string') {
-    return handleError(
-      new Error('ID-ul stilistului este invalid.'),
-      STYLIST_CONSTANTS.MESSAGES.ERROR.SERVER.RESET_PASSWORD
-    )
+export async function getStylistsByServiceAction(
+  serviceId: string
+  // Definim explicit contractul de returnare
+): Promise<ActionResponse<Stylist[]>> {
+  if (!serviceId) {
+    // Returnăm un răspuns de eroare care respectă structura ActionResponse
+    return {
+      success: false,
+      message: 'ID-ul serviciului este invalid.',
+    }
   }
+
   try {
     const stylistService = await getStylistService()
-    await stylistService.sendPasswordResetLink(id)
-    return { success: true, message: STYLIST_CONSTANTS.MESSAGES.SUCCESS.PASSWORD_RESET }
+    const stylists = await stylistService.findStylistsByServiceId(serviceId)
+
+    // Returnăm un răspuns de succes care respectă structura ActionResponse
+    return {
+      success: true,
+      data: stylists,
+    }
   } catch (error) {
-    return handleError(error, STYLIST_CONSTANTS.MESSAGES.ERROR.SERVER.RESET_PASSWORD)
+    // handleError returnează deja un ActionResponse consistent
+    return handleError(error, STYLIST_CONSTANTS.MESSAGES.ERROR.SERVER.DEFAULT)
   }
 }

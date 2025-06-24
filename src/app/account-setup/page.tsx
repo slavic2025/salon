@@ -1,76 +1,33 @@
-// src/app/account-setup/page.tsx
-'use client'
-
-import { useEffect, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { createClient } from '@/lib/supabase-browser'
+// Am eliminat 'use client'. Aceasta este acum o componentă de server.
+import { protectPage } from '@/lib/auth-utils'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/atoms/card'
-import { SetPasswordForm } from './_components/set-password-form'
+import { SetPasswordForm } from '@/components/organisms/SetPasswordForm'
+// Formularul rămâne o componentă de client, ceea ce este corect.
 
-export default function AccountSetupPage() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const isReset = searchParams.get('reset') === 'true'
-  const supabase = createClient()
-  const [status, setStatus] = useState('Se verifică sesiunea...')
+/**
+ * Pagina de setare a parolei. Acum este un Server Component "inteligent".
+ * Logica de protecție și redirectare este gestionată pe server, înainte de randare.
+ */
+export default async function AccountSetupPage() {
+  // Pasul 1: Protejăm pagina pe server.
+  // - Verifică dacă user-ul este logat.
+  // - Verifică dacă parola ESTE DEJA setată și face redirect la dashboard dacă da.
+  // Trecem `redirectToSetup: false` pentru a activa acest comportament special.
+  await protectPage({ isDashboardPage: false })
 
-  useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const {
-          data: { session },
-          error,
-        } = await supabase.auth.getSession()
-        console.log('Account setup - Current session:', session)
-
-        if (error) {
-          console.error('Session error:', error)
-          setStatus('Eroare la verificarea sesiunii. Se redirecționează...')
-          window.location.href = '/login?error=session_error'
-          return
-        }
-
-        if (!session) {
-          console.log('No session found')
-          setStatus('Sesiunea lipsește. Se redirecționează...')
-          window.location.href = '/login?error=session_missing'
-          return
-        }
-
-        // Dacă nu este o resetare de parolă și utilizatorul are deja parola setată,
-        // îl redirecționăm la dashboard
-        if (!isReset && session.user.user_metadata.password_set) {
-          console.log('Password already set, redirecting to dashboard')
-          window.location.href = '/stylist/schedule'
-          return
-        }
-
-        setStatus('')
-      } catch (error) {
-        console.error('Unexpected error:', error)
-        setStatus('A apărut o eroare neașteptată. Se redirecționează...')
-        window.location.href = '/login?error=unexpected'
-      }
-    }
-
-    checkSession()
-  }, [router, supabase, isReset])
-
-  if (status) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center space-y-4">
-          <p className="text-lg">{status}</p>
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
-        </div>
-      </div>
-    )
-  }
-
+  // Pasul 2: Dacă garda trece, înseamnă că totul este în regulă și putem randa UI-ul.
+  // Nu mai este nevoie de `useEffect`, `useState` sau stări de încărcare.
   return (
-    <div className="container max-w-md mx-auto py-10">
-      <h1 className="text-2xl font-bold text-center mb-6">{isReset ? 'Resetează Parola' : 'Setează Parola'}</h1>
-      <SetPasswordForm />
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl">Setează-ți Parola</CardTitle>
+          <CardDescription>Creează o parolă nouă și sigură pentru contul tău.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <SetPasswordForm />
+        </CardContent>
+      </Card>
     </div>
   )
 }

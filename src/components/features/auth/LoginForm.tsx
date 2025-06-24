@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useActionForm } from '@/hooks/useActionForm'
 import { signInAction } from '@/features/auth/actions'
-import { SignInResult, signInSchema, type SignInInput } from '@/core/domains/auth/auth.types'
 import type { ActionResponse } from '@/types/actions.types'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/atoms/form'
 import { Input } from '@/components/atoms/input'
@@ -12,6 +11,7 @@ import { SubmitButton } from '@/components/molecules/submit-button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/atoms/card'
 import { useTransition } from 'react'
 import { objectToFormData } from '@/lib/form-utils'
+import { SignInFormInput, signInFormSchema, SignInResult } from '@/core/domains/auth/auth.types'
 
 // Tipul pentru rezultatul de succes al acțiunii de sign-in
 type SignInSuccessData = {
@@ -33,12 +33,12 @@ export function LoginForm() {
     },
   })
 
-  const form = useForm<SignInInput>({
-    resolver: zodResolver(signInSchema),
+  const form = useForm<SignInFormInput>({
+    resolver: zodResolver(signInFormSchema),
     defaultValues: { email: '', password: '' },
   })
 
-  const onSubmit = (values: SignInInput) => {
+  const onSubmit = (values: SignInFormInput) => {
     const formData = objectToFormData(values)
 
     // Pasul 3: Împachetăm apelul la acțiune în `startTransition`.

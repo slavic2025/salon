@@ -1,6 +1,7 @@
-import { ActionResponse } from '@/types/actions.types'
+import { ActionResponse, ZodFieldErrors } from '@/types/actions.types'
 import { createLogger } from '@/lib/logger'
-import { z } from 'zod'
+import { z, ZodError } from 'zod'
+import { AppError } from './errors'
 
 const logger = createLogger('ActionHelpers')
 
@@ -44,11 +45,38 @@ export const handleUniquenessErrors = (errors: Array<{ field: string; message: s
 /**
  * Helper pentru gestionarea erorilor generale
  */
-export const handleError = (error: unknown, context: string): ActionResponse => {
-  logger.error(`Error in ${context}`, { error })
+/**
+ * Gestionează erorile de server sau de business.
+ * Acum este o funcție generică pentru a menține siguranța tipurilor.
+ * @template TData - Tipul de date pe care acțiunea l-ar returna la succes.
+ */
+export function handleError<TData>(
+  error: unknown,
+  defaultMessage = 'A apărut o eroare neașteptată.'
+): ActionResponse<TData> {
+  // Verificăm dacă este o eroare customizată de-a noastră
+  if (error instanceof AppError) {
+    logger.warn('Handled AppError:', { message: error.message, originalError: error.originalError })
+    return {
+      success: false,
+      message: error.message,
+    }
+  }
+  // Verificăm dacă este o eroare de la Zod (în cazul în care .parse() eșuează)
+  if (error instanceof ZodError) {
+    logger.warn('Handled ZodError:', { error: error.flatten() })
+    return {
+      success: false,
+      message: 'Datele trimise sunt invalide.',
+      errors: error.flatten().fieldErrors as ZodFieldErrors,
+    }
+  }
+
+  // Pentru orice altă eroare, returnăm un mesaj generic
+  logger.error('Unhandled error in action:', { error })
   return {
     success: false,
-    message: COMMON_MESSAGES.UNEXPECTED_ERROR + (error as Error).message,
+    message: defaultMessage,
   }
 }
 

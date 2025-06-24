@@ -68,12 +68,16 @@ export function createStylistService(repository: StylistRepository) {
 
       const { profile_picture, ...formData } = createStylistFormSchema.parse(input)
       await _checkUniqueness({ email: formData.email })
-
       const supabaseAdmin = createAdminClient()
       const {
         data: { user },
         error: inviteError,
-      } = await supabaseAdmin.auth.admin.inviteUserByEmail(formData.email)
+      } = await supabaseAdmin.auth.admin.inviteUserByEmail(formData.email, {
+        data: {
+          password_set: false,
+          role: 'stylist',
+        },
+      })
 
       if (inviteError || !user) {
         throw new AppError(STYLIST_CONSTANTS.MESSAGES.ERROR.AUTH.CREATE_USER_FAILED, inviteError)
@@ -165,21 +169,14 @@ export function createStylistService(repository: StylistRepository) {
       await repository.delete(stylistId)
     },
 
-    /** Trimite (sau re-trimite) invitația de setare a parolei. */
-    async sendPasswordResetLink(stylistId: string): Promise<void> {
-      const stylist = await repository.findById(stylistId)
-      if (!stylist?.email) {
-        throw new AppError(STYLIST_CONSTANTS.MESSAGES.ERROR.NOT_FOUND)
-      }
-
-      const supabaseAdmin = createAdminClient()
-      const { error: resetError } = await supabaseAdmin.auth.admin.inviteUserByEmail(stylist.email, {
-        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/account-setup`,
-      })
-
-      if (resetError) {
-        throw new AppError(STYLIST_CONSTANTS.MESSAGES.ERROR.SERVER.RESET_PASSWORD, resetError)
-      }
+    /**
+     * Găsește toți stiliștii care pot presta un anumit serviciu.
+     * Deleagă operațiunea direct la repository.
+     */
+    async findStylistsByServiceId(serviceId: string): Promise<Stylist[]> {
+      logger.debug(`Finding stylists for service id: ${serviceId}`)
+      // În repository, această metodă face un apel RPC.
+      return repository.findByServiceId(serviceId)
     },
   }
 }

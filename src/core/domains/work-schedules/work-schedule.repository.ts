@@ -29,5 +29,16 @@ export function createWorkScheduleRepository(supabase: SupabaseClient) {
       const query = supabase.from(TABLE_NAME).delete().eq('id', id)
       await executeQuery(logger, query, { context: 'deleteSchedule' })
     },
+    async findForCurrentStylist(): Promise<WorkSchedule[]> {
+      logger.debug('Fetching schedule for current stylist via RPC...')
+      const rpcPromise = supabase.rpc('get_schedules_for_current_stylist')
+
+      // Folosim helper-ul nostru `executeQuery` și pentru apeluri RPC.
+      // În caz de eroare sau rezultat null, returnăm un array gol.
+      const result = await executeQuery<WorkSchedule[]>(logger, rpcPromise, {
+        context: 'findSchedulesForCurrentStylist',
+      })
+      return result || []
+    },
   }
 }

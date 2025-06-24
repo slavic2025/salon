@@ -1,41 +1,50 @@
-// Importăm ambele componente exportate explicit
-import { BookingForm, BookingFormStep } from '@/components/organisms/booking/BookingForm'
-import { ServiceStep } from '@/components/public/booking-form/steps/service-step'
-import { StylistStep } from '@/components/public/booking-form/steps/stylist-step'
-import { DateTimeStep } from '@/components/public/booking-form/steps/datetime-step'
-import { ConfirmStep } from '@/components/public/booking-form/steps/confirm-step'
 import { getServiceService } from '@/features/services/actions'
-// ... alte importuri
+import { getStylistService } from '@/features/stylists/actions'
+import { AppError } from '@/lib/errors'
+import { createLogger } from '@/lib/logger'
 
+// Importăm noile noastre componente de secțiune
+import { HeroSection } from '@/components/public/hero-section'
+import { OurServicesSection } from '@/components/public/our-services-section'
+import { OurStylistsSection } from '@/components/public/our-stylists-section'
+import { BookingSection } from '@/components/public/booking-section'
+
+const logger = createLogger('HomePage')
+
+/**
+ * Pagina principală "Smart". Preia datele și compune secțiunile "dumb".
+ */
 export default async function HomePage() {
-  const serviceService = await getServiceService()
-  const services = await serviceService.findAllServices()
+  logger.info('Fetching data for HomePage...')
 
-  return (
-    <main>
-      {/* ... HeroSection ... */}
-      <section id="programare">
-        {/* Folosim componenta principală ca un container */}
-        <BookingForm>
-          {/* Și folosim componenta de pas pentru fiecare etapă */}
-          <BookingFormStep stepIndex={1}>
-            <ServiceStep services={services} />
-          </BookingFormStep>
+  try {
+    // Preluăm în paralel serviciile și stiliștii pentru performanță
+    const serviceService = await getServiceService()
+    const stylistService = await getStylistService()
 
-          <BookingFormStep stepIndex={2}>
-            <StylistStep />
-          </BookingFormStep>
+    const [services, stylists] = await Promise.all([
+      serviceService.findActiveServices(),
+      stylistService.findAllStylists(), // Presupunând că ai metoda `findAllStylists`
+    ])
 
-          <BookingFormStep stepIndex={3}>
-            <DateTimeStep />
-          </BookingFormStep>
-
-          <BookingFormStep stepIndex={4}>
-            <ConfirmStep />
-          </BookingFormStep>
-        </BookingForm>
-      </section>
-      {/* ... ServiceList ... */}
-    </main>
-  )
+    return (
+      <main className="flex flex-col items-center">
+        <HeroSection />
+        <OurServicesSection services={services} />
+        <OurStylistsSection stylists={stylists} />
+        <BookingSection services={services} />
+      </main>
+    )
+  } catch (error) {
+    logger.error('Failed to fetch data for homepage', { error })
+    // Afișăm o stare de eroare elegantă
+    return (
+      <main className="flex h-screen items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-destructive">Oops! Ceva nu a funcționat.</h2>
+          <p className="mt-2 text-muted-foreground">Nu am putut încărca datele necesare.</p>
+        </div>
+      </main>
+    )
+  }
 }

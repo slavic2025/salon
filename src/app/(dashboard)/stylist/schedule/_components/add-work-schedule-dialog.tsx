@@ -1,21 +1,39 @@
-// src/app/(dashboard)/dashboard/schedule/_components/add-work-schedule-dialog.tsx
 'use client'
-import { useState } from 'react'
-import { Button } from '@/components/atoms/button'
-// Importăm și DialogDescription
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/atoms/dialog'
-import { AddWorkScheduleForm } from './add-work-schedule-form'
-import { PlusIcon } from 'lucide-react'
 
-export function AddWorkScheduleDialog() {
+import { useState, useTransition } from 'react'
+import { useActionForm } from '@/hooks/useActionForm'
+import { addWorkScheduleAction } from '@/features/work-schedules/actions'
+import { objectToFormData } from '@/lib/form-utils'
+import { Button } from '@/components/atoms/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/atoms/dialog'
+import { WorkScheduleForm } from '@/components/organisms/WorkScheduleForm' // <-- Noul import
+import { PlusIcon } from 'lucide-react'
+import type { CreateWorkScheduleInput } from '@/core/domains/work-schedules/work-schedule.types'
+
+// Componenta primește acum stylistId pentru a-l pasa formularului
+interface AddWorkScheduleDialogProps {
+  stylistId: string
+}
+
+export function AddWorkScheduleDialog({ stylistId }: AddWorkScheduleDialogProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const [isTransitionPending, startTransition] = useTransition()
+
+  const { formSubmit, isPending: isActionPending } = useActionForm({
+    action: addWorkScheduleAction,
+    initialState: { success: false, data: null, message: '', errors: {} },
+    onSuccess: () => setIsOpen(false),
+  })
+
+  const handleFormSubmit = (values: CreateWorkScheduleInput) => {
+    const formData = objectToFormData(values)
+    startTransition(() => {
+      formSubmit(formData)
+    })
+  }
+
+  const isFormPending = isActionPending || isTransitionPending
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -26,10 +44,9 @@ export function AddWorkScheduleDialog() {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Adaugă un nou interval de lucru</DialogTitle>
-          {/* AICI ESTE MODIFICAREA: Adăugăm descrierea */}
-          <DialogDescription>Selectează ziua și orele pentru noul interval de program.</DialogDescription>
         </DialogHeader>
-        <AddWorkScheduleForm onSuccess={() => setIsOpen(false)} onCancel={() => setIsOpen(false)} />
+        {/* Randăm organismul nostru reutilizabil `WorkScheduleForm` */}
+        <WorkScheduleForm stylistId={stylistId} isPending={isFormPending} onSubmit={handleFormSubmit} />
       </DialogContent>
     </Dialog>
   )

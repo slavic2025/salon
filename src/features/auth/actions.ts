@@ -10,7 +10,7 @@ import { handleError } from '@/lib/action-helpers'
 import { formDataToObject } from '@/lib/form-utils'
 import type { ActionResponse } from '@/types/actions.types'
 import { createSafeAction } from '@/lib/safe-action'
-import { signInSchema, signUpSchema, sendPasswordResetSchema, setPasswordSchema } from '@/core/domains/auth/auth.types'
+import { signInFormSchema, signUpFormSchema, updatePasswordActionSchema } from '@/core/domains/auth/auth.types'
 
 /**
  * Funcție ajutătoare care asamblează serviciul de autentificare
@@ -26,7 +26,7 @@ async function getAuthService() {
 /**
  * Acțiune pentru autentificare.
  */
-export const signInAction = createSafeAction(signInSchema, async (input) => {
+export const signInAction = createSafeAction(signInFormSchema, async (input) => {
   // Aici scriem doar logica de business pură
   const authService = await getAuthService()
   const result = await authService.signIn(input)
@@ -36,7 +36,7 @@ export const signInAction = createSafeAction(signInSchema, async (input) => {
 })
 
 export const signUpAction = createSafeAction(
-  signUpSchema,
+  signUpFormSchema,
   async (input) => {
     // Aici rămâne doar logica de business pură
     const authService = await getAuthService()
@@ -68,20 +68,20 @@ export async function signOutAction(): Promise<ActionResponse> {
   return redirect(AUTH_CONSTANTS.PATHS.redirect.afterLogout)
 }
 
-export const sendPasswordResetEmailAction = createSafeAction(
-  sendPasswordResetSchema,
-  async (input) => {
-    const authService = await getAuthService()
-    await authService.sendPasswordResetEmail(input)
-    return { message: AUTH_CONSTANTS.MESSAGES.SUCCESS.PASSWORD_RESET_SENT }
-  },
-  {
-    serverErrorMessage: AUTH_CONSTANTS.MESSAGES.ERROR.SERVER.SEND_RESET_EMAIL,
-  }
-)
+// export const sendPasswordResetEmailAction = createSafeAction(
+//   sendPasswordResetSchema,
+//   async (input) => {
+//     const authService = await getAuthService()
+//     await authService.sendPasswordResetEmail(input)
+//     return { message: AUTH_CONSTANTS.MESSAGES.SUCCESS.PASSWORD_RESET_SENT }
+//   },
+//   {
+//     serverErrorMessage: AUTH_CONSTANTS.MESSAGES.ERROR.SERVER.SEND_RESET_EMAIL,
+//   }
+// )
 
 export const updatePasswordAction = createSafeAction(
-  setPasswordSchema,
+  updatePasswordActionSchema,
   async (input) => {
     const authService = await getAuthService()
     await authService.updatePassword(input)

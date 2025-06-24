@@ -1,9 +1,7 @@
 // src/core/domains/work-schedules/work-schedule.service.ts
 import { createLogger } from '@/lib/logger'
-import { AppError } from '@/lib/errors'
 import { createWorkScheduleRepository } from './work-schedule.repository'
 import { createWorkScheduleSchema, deleteWorkScheduleSchema } from './work-schedule.types'
-import { WORK_SCHEDULE_CONSTANTS } from './work-schedule.constants'
 
 type WorkScheduleRepository = ReturnType<typeof createWorkScheduleRepository>
 
@@ -20,7 +18,7 @@ export function createWorkScheduleService(repository: WorkScheduleRepository) {
       const payload = createWorkScheduleSchema.parse(input)
 
       // Aici se poate adăuga logica de business, ex: verificarea suprapunerilor de intervale
-      const existingSchedules = await repository.findByStylistId(payload.stylist_id)
+      const existingSchedules = await repository.findByStylistId(payload.stylist_id as string)
       // ... logica de verificare ...
       // if (isOverlapping) {
       //   throw new AppError(WORK_SCHEDULE_CONSTANTS.MESSAGES.ERROR.BUSINESS.OVERLAPPING);
@@ -32,6 +30,11 @@ export function createWorkScheduleService(repository: WorkScheduleRepository) {
     async deleteWorkSchedule(input: Record<string, unknown>) {
       const { id } = deleteWorkScheduleSchema.parse(input)
       return repository.delete(id)
+    },
+    async findSchedulesForCurrentStylist() {
+      // Serviciul deleagă apelul către repository.
+      // Aici s-ar putea adăuga în viitor logică de business suplimentară.
+      return repository.findForCurrentStylist()
     },
   }
 }

@@ -1,25 +1,24 @@
-// src/components/public/hero-section.tsx
-
 import { Button } from '@/components/atoms/button'
 import Link from 'next/link'
 
 export function HeroSection() {
   return (
-    <div className="relative w-full bg-gray-900">
-      <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:flex lg:items-center lg:gap-x-10 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center lg:mx-0 lg:flex-auto">
-          <h1 className="text-4xl font-bold tracking-tight text-white sm:text-6xl">Eleganță și Stil, Redefinite.</h1>
-          <p className="mt-6 text-lg leading-8 text-gray-300">
-            La salonul nostru, fiecare detaliu este gândit pentru a-ți oferi o experiență excepțională și rezultate pe
-            măsura așteptărilor.
+    <section className="w-full h-[60vh] md:h-[70vh] flex items-center justify-center bg-gray-100 dark:bg-gray-900">
+      <div className="container px-4 md:px-6 text-center">
+        <div className="space-y-4">
+          <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl text-gray-900 dark:text-gray-50">
+            Stil și Eleganță, Redefinite
+          </h1>
+          <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
+            Descoperă o experiență premium de îngrijire personală. Calitate, profesionalism și relaxare.
           </p>
-          <div className="mt-10 flex items-center justify-center gap-x-6">
-            <Button asChild size="lg">
-              <Link href="/programare">Programează-te Acum</Link>
-            </Button>
-          </div>
+        </div>
+        <div className="mt-6">
+          <Link href="#programare">
+            <Button size="lg">Programează-te Acum</Button>
+          </Link>
         </div>
       </div>
-    </div>
+    </section>
   )
 }
