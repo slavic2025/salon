@@ -6,32 +6,29 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/atoms/select'
 import { Input } from '@/components/atoms/input'
 import { SubmitButton } from '@/components/molecules/submit-button'
-import {
-  createWorkScheduleSchema,
-  type CreateWorkScheduleInput,
-} from '@/core/domains/work-schedules/work-schedule.types'
-import { WORK_SCHEDULE_CONSTANTS } from '@/core/domains/work-schedules/work-schedule.constants'
+import { createScheduleFormSchema, WEEKDAYS, type CreateScheduleInput } from '@/core/domains/schedules/schedule.types'
+import { SCHEDULE_CONSTANTS } from '@/core/domains/schedules/schedule.constants'
 
-interface WorkScheduleFormProps {
+interface ScheduleFormProps {
   // `stylistId` este pasat ca prop pentru a nu mai fi un câmp în formular
   stylistId: string
-  onSubmit: (data: CreateWorkScheduleInput) => void
+  onSubmit: (data: CreateScheduleInput) => void
   isPending: boolean
 }
 
-export function WorkScheduleForm({ stylistId, onSubmit, isPending }: WorkScheduleFormProps) {
-  const form = useForm<CreateWorkScheduleInput>({
-    resolver: zodResolver(createWorkScheduleSchema),
+export function ScheduleForm({ stylistId, onSubmit, isPending }: ScheduleFormProps) {
+  const form = useForm<CreateScheduleInput>({
+    resolver: zodResolver(createScheduleFormSchema),
     defaultValues: {
       stylistId: stylistId, // Setăm ID-ul stilistului primit ca prop
-      weekday: 'monday',
+      weekday: WEEKDAYS.Luni,
       startTime: '09:00',
       endTime: '17:00',
     },
   })
 
   // Ne asigurăm că `stylistId` este mereu inclus la submit, chiar dacă nu e un câmp vizibil
-  const handleFormSubmit = (values: CreateWorkScheduleInput) => {
+  const handleFormSubmit = (values: CreateScheduleInput) => {
     onSubmit({ ...values, stylistId })
   }
 
@@ -51,7 +48,7 @@ export function WorkScheduleForm({ stylistId, onSubmit, isPending }: WorkSchedul
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {Object.entries(WORK_SCHEDULE_CONSTANTS.WEEKDAYS).map(([key, value]) => (
+                  {Object.entries(SCHEDULE_CONSTANTS.WEEKDAYS).map(([key, value]) => (
                     <SelectItem key={value} value={value}>
                       {key}
                     </SelectItem>

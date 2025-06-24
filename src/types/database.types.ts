@@ -90,6 +90,44 @@ export type Database = {
         }
         Relationships: []
       }
+      schedules: {
+        Row: {
+          created_at: string
+          end_time: string
+          id: string
+          start_time: string
+          stylist_id: string
+          updated_at: string
+          weekday: number
+        }
+        Insert: {
+          created_at?: string
+          end_time: string
+          id?: string
+          start_time: string
+          stylist_id: string
+          updated_at?: string
+          weekday: number
+        }
+        Update: {
+          created_at?: string
+          end_time?: string
+          id?: string
+          start_time?: string
+          stylist_id?: string
+          updated_at?: string
+          weekday?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "work_schedules_stylist_id_fkey"
+            columns: ["stylist_id"]
+            isOneToOne: false
+            referencedRelation: "stylists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       services: {
         Row: {
           category: string
@@ -255,44 +293,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "unavailability_stylist_id_fkey"
-            columns: ["stylist_id"]
-            isOneToOne: false
-            referencedRelation: "stylists"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      work_schedule: {
-        Row: {
-          created_at: string
-          end_time: string
-          id: string
-          start_time: string
-          stylist_id: string
-          updated_at: string
-          weekday: number
-        }
-        Insert: {
-          created_at?: string
-          end_time: string
-          id?: string
-          start_time: string
-          stylist_id: string
-          updated_at?: string
-          weekday: number
-        }
-        Update: {
-          created_at?: string
-          end_time?: string
-          id?: string
-          start_time?: string
-          stylist_id?: string
-          updated_at?: string
-          weekday?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "work_schedules_stylist_id_fkey"
             columns: ["stylist_id"]
             isOneToOne: false
             referencedRelation: "stylists"

@@ -1,4 +1,4 @@
-// src/core/domains/work-schedules/work-schedule.constants.ts
+// src/core/domains/schedules/schedule.constants.ts
 
 const WEEKDAYS = ['Duminică', 'Luni', 'Marți', 'Miercuri', 'Joi', 'Vineri', 'Sâmbătă'] as const
 
@@ -26,7 +26,7 @@ const PATHS = {
   },
 } as const
 
-export const WORK_SCHEDULE_CONSTANTS = {
+export const SCHEDULE_CONSTANTS = {
   WEEKDAYS,
   MESSAGES,
   PATHS,

@@ -1,7 +1,7 @@
 import { createLogger } from '@/lib/logger'
 import { AppError } from '@/lib/errors'
-import { SchedulePageContent } from './_components/work-schedule-page-content'
-import { getWorkScheduleService } from '@/features/work-schedules/actions'
+import { SchedulePageContent } from './_components/schedule-page-content'
+import { getScheduleService } from '@/features/schedules/actions'
 import { protectPage } from '@/lib/auth-utils'
 
 const logger = createLogger('StylistSchedulePage')
@@ -15,7 +15,7 @@ export default async function SchedulePage() {
   const profile = await protectPage()
   try {
     // Pasul 2: Apelăm serviciul de business pentru a obține datele
-    const scheduleService = await getWorkScheduleService()
+    const scheduleService = await getScheduleService()
     const initialSchedules = await scheduleService.findSchedulesForCurrentStylist()
 
     logger.debug('Schedules loaded successfully:', { count: initialSchedules.length })
