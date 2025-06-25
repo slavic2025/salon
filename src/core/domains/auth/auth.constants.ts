@@ -59,7 +59,7 @@ const PATHS = {
     afterLogin: '/dashboard/schedule',
     afterLogout: '/',
     adminHome: '/admin', // Calea corectă pentru admin
-    stylistHome: '/stylist/schedule',
+    stylistHome: '/stylist/schedules',
   },
   revalidate: {
     layout: () => '/', // Pentru a revalida întreaga aplicație (ex. la login/logout)

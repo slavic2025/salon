@@ -21,7 +21,7 @@ interface SchedulePageContentProps {
 
 export function SchedulePageContent({ initialSchedules, stylistId }: SchedulePageContentProps) {
   // Grupăm programele pe zile folosind array-ul din constante
-  const schedulesByDay = SCHEDULE_CONSTANTS.WEEKDAYS.map((day: string, index: number) => ({
+  const schedulesByDay = SCHEDULE_CONSTANTS.WEEKDAY_NAMES.map((day: string, index: number) => ({
     day,
     schedules: initialSchedules
       .filter((s) => s.weekday === index)

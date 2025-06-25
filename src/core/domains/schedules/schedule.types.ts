@@ -13,10 +13,20 @@ export type ScheduleUpdateData = TablesUpdate<'schedules'>
 
 // --- Scheme de Validare Zod ---
 
+/**
+ * Schema folosită de formularul de pe client (react-hook-form).
+ * Validează că `weekday` este unul dintre string-urile permise.
+ */
 export const createScheduleFormSchema = z
   .object({
     stylistId: uuidField('ID-ul stilistului este invalid.'),
-    weekday: z.enum(SCHEDULE_CONSTANTS.WEEKDAYS), // Am presupus că ai această constantă
+
+    // Validează că `weekday` este unul dintre string-urile din array-ul nostru de constante
+    weekday: z.enum(SCHEDULE_CONSTANTS.WEEKDAY_NAMES, {
+      required_error: 'Ziua săptămânii este obligatorie.',
+      invalid_type_error: 'Selectează o zi validă a săptămânii.',
+    }),
+
     startTime: timeField('Ora de început este invalidă.'),
     endTime: timeField('Ora de sfârșit este invalidă.'),
   })
@@ -27,14 +37,19 @@ export const createScheduleFormSchema = z
 
 /**
  * Schema finală, folosită de Service Layer pe server.
- * Preia schema de formular și îi adaugă pasul de transformare.
+ * Preia schema de formular și îi adaugă pasul de transformare a datelor.
  */
-export const createSchedulePayloadSchema = createScheduleFormSchema.transform((data) => ({
-  stylist_id: data.stylistId,
-  weekday: data.weekday,
-  start_time: data.startTime,
-  end_time: data.endTime,
-}))
+export const createSchedulePayloadSchema = createScheduleFormSchema.transform((data) => {
+  // Folosim "dicționarul" pentru a converti string-ul (ex: "Luni") în numărul corespunzător (ex: 1)
+  const weekdayAsNumber = SCHEDULE_CONSTANTS.WEEKDAY_MAP[data.weekday]
+
+  return {
+    stylist_id: data.stylistId,
+    weekday: weekdayAsNumber, // Payload-ul final conține valoarea numerică
+    start_time: data.startTime,
+    end_time: data.endTime,
+  }
+})
 
 export const deleteScheduleSchema = z.object({
   id: uuidField('ID-ul programului de lucru este invalid.'),

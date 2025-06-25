@@ -28,7 +28,7 @@ export const PATHS = {
   ADMIN_APPOINTMENTS: '/admin/appointments',
 
   // Stylist paths
-  STYLIST_HOME: '/stylist/schedule',
+  STYLIST_HOME: '/stylist/schedules',
   STYLIST_ROOT: '/stylist',
   STYLIST_PROFILE: '/stylist/profile',
   STYLIST_APPOINTMENTS: '/stylist/appointments',

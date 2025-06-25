@@ -6,7 +6,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/atoms/select'
 import { Input } from '@/components/atoms/input'
 import { SubmitButton } from '@/components/molecules/submit-button'
-import { createScheduleFormSchema, WEEKDAYS, type CreateScheduleInput } from '@/core/domains/schedules/schedule.types'
+import { createScheduleFormSchema, type CreateScheduleInput } from '@/core/domains/schedules/schedule.types'
 import { SCHEDULE_CONSTANTS } from '@/core/domains/schedules/schedule.constants'
 
 interface ScheduleFormProps {
@@ -21,7 +21,7 @@ export function ScheduleForm({ stylistId, onSubmit, isPending }: ScheduleFormPro
     resolver: zodResolver(createScheduleFormSchema),
     defaultValues: {
       stylistId: stylistId, // Setăm ID-ul stilistului primit ca prop
-      weekday: WEEKDAYS.Luni,
+      weekday: 'Luni',
       startTime: '09:00',
       endTime: '17:00',
     },
@@ -48,9 +48,10 @@ export function ScheduleForm({ stylistId, onSubmit, isPending }: ScheduleFormPro
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {Object.entries(SCHEDULE_CONSTANTS.WEEKDAYS).map(([key, value]) => (
-                    <SelectItem key={value} value={value}>
-                      {key}
+                  {/* Generăm opțiunile din array-ul de nume de zile */}
+                  {SCHEDULE_CONSTANTS.WEEKDAY_NAMES.map((dayName) => (
+                    <SelectItem key={dayName} value={dayName}>
+                      {dayName}
                     </SelectItem>
                   ))}
                 </SelectContent>

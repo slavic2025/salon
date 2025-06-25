@@ -1,36 +1,31 @@
 'use client'
 
+import { useTransition } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useActionForm } from '@/hooks/useActionForm'
 import { signInAction } from '@/features/auth/actions'
-import type { ActionResponse } from '@/types/actions.types'
+import { objectToFormData } from '@/lib/form-utils'
+import { signInFormSchema, type SignInFormInput } from '@/core/domains/auth/auth.types'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/atoms/form'
 import { Input } from '@/components/atoms/input'
 import { SubmitButton } from '@/components/molecules/submit-button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/atoms/card'
-import { useTransition } from 'react'
-import { objectToFormData } from '@/lib/form-utils'
-import { SignInFormInput, signInFormSchema, SignInResult } from '@/core/domains/auth/auth.types'
-
-// Tipul pentru rezultatul de succes al acțiunii de sign-in
-type SignInSuccessData = {
-  redirectPath?: string
-}
+import { Alert, AlertDescription, AlertTitle } from '@/components/atoms/alert'
+import { AlertCircle } from 'lucide-react'
 
 export function LoginForm() {
-  // Pasul 2: Inițializăm hook-ul `useTransition`.
-  // `isTransitionPending` ne va spune dacă tranziția este activă.
   const [isTransitionPending, startTransition] = useTransition()
 
-  const { formSubmit, isPending: isActionPending } = useActionForm<ActionResponse<SignInResult>, FormData>({
+  // 1. Hook-ul `useActionForm` este acum mai simplu. Nu mai avem nevoie de `onSuccess`.
+  // Starea `state` va conține mesajul de eroare în caz de eșec.
+  const {
+    formSubmit,
+    isPending: isActionPending,
+    state,
+  } = useActionForm({
     action: signInAction,
     initialState: { success: false },
-    onSuccess: (data) => {
-      if (data?.redirectPath) {
-        window.location.href = data.redirectPath
-      }
-    },
   })
 
   const form = useForm<SignInFormInput>({
@@ -38,27 +33,33 @@ export function LoginForm() {
     defaultValues: { email: '', password: '' },
   })
 
+  // 2. Funcția `onSubmit` este curată. Validează, apoi trimite la server.
   const onSubmit = (values: SignInFormInput) => {
     const formData = objectToFormData(values)
-
-    // Pasul 3: Împachetăm apelul la acțiune în `startTransition`.
     startTransition(() => {
       formSubmit(formData)
     })
   }
 
-  // Combinăm cele două stări de pending pentru o reflectare corectă în UI
   const isFormPending = isActionPending || isTransitionPending
 
   return (
-    <Card>
+    <Card className="w-full max-w-md">
       <CardHeader>
-        <CardTitle>Login</CardTitle>
+        <CardTitle>Autentificare</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          {/* Pasul 4: Conectăm funcția noastră `onSubmit` la formular folosind `form.handleSubmit` */}
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {/* 3. Afișăm elegant eroarea generală de la server, dacă există */}
+            {!state.success && state.message && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Eroare de Autentificare</AlertTitle>
+                <AlertDescription>{state.message}</AlertDescription>
+              </Alert>
+            )}
+
             <FormField
               control={form.control}
               name="email"
@@ -66,7 +67,7 @@ export function LoginForm() {
                 <FormItem>
                   <FormLabel>Adresă de email</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="nume@exemplu.com" {...field} />
+                    <Input type="email" placeholder="nume@exemplu.com" {...field} disabled={isFormPending} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -79,7 +80,7 @@ export function LoginForm() {
                 <FormItem>
                   <FormLabel>Parolă</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="••••••••" {...field} />
+                    <Input type="password" placeholder="••••••••" {...field} disabled={isFormPending} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
