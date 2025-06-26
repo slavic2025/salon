@@ -1,110 +1,85 @@
-// src/features/services-offered/actions.ts
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { createLogger } from '@/lib/logger'
-import { formatZodErrors } from '@/lib/form'
-import { ActionResponse } from '@/types/actions.types'
-import {
-  addOfferedServiceSchema,
-  editOfferedServiceSchema,
-  deleteOfferedServiceSchema,
-} from '@/core/domains/services-offered/services-offered.types'
-import { servicesOfferedRepository } from '@/core/domains/services-offered/services-offered.repository'
-import { serviceRepository } from '@/core/domains/services/service.repository'
-import { Tables } from '@/types/database.types'
+import { createClient } from '@/lib/supabase-server'
+import { SERVICES_OFFERED_CONSTANTS } from '@/core/domains/services-offered/services-offered.constants'
+import { handleError, handleUniquenessErrors } from '@/lib/action-helpers'
 import { formDataToObject } from '@/lib/form-utils'
-import {
-  SERVICES_OFFERED_MESSAGES,
-  SERVICES_OFFERED_PATHS,
-} from '@/core/domains/services-offered/services-offered.constants'
-import { validateStylistId, validateDeleteContext, handleDuplicateError } from './utils'
-import { ServicesOfferedService } from '@/core/domains/services-offered/services-offered.service'
-import { handleValidationError, handleError, handleUniquenessErrors } from '@/lib/action-helpers'
+import { UniquenessError } from '@/lib/errors'
+import type { ActionResponse } from '@/types/actions.types'
+import { createServicesOfferedRepository } from '@/core/domains/services-offered/services-offered.repository'
+import { createServicesOfferedService } from '@/core/domains/services-offered/services-offered.service'
+import { ServiceOffered } from '@/core/domains/services-offered/services-offered.types'
 
-const logger = createLogger('ServicesOfferedActions')
-const servicesOfferedService = new ServicesOfferedService()
+/**
+ * Funcție ajutătoare care asamblează serviciul pentru `services-offered`.
+ */
+export async function getServiceOfferedService() {
+  const supabase = await createClient()
+  const repository = createServicesOfferedRepository(supabase)
+  return createServicesOfferedService(repository)
+}
 
 /**
  * Acțiune pentru adăugarea unui serviciu la un stilist.
  */
-export async function addServiceToStylistAction(
-  stylistId: string,
-  prevState: ActionResponse,
-  formData: FormData
-): Promise<ActionResponse> {
-  logger.debug('addServiceToStylistAction invoked', { stylistId })
-
-  const validationError = validateStylistId(stylistId)
-  if (validationError) return validationError
-
+/**
+ * Acțiune pentru adăugarea unui serviciu la un stilist.
+ * Acum este un simplu "transmițător" de date către serviciu.
+ */
+export async function addServiceOfferedAction(prevState: ActionResponse, formData: FormData): Promise<ActionResponse> {
   const rawData = formDataToObject(formData)
-  const validationResult = addOfferedServiceSchema.safeParse(rawData)
-
-  if (!validationResult.success) {
-    return handleValidationError(validationResult.error)
-  }
-
   try {
-    await servicesOfferedService.addServiceToStylist(stylistId, validationResult.data)
-    revalidatePath(SERVICES_OFFERED_PATHS.revalidation(stylistId))
-    return { success: true, message: SERVICES_OFFERED_MESSAGES.SUCCESS.ADDED }
-  } catch (error: any) {
-    if (error.message && error.message.includes('există deja')) {
-      return handleUniquenessErrors([{ field: 'service_id', message: SERVICES_OFFERED_MESSAGES.ERROR.DUPLICATE }])
+    const serviceOfferedService = await getServiceOfferedService()
+    // Apelul este acum corect, cu un singur argument
+    await serviceOfferedService.addServiceToStylist(rawData)
+
+    const stylistId = rawData.stylist_id as string
+    revalidatePath(SERVICES_OFFERED_CONSTANTS.PATHS.revalidate.stylistServices(stylistId))
+
+    return { success: true, message: SERVICES_OFFERED_CONSTANTS.MESSAGES.SUCCESS.ADDED }
+  } catch (error) {
+    // Prindem eroarea specifică de unicitate aruncată de serviciu
+    if (error instanceof UniquenessError) {
+      return handleUniquenessErrors(error.fields)
     }
-    return handleError(error, SERVICES_OFFERED_MESSAGES.ERROR.SERVER.ADD)
+    return handleError(error, SERVICES_OFFERED_CONSTANTS.MESSAGES.ERROR.SERVER.ADD)
   }
 }
 
 /**
- * Acțiune pentru actualizarea unui serviciu oferit.
+ * Acțiune pentru eliminarea unui serviciu de la un stilist.
  */
-export async function updateOfferedServiceAction(
+export async function deleteServiceOfferedAction(
   prevState: ActionResponse,
   formData: FormData
 ): Promise<ActionResponse> {
   const rawData = formDataToObject(formData)
-  logger.debug('updateOfferedServiceAction invoked', { rawData })
-
-  const validationResult = editOfferedServiceSchema.safeParse(rawData)
-  if (!validationResult.success) {
-    return handleValidationError(validationResult.error)
-  }
-
-  const { id, stylist_id, ...dataToUpdate } = validationResult.data
-
   try {
-    await servicesOfferedService.updateOfferedService(id, dataToUpdate)
-    revalidatePath(SERVICES_OFFERED_PATHS.revalidation(stylist_id))
-    return { success: true, message: SERVICES_OFFERED_MESSAGES.SUCCESS.UPDATED }
+    const serviceOfferedService = await getServiceOfferedService()
+    // Serviciul se ocupă de validarea ID-ului
+    await serviceOfferedService.deleteServiceOffered(rawData)
+
+    const stylistId = rawData.stylist_id as string
+    revalidatePath(SERVICES_OFFERED_CONSTANTS.PATHS.revalidate.stylistServices(stylistId))
+
+    return { success: true, message: SERVICES_OFFERED_CONSTANTS.MESSAGES.SUCCESS.DELETED }
   } catch (error) {
-    return handleError(error, SERVICES_OFFERED_MESSAGES.ERROR.SERVER.UPDATE)
+    return handleError(error, SERVICES_OFFERED_CONSTANTS.MESSAGES.ERROR.SERVER.DELETE)
   }
 }
 
-/**
- * Acțiune pentru ștergerea unui serviciu oferit.
- */
-export async function deleteOfferedServiceAction(
-  prevState: ActionResponse,
-  formData: FormData
-): Promise<ActionResponse> {
-  const id = formData.get('id')
-  const stylistId = formData.get('stylist_id_for_revalidation')
-
-  const validationResult = validateDeleteContext(id, stylistId)
-  if ('success' in validationResult) {
-    return validationResult
+export async function findServiceOfferedAction(stylistId: string): Promise<ActionResponse<ServiceOffered[]>> {
+  if (!stylistId) {
+    return { success: false, message: 'ID-ul stilistului este necesar.' }
   }
 
-  const { id: validId, stylistId: validStylistId } = validationResult
-
   try {
-    await servicesOfferedService.deleteOfferedService(validId)
-    revalidatePath(SERVICES_OFFERED_PATHS.revalidation(validStylistId))
-    return { success: true, message: SERVICES_OFFERED_MESSAGES.SUCCESS.DELETED }
+    const serviceOfferedService = await getServiceOfferedService()
+    const data = await serviceOfferedService.findServicesOffered(stylistId)
+
+    return { success: true, data }
   } catch (error) {
-    return handleError(error, SERVICES_OFFERED_MESSAGES.ERROR.SERVER.DELETE)
+    return handleError(error, SERVICES_OFFERED_CONSTANTS.MESSAGES.ERROR.SERVER.FIND_BY_STYLIST)
   }
 }

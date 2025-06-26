@@ -12,7 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/atoms/dialog'
-import { AddOfferedServiceForm } from './add-offered-service-form'
+import { AddOfferedServiceForm } from './add-service-offered-form'
 import { Tables } from '@/types/database.types'
 
 // 1. Definim interfața de props pentru a folosi 'trigger'

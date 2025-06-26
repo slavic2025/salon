@@ -1,60 +1,45 @@
-// src/app/(dashboard)/admin/stylists/[id]/services/page.tsx
-
 import { createLogger } from '@/lib/logger'
-import { notFound } from 'next/navigation'
+import { AppError } from '@/lib/errors'
+// Importăm helperii pentru a crea serviciile necesare
+import { getStylistService } from '@/features/stylists/actions'
+import { getServiceService } from '@/features/services/actions'
+import { getServiceOfferedService } from '@/features/services-offered/actions'
 import { ServicesOfferedPageContent } from './_components/services-offered-page-content'
-import { stylistRepository } from '@/core/domains/stylists/stylist.repository'
-import { servicesOfferedRepository } from '@/core/domains/services-offered/services-offered.repository'
-import { serviceRepository } from '@/core/domains/services/service.repository'
 
 const logger = createLogger('StylistServicesPage')
 
-interface StylistServicesPageProps {
-  params: {
-    id: string // ID-ul stilistului din URL
-  }
+interface PageProps {
+  params: { id: string } // Next.js pasează automat parametrii din URL
 }
 
-export default async function StylistServicesPage({ params }: StylistServicesPageProps) {
+/**
+ * Pagina "Smart" pentru managementul serviciilor unui stilist.
+ * Preia toate datele necesare de pe server.
+ */
+export default async function StylistServicesPage({ params }: PageProps) {
   const stylistId = params.id
-  logger.info(`Loading StylistServicesPage for stylist ID: ${stylistId}`)
-
-  if (!stylistId) {
-    logger.warn('Stylist ID is missing from params.')
-    notFound()
-  }
+  logger.info(`Fetching data for StylistServicesPage for stylistId: ${stylistId}`)
 
   try {
-    // 2. Apelăm direct repository-ul și acțiunile, eliminând dependența de './data.ts'
-    const [stylist, servicesOffered, availableServices] = await Promise.all([
-      stylistRepository.fetchById(stylistId),
-      servicesOfferedRepository.fetchByStylistId(stylistId),
-      serviceRepository.fetchAll(),
+    // Preluăm în paralel toate datele necesare pentru a fi eficienți
+    const stylistService = await getStylistService()
+    const serviceService = await getServiceService()
+    const serviceOfferedService = await getServiceOfferedService()
+
+    const [stylist, allServices, offeredServices] = await Promise.all([
+      stylistService.findStylistById(stylistId),
+      serviceService.findAllServices(),
+      serviceOfferedService.findServicesOffered(stylistId),
     ])
 
     if (!stylist) {
-      logger.warn(`Stylist with ID: ${stylistId} not found.`)
-      notFound()
+      // Poți folosi componenta notFound() de la Next.js pentru un 404 standard
+      return <p className="p-4">Stilistul nu a fost găsit.</p>
     }
 
-    logger.debug(`Data fetched for stylist ${stylist.full_name}`, {
-      servicesOfferedCount: servicesOffered.length,
-      availableServicesCount: availableServices.length,
-    })
-
-    return (
-      <ServicesOfferedPageContent
-        stylist={stylist}
-        initialServicesOffered={servicesOffered}
-        availableServices={availableServices}
-      />
-    )
+    return <ServicesOfferedPageContent stylist={stylist} allServices={allServices} offeredServices={offeredServices} />
   } catch (error) {
-    logger.error(`Error loading data for StylistServicesPage (stylist ID: ${stylistId}):`, {
-      message: (error as Error).message,
-      stack: (error as Error).stack,
-    })
-    // Aruncăm eroarea pentru a fi prinsă de error.tsx global
-    throw new Error(`Failed to load services for stylist ${stylistId}.`)
+    logger.error('Failed to fetch data for StylistServicesPage.', { error })
+    return <p className="p-4 text-red-500">A apărut o eroare la încărcarea datelor.</p>
   }
 }

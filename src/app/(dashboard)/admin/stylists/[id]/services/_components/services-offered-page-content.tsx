@@ -1,69 +1,61 @@
-// src/app/(dashboard)/admin/stylists/[id]/services/_components/services-offered-page-content.tsx
 'use client'
 
-import { Tables } from '@/types/database.types'
-import { Stylist } from '@/core/domains/stylists/stylist.types'
-import { ServiceOffered } from '@/core/domains/services-offered/services-offered.types'
-import { AddOfferedServiceDialog } from './add-offered-service-dialog'
-import { GenericTableView } from '@/components/shared/generic-table-view'
-import { OFFERED_SERVICE_TABLE_HEADERS } from './offered-service-table-headers'
-import { OfferedServiceTableRow } from './offered-service-table-row'
-import { ServiceOfferedCardView } from './service-offered-card-view' // Importăm noua componentă
-import { Button } from '@/components/atoms/button'
-import { PlusIcon } from 'lucide-react'
+import { type Stylist } from '@/core/domains/stylists/stylist.types'
+import { type Service } from '@/core/domains/services/service.types'
+import { type ServiceOffered } from '@/core/domains/services-offered/services-offered.types'
 
-interface ServicesOfferedPageContentProps {
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/atoms/card'
+import { AddServiceToStylistForm } from './add-service-offered-form'
+import { OfferedServiceList } from './service-offered-list'
+
+interface PageContentProps {
   stylist: Stylist
-  initialServicesOffered: ServiceOffered[]
-  availableServices: Tables<'services'>[]
+  allServices: Service[]
+  offeredServices: ServiceOffered[]
 }
 
-export function ServicesOfferedPageContent({
-  stylist,
-  initialServicesOffered,
-  availableServices,
-}: ServicesOfferedPageContentProps) {
+/**
+ * Componenta "Dumb" care afișează interfața pentru managementul serviciilor unui stilist.
+ */
+export function ServicesOfferedPageContent({ stylist, allServices, offeredServices }: PageContentProps) {
+  // Filtrăm serviciile care nu sunt deja oferite pentru a le afișa în dropdown
+  const availableServicesToAdd = allServices.filter(
+    (service) => !offeredServices.some((offered) => offered.service_id === service.id)
+  )
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Servicii Oferite de {stylist.full_name}</h1>
-          <p className="text-muted-foreground">
-            Gestionați serviciile, prețurile și duratele personalizate pentru acest stilist.
-          </p>
-        </div>
-        {/* Butonul pentru desktop */}
-        <div className="hidden md:block">
-          <AddOfferedServiceDialog stylistId={stylist.id} availableServices={availableServices} />
-        </div>
+    <div className="p-4 md:p-6 space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold">Servicii Oferite</h1>
+        <p className="text-muted-foreground">
+          Gestionează serviciile prestate de <strong>{stylist.full_name}</strong>
+        </p>
       </div>
 
-      <GenericTableView
-        data={initialServicesOffered}
-        headers={OFFERED_SERVICE_TABLE_HEADERS}
-        renderRow={(item) => (
-          <OfferedServiceTableRow key={item.id} offeredService={item} availableServices={availableServices} />
-        )}
-        emptyMessage="Acest stilist nu are încă niciun serviciu asociat."
-        tableHeadingId={`offered-services-table-${stylist.id}`}
-        tableHeadingText={`Tabel cu servicii oferite de ${stylist.full_name}`}
-      />
+      <div className="grid gap-8 lg:grid-cols-2">
+        {/* Partea din stânga: Adăugarea unui serviciu nou */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Adaugă Serviciu Nou</CardTitle>
+            <CardDescription>
+              Selectează un serviciu din lista generală pentru a-l atribui acestui stilist.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <AddServiceToStylistForm stylistId={stylist.id} availableServices={availableServicesToAdd} />
+          </CardContent>
+        </Card>
 
-      {/* Adăugăm vizualizarea pe carduri pentru mobil */}
-      <ServiceOfferedCardView servicesOffered={initialServicesOffered} availableServices={availableServices} />
-
-      {/* Adăugăm butonul flotant (FAB) pentru mobil */}
-      <div className="md:hidden">
-        <AddOfferedServiceDialog
-          stylistId={stylist.id}
-          availableServices={availableServices}
-          trigger={
-            <Button className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg">
-              <PlusIcon className="h-6 w-6" />
-              <span className="sr-only">Adaugă Serviciu Oferit</span>
-            </Button>
-          }
-        />
+        {/* Partea din dreapta: Lista serviciilor deja oferite */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Servicii Atribuite</CardTitle>
+            <CardDescription>Lista serviciilor pe care {stylist.full_name} le poate presta.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <OfferedServiceList stylistId={stylist.id} offeredServices={offeredServices} />
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

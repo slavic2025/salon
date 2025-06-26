@@ -1,30 +1,30 @@
-export const SERVICES_OFFERED_MESSAGES = {
+const MESSAGES = {
   SUCCESS: {
-    CREATED: 'Serviciul oferit a fost creat cu succes.',
-    UPDATED: 'Serviciul oferit a fost actualizat cu succes.',
-    DELETED: 'Serviciul oferit a fost șters cu succes.',
+    ADDED: 'Serviciul a fost adăugat cu succes stilistului.',
+    UPDATED: 'Detaliile serviciului oferit au fost actualizate.',
+    DELETED: 'Serviciul a fost eliminat de la acest stilist.',
   },
   ERROR: {
-    VALIDATION: {
-      INVALID_ID: 'ID-ul serviciului oferit este invalid.',
-      INVALID_SERVICE_ID: 'ID-ul serviciului este invalid.',
-      INVALID_STYLIST_ID: 'ID-ul stilistului este invalid.',
-      INVALID_PRICE: 'Prețul serviciului oferit este invalid.',
-      INVALID_DURATION: 'Durata serviciului oferit este invalidă.',
-      INVALID_DESCRIPTION: 'Descrierea serviciului oferit este invalidă.',
-      INVALID_IS_ACTIVE: 'Statusul serviciului oferit este invalid.',
+    BUSINESS: {
+      DUPLICATE: 'Acest serviciu este deja atribuit stilistului.',
     },
-    NOT_FOUND: 'Serviciul oferit nu a fost găsit.',
-    DUPLICATE: 'Acest serviciu oferit există deja.',
-    SERVER: 'A apărut o eroare la procesarea cererii.',
-    UNAUTHORIZED: 'Nu aveți permisiunea de a efectua această acțiune.',
+    SERVER: {
+      ADD: 'A apărut o eroare la adăugarea serviciului.',
+      UPDATE: 'A apărut o eroare la actualizarea serviciului.',
+      DELETE: 'A apărut o eroare la ștergerea serviciului.',
+      FIND_BY_STYLIST: 'A apărut o eroare la căutarea serviciilor pentru stilist.',
+    },
   },
 } as const
 
-export const SERVICES_OFFERED_PATHS = {
-  revalidation: () => '/admin/services-offered',
-  auth: {
-    confirm: '/admin/services-offered/confirm',
-    resetPassword: '/admin/services-offered/reset-password',
+const PATHS = {
+  revalidate: {
+    // Calea de revalidare va fi pagina unde sunt listate serviciile stilistului
+    stylistServices: (stylistId: string) => `/admin/stylists/${stylistId}/services`,
   },
+} as const
+
+export const SERVICES_OFFERED_CONSTANTS = {
+  MESSAGES,
+  PATHS,
 } as const

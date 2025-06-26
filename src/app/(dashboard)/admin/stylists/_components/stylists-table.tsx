@@ -6,8 +6,11 @@ import { ActiveBadge } from '@/components/molecules/active-badge'
 import { DeleteConfirmationDialog } from '@/components/molecules/delete-confirmation-dialog'
 import { EditStylistDialog } from './edit-stylist-dialog'
 import { deleteStylistAction } from '@/features/stylists/actions'
-import { Trash2 } from 'lucide-react'
-import { Button } from '@/components/atoms/button'
+import { Link, Scissors, Trash2 } from 'lucide-react'
+import { Button, buttonVariants } from '@/components/atoms/button'
+import { STYLIST_CONSTANTS } from '@/core/domains/stylists/stylist.constants'
+import { cn } from '@/lib/utils'
+import { StylistServicesLink } from '@/components/molecules/stylist-services-link'
 
 interface StylistsTableProps {
   stylists: Stylist[]
@@ -44,7 +47,9 @@ export function StylistsTable({ stylists }: StylistsTableProps) {
             </TableCell>
             <TableCell className="text-right">
               {/* 3. Acțiunile (organismele de dialog) sunt compuse direct aici */}
-              <div className="flex justify-end gap-2">
+              <div className="flex items-center justify-end gap-2">
+                <StylistServicesLink stylistId={stylist.id} />
+
                 <EditStylistDialog stylist={stylist} />
                 <DeleteConfirmationDialog action={deleteStylistAction} itemId={stylist.id}>
                   <DeleteConfirmationDialog.Trigger asChild>
