@@ -41,6 +41,12 @@ export async function signInAction(prevState: ActionResponse, formData: FormData
     // Redirect-ul este efectul final, gestionat de acțiune
     return redirect(redirectPath)
   } catch (error) {
+    // --- AICI ESTE MODIFICAREA CHEIE ---
+    // Verificăm dacă eroarea este cea de redirectare de la Next.js
+    if (error instanceof Error && error.message.includes('NEXT_REDIRECT')) {
+      // Dacă da, o re-aruncăm pentru ca Next.js să-și facă treaba.
+      throw error
+    }
     // Dacă serviciul aruncă o eroare (ex: credențiale invalide), o returnăm la UI
     return handleError(error)
   }
