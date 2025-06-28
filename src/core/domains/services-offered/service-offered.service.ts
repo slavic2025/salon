@@ -1,14 +1,10 @@
 import { createLogger } from '@/lib/logger'
-import {
-  createServiceOfferedSchema,
-  deleteServiceOfferedSchema,
-  type ServiceOfferedCreateData,
-} from './services-offered.types'
+import { addServiceToStylistSchema, removeServiceFromStylistSchema } from './service-offered.types'
 import { AppError, UniquenessError } from '@/lib/errors'
-import { SERVICES_OFFERED_CONSTANTS } from './services-offered.constants'
+import { SERVICES_OFFERED_CONSTANTS } from './service-offered.constants'
 
 export function createServicesOfferedService(
-  repository: ReturnType<typeof import('./services-offered.repository').createServicesOfferedRepository>
+  repository: ReturnType<typeof import('./service-offered.repository').createServicesOfferedRepository>
 ) {
   const logger = createLogger('ServicesOfferedService')
 
@@ -19,7 +15,7 @@ export function createServicesOfferedService(
 
       // 1. Validăm și transformăm datele de intrare folosind schema Zod.
       // `.parse()` aruncă automat eroare dacă validarea eșuează.
-      const payload = createServiceOfferedSchema.parse(input)
+      const payload = addServiceToStylistSchema.parse(input)
 
       // 2. (Exemplu de Logică de Business) Verificăm dacă legătura există deja
       const existing = await repository.checkUniqueness(payload.stylist_id, payload.service_id)
@@ -34,10 +30,10 @@ export function createServicesOfferedService(
     },
 
     /** Șterge o legătură serviciu-stilist. */
-    async deleteServiceOffered(input: Record<string, unknown>): Promise<void> {
+    async deleteaddServiceToStylist(input: Record<string, unknown>): Promise<void> {
       logger.debug('Removing service from stylist...')
       try {
-        const { id } = deleteServiceOfferedSchema.parse(input)
+        const { id } = removeServiceFromStylistSchema.parse(input)
 
         // 2. Apelăm repository-ul cu ID-ul validat.
         await repository.delete(id)
@@ -47,7 +43,7 @@ export function createServicesOfferedService(
         throw new AppError(SERVICES_OFFERED_CONSTANTS.MESSAGES.ERROR.SERVER.DELETE, error)
       }
     },
-    async findServicesOffered(stylistId: string) {
+    async findOfferedServicesByStylist(stylistId: string) {
       logger.debug(`Finding services for stylist: ${stylistId}`)
       const result = await repository.findByStylistId(stylistId)
       return result ?? []

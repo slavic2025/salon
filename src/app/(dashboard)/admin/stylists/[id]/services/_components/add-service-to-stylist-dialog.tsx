@@ -12,18 +12,18 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/atoms/dialog'
-import { AddOfferedServiceForm } from './add-service-offered-form'
+import { AddServiceToStylistForm } from './add-service-to-stylist-form'
 import { Tables } from '@/types/database.types'
 
 // 1. Definim interfața de props pentru a folosi 'trigger'
-interface AddOfferedServiceDialogProps {
+interface AddOServiceToStylistDialogProps {
   stylistId: string
   availableServices: Tables<'services'>[]
   trigger?: React.ReactNode // Numele standardizat
 }
 
 // 2. Primim `trigger` în loc de `triggerButton`
-export function AddOfferedServiceDialog({ stylistId, availableServices, trigger }: AddOfferedServiceDialogProps) {
+export function AddServiceToStylistDialog({ stylistId, availableServices, trigger }: AddOServiceToStylistDialogProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   return (
@@ -44,12 +44,7 @@ export function AddOfferedServiceDialog({ stylistId, availableServices, trigger 
             Selectează un serviciu și specifică eventuale prețuri sau durate personalizate.
           </DialogDescription>
         </DialogHeader>
-        <AddOfferedServiceForm
-          stylistId={stylistId}
-          availableServices={availableServices}
-          onSuccess={() => setIsDialogOpen(false)}
-          onCancel={() => setIsDialogOpen(false)}
-        />
+        <AddServiceToStylistForm stylistId={stylistId} availableServices={availableServices} />
       </DialogContent>
     </Dialog>
   )

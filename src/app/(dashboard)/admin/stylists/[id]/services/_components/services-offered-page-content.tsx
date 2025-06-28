@@ -2,11 +2,11 @@
 
 import { type Stylist } from '@/core/domains/stylists/stylist.types'
 import { type Service } from '@/core/domains/services/service.types'
-import { type ServiceOffered } from '@/core/domains/services-offered/services-offered.types'
+import { type ServiceOffered } from '@/core/domains/services-offered/service-offered.types'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/atoms/card'
-import { AddServiceToStylistForm } from './add-service-offered-form'
-import { OfferedServiceList } from './service-offered-list'
+import { AddServiceToStylistForm } from './add-service-to-stylist-form'
+import { OfferedServiceList } from './offered-service-list'
 
 interface PageContentProps {
   stylist: Stylist

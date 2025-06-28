@@ -3,8 +3,7 @@ import 'server-only'
 import { createLogger } from '@/lib/logger'
 import { executeQuery } from '@/lib/db-helpers'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { ServiceOffered, ServiceOfferedCreateData, ServiceOfferedUpdateData } from './services-offered.types'
-import type { TablesInsert } from '@/types/database.types'
+import type { ServiceOffered, ServiceOfferedCreateData, ServiceOfferedUpdateData } from './service-offered.types'
 
 /**
  * Factory function pentru repository-ul services_offered.

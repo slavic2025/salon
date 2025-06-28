@@ -1,6 +1,4 @@
 import { createLogger } from '@/lib/logger'
-import { AppError } from '@/lib/errors'
-// Importăm helperii pentru a crea serviciile necesare
 import { getStylistService } from '@/features/stylists/actions'
 import { getServiceService } from '@/features/services/actions'
 import { getServiceOfferedService } from '@/features/services-offered/actions'
@@ -29,7 +27,7 @@ export default async function StylistServicesPage({ params }: PageProps) {
     const [stylist, allServices, offeredServices] = await Promise.all([
       stylistService.findStylistById(stylistId),
       serviceService.findAllServices(),
-      serviceOfferedService.findServicesOffered(stylistId),
+      serviceOfferedService.findOfferedServicesByStylist(stylistId),
     ])
 
     if (!stylist) {

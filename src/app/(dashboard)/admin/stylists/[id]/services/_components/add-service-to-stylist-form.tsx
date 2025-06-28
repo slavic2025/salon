@@ -4,14 +4,14 @@ import { useTransition } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useActionForm } from '@/hooks/useActionForm'
-import { addServiceOfferedAction } from '@/features/services-offered/actions'
+import { addServiceToStylistAction } from '@/features/services-offered/actions'
 import { objectToFormData } from '@/lib/form-utils'
 import { type Service } from '@/core/domains/services/service.types'
 import {
-  CreateServiceOfferedInput,
-  createServiceOfferedSchema,
-  type ServiceOfferedCreateData,
-} from '@/core/domains/services-offered/services-offered.types'
+  addServiceToStylistFormSchema,
+  AddServiceToStylistInput,
+  addServiceToStylistSchema,
+} from '@/core/domains/services-offered/service-offered.types'
 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/atoms/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/atoms/select'
@@ -26,20 +26,26 @@ export function AddServiceToStylistForm({ stylistId, availableServices }: AddSer
   const [isTransitionPending, startTransition] = useTransition()
 
   const { formSubmit, isPending: isActionPending } = useActionForm({
-    action: addServiceOfferedAction,
+    action: addServiceToStylistAction,
     initialState: { success: false },
   })
 
-  const form = useForm<ServiceOfferedCreateData>({
-    resolver: zodResolver(createServiceOfferedSchema),
+  const form = useForm<AddServiceToStylistInput>({
+    resolver: zodResolver(addServiceToStylistFormSchema),
     defaultValues: {
-      stylist_id: stylistId,
       service_id: '',
+      custom_price: undefined,
+      custom_duration: undefined,
     },
   })
 
-  const onSubmit = (values: CreateServiceOfferedInput) => {
-    const formData = objectToFormData(values)
+  const onSubmit = (values: AddServiceToStylistInput) => {
+    const payload = {
+      ...values,
+      stylist_id: stylistId,
+    }
+    const formData = objectToFormData(payload)
+
     startTransition(() => {
       formSubmit(formData)
     })
@@ -83,9 +89,6 @@ export function AddServiceToStylistForm({ stylistId, availableServices }: AddSer
             </FormItem>
           )}
         />
-        {/* Câmp ascuns pentru a trimite ID-ul stilistului */}
-        <input type="hidden" {...form.register('stylist_id')} value={stylistId} />
-
         <SubmitButton isPending={isFormPending} className="w-full">
           Atribuie Serviciu
         </SubmitButton>

@@ -1,8 +1,8 @@
 'use client'
 
 import { useCallback } from 'react'
-import type { ServiceOffered } from '@/core/domains/services-offered/services-offered.types'
-import { deleteServiceOfferedAction } from '@/features/services-offered/actions'
+import type { ServiceOffered } from '@/core/domains/services-offered/service-offered.types'
+import { deleteServiceToStylistdAction } from '@/features/services-offered/actions'
 import { formatCurrency } from '@/lib/formatters'
 
 import { Button } from '@/components/atoms/button'
@@ -23,7 +23,7 @@ export function OfferedServiceList({ offeredServices, stylistId }: OfferedServic
       return async (prevState: any, formData: FormData) => {
         formData.set('id', offeredServiceId)
         formData.set('stylist_id', stylistId)
-        return deleteServiceOfferedAction(prevState, formData)
+        return deleteServiceToStylistdAction(prevState, formData)
       }
     },
     [stylistId]
